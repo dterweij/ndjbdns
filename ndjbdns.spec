@@ -1,6 +1,6 @@
 Name:		ndjbdns
 Version:	1.05.4
-Release:	4%{?dist}
+Release:	5%{?dist}
 Summary:	New djbdns: usable djbdns
 
 Group:		Applications/System
@@ -29,7 +29,7 @@ See ChangeLog for more details.
 
 %build
 export CFLAGS="$CFLAGS $RPM_OPT_FLAGS"
-./configure --prefix=/usr --sysconfdir=/etc --libdir=%{_libdir}
+%configure
 make %{?_smp_mflags}
 
 
@@ -37,25 +37,9 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
-mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/init.d
-mv $RPM_BUILD_ROOT/%{_bindir}/tinydnsd $RPM_BUILD_ROOT/%{_sysconfdir}/init.d/
-mv $RPM_BUILD_ROOT/%{_bindir}/dnscached $RPM_BUILD_ROOT/%{_sysconfdir}/init.d/
-
 mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
 mv dnscache.service $RPM_BUILD_ROOT/%{_unitdir}/
 mv tinydns.service $RPM_BUILD_ROOT/%{_unitdir}/
-
-%post
-if [ $1 = 1 ]; then
-    chkconfig --add dnscached
-fi
-
-
-%preun
-if [ $1 = 0 ]; then
-    chkconfig --del tinydnsd
-    chkconfig --del dnscached
-fi
 
 
 %clean
@@ -67,9 +51,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc README COPYING ChangeLog
 
 %{_bindir}/*
-%{_sysconfdir}/init.d/tinydnsd
-%{_sysconfdir}/init.d/dnscached
-
 %{_unitdir}/dnscache.service
 %{_unitdir}/tinydns.service
 
@@ -83,6 +64,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Feb 28 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.4-5
+- removed SysV init scripts, replaced ./configure with the configure macro.
+
 * Fri Feb 24 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.4-4
 - added systemd service unit files. Patch from Jose - jmalv04.
 
