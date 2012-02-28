@@ -1,0 +1,20 @@
+#
+# etc/djbdns/ip/
+#
+# A file in this directory, named after an IP or a subnet address tells
+# dnscached daemon to accept DNS requests from the said IP/subnet address.
+#
+# For ex:
+#
+#   File name : Action
+# ===========================================================================
+#
+#   127.0.0.1 : tells dnscached to accept DNS request coming from 127.0.0.1.
+#
+#   192.168.1 : tells dnscached to accept DNS request coming from any of the
+#               256 machines -> 192.168.1.0 to 192.168.1.255.
+#
+#
+#   All DNS requests coming from any other IP addresses are not served by
+#   default.
+#

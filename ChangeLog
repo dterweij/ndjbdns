@@ -1,0 +1,694 @@
+Aug 26 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* README:
+	* readme.ms: changed instructions to add dnscache to system
+	  services using chkconfig(8). Also, version number changed
+	  to 1.05.4
+
+	* configure.ac: version number changed to 1.05.4.
+
+	* common.h: did add  - #include "uint32.h"
+
+	* tinydns.c: changed to redirect log messages to a file and create
+	  a `/var/run/tinydns.pid' file when run in DAEMON mode.
+
+	* Makefile.am: changed to install new init scripts dnscache.sh
+	  and tinydns.sh.
+
+	* changelog.ms: added a list of changes made in the 1.05.3 release.
+
+	* djbdns.sh -> dnscache.sh: initscript djbdns.sh renamed to dnscache.sh
+
+	* tinydns.sh: a new init script is added to start the tinydns service.
+
+Aug 14 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* common.h:
+	* common.c: Defined couple of new functions extend_buffer() and
+	  getline(), so as to make it work on FreeBSD. For libc on FreeBSD
+	  does not have GNU extension function getline() & getdelim().
+
+Aug  2 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* djbdns.ms:
+	* tinydns.ms:
+	* tinydns-get.ms:
+	* tinydns-data.ms:
+	* tinydns-edit.ms: added new manual pages for tinydns* programs.
+
+	* Makefile.am: changed to install tinydns*.1 manual pages.
+
+Aug  1 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* README:
+	* readme.ms: version changed to 1.05.3
+
+	* Makefile.am:
+	* Makefile.in: dnstrace tinydns tinydns-data tinydns-edit and
+	  tinydns-get moved to bin_PROGRAMS. Also files common.[ch] added
+	  to targets such as tinydns, walldns, pickdns, rbldns etc.
+
+	* common.c: New file added to hold functions like read_conf() and
+	  handle_term() etc. These functions are called from all *dns and from
+	  the dnscache program.
+
+	* common.h: declares functions defined in common.c
+
+	* djbdns.sh: debug level for dnscache changed to -d3 from -d2.
+
+	* dns.h: added the copyright disclaimer to the top.
+
+	* dns_dfd.c:
+	* dnsfilter.c:
+	* dns_domain.c:
+	* dns_random.c: formatted to a more conventional coding style and did
+	  add the copyright disclaimer at the top.
+
+	* dnscache.c: few common functions like read_conf(), handle_term() etc
+	  are moved to common.c and the same is now linked with dnscache.
+
+	* server.c:
+	* dnstxt.c:
+	* dnsname.c:
+	* dnstrace.c:
+	* socket_send.c: formatted to a more conventional coding style; Did
+	  add couple of functions to process options and print help; Also wrote
+	  the copyright disclaimer at the top.
+
+	* etc/tinydns-conf: New file introduced to hold configuration of tinydns
+	  program.
+
+	* etc/Makefile.am:
+	* etc/Makefile.in: Added tinydns-conf to conf_DATA and EXTRA_DIST for
+	  installation and distribution.
+
+	* rbldns.c:
+	* pickdns.c:
+	* walldns.c: definition: `short debug_level = 0;' moved to server.c
+
+	* tinydns.c:
+	* tinydns-get.c:
+	* tinydns-data.c:
+	* tinydns-edit.c: formatted to a more conventional coding style; Did
+	  add couple of functions to process options and print help; Also wrote
+	  the copyright disclaimer at the top.
+
+	* version.h: version string changed to: 1.05.3 
+
+	My email address changed to <pj.pandit@yahoo.co.in>
+
+Apr 15 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* dnsfilter.ms: new manual page for dnsfilter.
+
+	* Makefile.am: dnsfilter moved to bin_PROGRAMS, and added manual page
+	  rule for dnsfilter.
+
+	* dns.h: added comments indicating decimal values of DNS_T_* macros.
+
+	* query.c
+	  dnscache.c: edited to log messages according to debug_level(1 2 or 3).
+
+	* dnsfilter.c: formatted to a more conventional coding style and also
+	  added couple of functions to process options and print help.
+	
+	* log.c: modified to print IP, PORT & logid as decimal values instead
+	  of hexadecimal.
+
+Mar 24 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* axfrdns.c
+	  buffer_put.c
+	  dns_domain.c
+	  dns_rcip.c
+	  dns_rcrw.c
+	  dns_resolve.c
+	  dnscache.c
+	  dnsipq.c
+	  dnsq.c
+	  dnsqr.c
+	  getln2.c
+	  log.c
+	  query.c
+	  seek_set.c
+	  server.c
+	  tdlookup.c: removed compiler warnings about
+	  	- implicit function declarations by adding appropriate system
+		  header files.
+		- Parenthesise the expressions in some while(exp)
+		- changed function calls for droproot(), prot_uid() & prot_gid()
+		- and some minor changes.
+
+	* prot.c
+	  prot.h: functions prot_uid & prot_gid now accept parameters of
+	  type gid_t instead of an int.
+
+	* droproot.c: formal parameter "const char *fatal" is removed; Now
+	  droproot(void) does not accept any parameters. There was relevant
+	  changes to files like droproot.h, dnscache.c, axfrdns.c etc. from
+	  where droproot() function is being called.
+
+	* exit.h: removed; And so are the #include "exit.h" statements from
+	  all the source(.c) files.
+
+	* etc/dnscache.conf: default CACHESIZE & DATALIMIT changed to 5MB &
+	  8MB respectively.
+
+	* dnscache.c: now setrlimit() data segment size to DATALIMIT as
+	  specified in dnscache.conf
+
+Mar 23 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* Released the second version djbdns-1.05.2 that includes all the
+	  changes done so far.
+
+	* etc/servers/@ and etc/dnsroots.global is updated to the latest root
+	  name servers from ftp://rs.internic.net/domain/named.root
+
+Mar 20 2009 pjp <pj.pandit@yahoo.co.in>
+	
+	* dnsq.c:
+	  dnsip.c:
+	  parsetype.c: Files edited to support few command line options and
+	  are formatted to suit my coding style. Also the copyright disclaimer
+	  added to the top.
+
+	* dnsip.ms: new manuscript file added for dnsip.1. Manual page for
+	  dnsip command.
+
+	* dnsq.ms: new manuscript file added for dnsq.1. Manual page for
+	  dnsq command.
+
+	* Makefile.am: did append "version.h" to the dependencies of the
+	  targets that required it.
+
+	* byte_diff.c: did format it as per my taste of coding style.
+
+	* query.c: Fixed a small bug I mistakenly introduced while formatting
+	  this file. I removed a `pos = 0;' statement from line 552, thinking
+	  that pos is getting initialised in the next statement, but that
+	  stopped dnscache from processing `cname' type records and thus
+	  resolving names. It took me whole day to figure that out.
+	  Anyway...lesson learned. :)
+
+	* dnscache.c:
+	  droproot.c:
+	  pickdns.c:
+	  rbldns.c:
+	  tinydns.c:
+	  walldns.c: Did add 'extern short debug_level' declaration to all
+	  these files.
+
+	* version.h: version changed to 1.05.2, not yet released though.
+
+Mar 17 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* Makefile.am: changed to install `dnsip' command.
+
+	* dnscache.c: changed to include the new "version.h" file. It defines
+	  the VERSION macro.
+
+	* dnsip.c: changed to process command line options with getopt, and
+	  display help menu etc.
+
+	* version.h: new file defines the VERSION macro.
+
+	* alloc.c:
+	  alloc.h:
+	  buffer.c:
+	  buffer.h:
+	  buffer_1.c:
+	  buffer_put.c:
+	  buffer_write.c:
+	  cache.c:
+	  dd.c:
+	  dnscache.c:
+	  fmt_ulong.c:
+	  iopause.c:
+	  ip4.h:
+	  ip4_fmt.c:
+	  log.c:
+	  okclient.c:
+	  prot.c:
+	  query.c:
+	  roots.h:
+	  str.h:
+	  str_chr.c:
+	  str_rchr.c: fixed the str_rchr() function to go from `end to start'
+	  while looking for the given character.
+
+	  All the above files are formatted as per the coding style
+	  convenient to me. Also did add the copyright disclaimer at the top.
+
+Mar 13 2009 pjp <pj.pandit@yahoo.co.in>
+	
+	* response.c: patched with the latest Matthew Dempsky patch available
+	  at: http://marc.info/?l=djbdns&m=123613000920446&w=2
+		
+		if (response_len < 16384) ...
+
+	* Makefile.am: changed to install `dnstracesort' script.
+
+	* dns_transmit.c: patched with the `d->pos = 0' and `char udpbuf[4097]'
+	  patch from Matthew Dempsky. Did add the copyright disclaimer at the
+	  top.
+	  http://marc.info/?l=djbdns&m=119983010611174&w=3
+	  http://marc.info/?l=djbdns&m=122368590802063&w=2
+
+	* dnscache.c: patched with the SIGPIPE patch from Mark Delany. Did add
+	  copyright disclaimer at the top.
+	  http://marc.info/?l=djbdns&m=104804013229536&w=2
+
+	* error.h: patched to #include <errno.h> on Linux machines. Did add
+	  copyright disclaimer at the top.
+
+	* COPYING: changed to GPL version 2, instead of version 3.
+
+	* dnscache.c: automatic local variable named `mode' renamed to `perm'
+	  in couple of functions as there is already a global variable named
+	  mode.
+
+	* readme.ms: changed to reference a web-link wherein DJB put his work
+	  in public-domain. Obviously, the same goes to README.
+
+Mar  3 2009 pjp <pj.pandit@yahoo.co.in>
+
+	* This new release is djbdns version 1.05.1. The new build system makes
+	  use of the GNU auto-tools and is fully integrated with the linux
+	  /sbin/service.
+
+	* dnscache.c: reads configuration file: PREFIX/etc/djbdns/dnscache.conf
+	  PREFIX is the install prefix used by ./configure command.
+
+	* dnscache.c: changed to create log-file under /var/log, pid-file under
+	  /var/run and also to accept some command-line options.
+
+	  See dnscache --help
+
+	* Commands removed:
+		dnscache-conf
+
+	* Source files removed:
+		auto-str.c
+		cachetest.c
+		chkshsgr.c
+		hier.c
+		install.c
+		instcheck.c
+		trycpp.c
+		trydrent.c
+		trylsock.c
+		trypoll.c
+		tryshsgr.c
+		trysysel.c
+		tryulong32.c
+		tryulong64.c
+		utime.c
+		x86cpuid.c
+
+	* Hi, I take this source of original djbdns-1.05, as is, from
+
+		http://cr.yp.to/djbdns.html
+	
+	  and aim is to free it from the daemon of `daemontools', make it as
+	  much independent & concise as possible and thus more usable and
+	  maintainable.
+
+
+-------------------------------------------------------------------------------
+19991129
+	version: dnscache 0.50, alpha. not released yet.
+19991223
+	version: dnscache 0.60, alpha.
+19991224
+	internal: dns_sortip() takes length argument.
+	api: dns_ip4() sorts output. currently this means just random.
+	api: added socket_bind4_reuse(). removed reuse from bind4().
+	ui: used bind4_reuse() for port 53, bind4() otherwise.
+	internal: eliminated some unused variables.
+	internal: prototypes in cdb.h, cdbmake.h, cdbmss.h.
+	internal: prototypes in case.h, env.h, fmt.h, scan.h, str.h.
+	internal: prototypes in stralloc.h.
+	internal: prototypes in error.h, strerr.h.
+	internal: prototypes in ndelay.h, open.h, seek.h.
+	internal: prototypes in sgetopt.h, subgetopt.h.
+	internal: prototypes in tai.h, taia.h.
+	internal: added some missing declarations.
+	bug: query.c checked void response_finishanswer() return code.
+		impact: cached responses were dropped on systems that
+		didn't follow the traditional C return behavior. fix:
+		obvious. tnx Giles Lean.
+	internal: switched from taia_addsec() to taia_uint().
+	api: switched to uint16 for socket_* port numbers.
+	internal: integrated uint16_pack() and friends.
+	ui: dnscache allows (recursive) queries from port 53.
+	ui: dnscache has 10-second idle timer on TCP read/write.
+	ui: dnscache limits itself to 20 concurrent TCP connections.
+	internal: moved dns_domain_fromdot() to separate file.
+	ui: supported \X, \1, \12, \123 in dns_domain_fromdot().
+	ui: supported \123 in dns_domain_todot_append().
+	version: dnscache 0.61, alpha.
+19991230
+	api: added dns_ip4_qualify().
+	api: added dns_resolvconfrewrite().
+	ui: added dnsipq.
+	api: dns_ip4() checks for (strings of) IP addresses.
+20000106
+	port: Solaris needs /dev/udp, not just /dev/tcp. impact:
+		dnscache and tinydns would stop immediately under
+		Solaris. fix: create /dev/udp in configure; and have
+		tinydns create socket before chroot. tnx Louis Theran.
+	internal: moved dns_name4_domain() to dns_nd.c.
+	ui: tinydns no longer excludes screwy queries from its log.
+	internal: moved respond() to tdlookup.c under new name.
+	ui: added tinydns-get.
+	ui: rewrote tinydns-data for new data format.
+	internal: expanded rts to cover tinydns-data using tinydns-get.
+20000107
+	ui: tinydns-data allows arbitrary case in domain names.
+	ui: dnscache supports preconfigured servers for non-root
+		domains.
+	ui: dnscache uses textual addresses for preconfigured servers.
+20000108
+	ui: tinydns-data excludes the additional and authority sections
+		if doing so helps meet the 512-byte UDP limit.
+	version: dnscache 0.70, beta.
+20000114
+	internal: in log.c, ulong() now prints a uint64.
+	internal: added cache_motion, query_count, log_stats.
+	ui: dnscache now prints queries/motion stats after typical
+		response packets.
+20000115
+	internal: added droproot.c. used in tinydns and dnscache.
+	internal: moved tinydns log() to qlog.c under new name.
+	ui: added walldns, configure-wd.
+	ui: configure-td now creates an empty root/data.
+	ui: added tinydns-edit.
+	ui: configure-td now sets up root/add-{ns,childns,host,mx}.
+20000116
+	ui: renamed configure* as *-conf.
+	ui: added axfrdns, axfrdns-conf.
+	ui: added axfr-get.
+	ui: dnscache-conf 10.* or 192.168.* now sets IPSEND=0.0.0.0.
+20000117
+	ui: added pickdns, pickdns-conf, pickdns-data.
+	version: dnscache 0.75, beta.
+20000118
+	internal: address* -> address_* in pickdns-data.c.
+	internal: start writing cdb earlier in pickdns-data.c.
+	internal: keep track of namelen in pickdns-data.c.
+	ui: added client-location variability to pickdns, pickdns-data.
+	ui: qlog logs short packets.
+	ui: qlog logs header if RD or other unusual bits are set.
+	ui: qlog logs non-Internet classes.
+	api: dns_domain_todot_append() -> dns_domain_todot_cat().
+	ui: axfr-get prints A records more nicely. tnx Russ Nelson.
+	ui: tinydns, pickdns, and walldns respond REFUSED to multiple
+		queries, strange classes, and strange header bits.
+		pickdns and walldns also respond REFUSED to unrecognized
+		domain names.
+20000120
+	ui: dns_resolvconfip() and dns_resolvconfrewrite() reread after
+		10 minutes or 10000 uses.
+	ui: dns_resolvconfrewrite() treats "domain" like "search".
+	ui: dns_resolvconfrewrite() supports $LOCALDOMAIN.
+	ui: dns_resolvconfrewrite() supports gethostname().
+	api: dns_ip4_qualify() -> dns_ip4_qualify_rules(). new function
+		under the old name uses dns_resolvconfrewrite().
+	internal: cleaned up log.h.
+20000121
+	port: the gcc 2.95.2 -O2 optimizer can destroy parameters in a
+		function that calls another function with a long long
+		argument. impact: gcc 2.95.2 kills dnscache in
+		log_query(). fix: pass log_stats() inputs by reference,
+		and pass uint64's through a variable inside log.c.
+	internal: introduced x_* in axfr-get.
+	internal: more format verification in axfr-get.
+	ui: minimal Z support in tinydns-data.
+	ui: axfr-get prints Z lines.
+	ui: juggled axfr-get to support BIND 8's many-answers option.
+	ui: axfr-get prints common characters readably rather than in
+		octal. tnx Karsten Thygesen.
+	ui: install copies VERSION into .../etc.
+20000122
+	ui: dns_domain_todot_cat() now lowercases everything.
+	internal: split printrecord.c out of tinydns-get.
+	ui: added dnstrace.
+20000123
+	version: dnscache 0.76, beta.
+20000124
+	port: Solaris needs socket libraries for dnstrace. impact:
+		couldn't compile under Solaris. fix: use socket.lib.
+		tnx Karsten Thygesen.
+20000126
+	ui: dns_resolvconfip() supports $DNSCACHEIP.
+	ui: changed tinydns-get arg order.
+	internal: split printpacket.c out of tinydns-get.
+	ui: added dnsquery.
+	internal: merged case.a, fs.a, str.a, uint.a, ip4.a into byte.a.
+	internal: merged strerr.a into buffer.a.
+	internal: merged stralloc.a, getln.a into alloc.a.
+	internal: merged error.a, open.a, seek.a, ndelay.a, socket.a
+		into unix.a.
+	internal: used catulong in axfr-get.c.
+	ui: packet-parsing errors produce error_proto.
+	ui: axfr-get goes out of its way to reject wildcards.
+	internal: introduced generic-conf.c.
+	internal: upgraded timeoutread and timeoutwrite to iopause.
+20000127
+	ui: revamped details of the log formats.
+	ui: full Z support in tinydns-data.
+	ui: axfr-get accepts authority records and additional records.
+	ui: axfrdns tries to imitate BIND's handling of glue.
+	internal: expanded rts to try out the servers and *-conf.
+	ui: added rbldns.
+20000128
+	ui: increased MAXNS to 16 in query.h.
+20000129
+	version: DNScache 0.80, beta.
+20000205
+	ui: tinydns-data supports ^, for the benefit of people stuck
+		behind reverse CNAMEs. tnx Petr Novotny.
+20000206
+	ui: rbldns supports $.
+	ui: tinydns-data supports C. CNAME is overridden by NS; CNAME
+		overrides other records; no multiple CNAMEs.
+	ui: axfr-get supports C.
+	ui: axfr-get no longer rejects wildcards, except for NS.
+	internal: eliminated flagempty from tinydns-data.
+	internal: cleaned up delegation/NXDOMAIN loops in tinydns-data.
+	internal: reorganized packet_start interface in tinydns-data.
+	ui: tinydns-data supports BIND-style wildcards, except for NS.
+	version: DNScache 0.81, beta.
+20000207
+	ui: renamed dnsquery as dnsq, to eliminate name conflict with
+		Beecher dnsquery program. tnx Anand Buddhdev.
+20000208
+	ui: tinydns-edit supports add alias.
+	ui: tinydns-conf sets up root/add-alias.
+20000209
+	ui: dnscache-conf now sets IPSEND=0.0.0.0 in all cases.
+	ui: dnsq and dnstrace allow server names.
+	ui: dnsq and dnstrace allow type names.
+20000210
+	internal: response_tc() reduces len, simplifying udprespond().
+	ui: response_tc() now truncates immediately after query. this
+		should work around the Squid parsing bug reported by
+		Stuart Henderson.
+20000211
+	ui: tinydns-get allows type names.
+	ui: tinydns-data prints query name for >512 error. tnx Uwe Ohse.
+	version: DNScache 0.82, beta.
+20000212
+	ui: dns_transmit starts with loop 1 for recursive queries.
+	ui: dnscache tries to allocate 128K of incoming UDP buffer
+		space. tnx Jeremy Hansen.
+20000213
+	ui: tinydns tries to allocate 64K of incoming UDP buffer space.
+	internal: renamed response_*answer as response_r*.
+	internal: expanded response_rfinish to allow au and ar.
+	internal: expanded response_rstart to allow any ttl.
+	internal: rewrote tinydns-data, tinydns, tinydns-get, axfrdns
+		for compact new data.cdb format. a few ui effects: empty
+		nodes produce NXDOMAIN; wildcards affect empty nodes.
+	ui: response_addname() tries more extensive compression.
+20000215
+	ui: tinydns-edit takes fn arguments. tnx Jason R. Mastaler.
+20000218
+	internal: upgraded to new cdb library.
+	internal: added globalip().
+	ui: dnscache assigns IP addresses to dotted-decimal domain
+		names in canonical form.
+	internal: merged handling of C and ^ in tinydns-data.
+	port: FreeBSD 3.4-RELEASE poll() doesn't think that regular
+		files are readable. impact: under FreeBSD 3.4-RELEASE,
+		dnsfilter hangs waiting to read from regular files. tnx
+		Kenji Rikitake. fix: check for this bug in trypoll.c.
+20000219
+	ui: tinydns-data supports time-to-die.
+	ui: changed home directory from /usr/local/dnscache to
+		/usr/local; moved @ from home/etc to home/etc/dnscache.
+	internal: reorganized response.c.
+20000220
+	ui: tinydns-data allows omitted numeric fields in Z lines. tnx
+		Timothy L. Mayo.
+	version: DNScache 0.85, beta.
+20000222
+	ui: dns_transmit_get() pauses after server failure, if udploop
+		is 2.
+	internal: sped up name handling in response.c.
+20000223
+	ui: dnscache ignores some garbage in queries: AA, !RD, RA, Z,
+		RCODE, AN, AU, AR. (note that responses still say RD.)
+		this allows bogus queries from Ultrix versions of BIND.
+	internal: split dd.c out of query.c.
+	internal: split server.c out of tinydns.
+	internal: rewrote walldns, pickdns, rbldns to use server.c.
+	ui: server.c allows some garbage in queries: RA, Z, RCODE, AN,
+		AU, AR.
+	ui: axfrdns logs packets.
+	ui: walldns supports dotted-decimal IP addresses.
+20000224
+	ui: revamped qlog, again.
+	ui: better error message in dnscache-conf.c. tnx Chris Johnson.
+20000225
+	version: DNScache 0.90, gamma.
+20000226
+	internal: dnscache-conf sets up dnscache/run to avoid env. tnx
+		Chris Cappuccio.
+20000227
+	ui: tinydns-data uses server name instead of a.ns.domain for
+		automatic primary in SOA. tnx Frank Tegtmeyer.
+20000228
+	bug: axfrdns doesn't set aa bit in responses. impact: named-xfer
+		refuses to do zone transfers from axfrdns. fix: set aa
+		bit. tnx Peter Hunter.
+	ui: server.c now accepts packets from low ports. sigh.
+20000229
+	version: DNScache 0.91, gamma.
+20000307
+	internal: switched from slurp to openreadclose.
+20000308
+	ui: dns_transmit_get() pauses after recv() failure (such as
+		connection-refused), if udploop is 2.
+	ui: tinydns-data uses refresh 16384, retry 2048, expire 1048576.
+		tnx Frank Tegtmeyer.
+	version: DNScache 0.92, gamma.
+20000314
+	portability problem: the poll() emulation in RedHat 5.1 doesn't
+		clear revents when select() returns 0. tnx Petr Novotny.
+		impact: dns_transmit_get() never times out;
+		dns_resolve() busy-loops. fix: clear revents before
+		poll().
+20000315
+	ui: axfr-get grabs zones when serials drop. tnx Frank Tegtmeyer.
+	version: DNScache 0.93, gamma.
+20000323
+	ui: dns_rcip() accepts 0.0.0.0 in /etc/resolv.conf as 127.0.0.1.
+		tnx Chris Saia.
+20000325
+	version: DNScache 1.00.
+20000914
+	ui: axfr-get decodes PTR. tnx to various people.
+	ui: added dnsqr.
+20000915
+	portability problem: on some buggy kernels, accept() fails to
+		copy O_NONBLOCK. tnx Pavel Kankovsky. impact: with these
+		kernels, dnscache hangs if a TCP connection times out.
+		fix: ndelay_on() after accept().
+	ui: dnscache discards non-recursive queries.
+	ui: *-conf use envdir in */run.
+	internal: reorganized seed_addtime() calls in dnscache-conf.
+	ui: tinydns-data prohibits PTR in generic records.
+20000917
+	ui: dns_transmit_get() does not pause after most recv() errors.
+		still pauses after connection-refused when udploop is 2.
+	version: djbdns 1.01.
+20000922
+	portability problem: Linux distributions use bash as /bin/sh;
+		bash destroys $UID. dorks. impact: dnscache and axfrdns
+		run as root. fix: envdir, then sh, then envuidgid. but
+		/bin/sh really has to stop polluting the environment.
+20000923
+	ui: install /etc/dnsroots.global. dnscache-conf tries
+		dnsroots.local, then dnsroots.global.
+	ui: no longer install home/etc/dnscache.
+	version: djbdns 1.02.
+20001224
+	ui: new dnstrace output format.
+	ui: dnstrace shows all servers providing each ns/a line.
+	ui: added dnstracesort.
+20001225
+	internal: response_rstart() and response_cname() use uint32 ttl.
+	internal: added response_hidettl().
+	internal: cache_get() returns ttl.
+	internal: dnscache keeps track of ttls for aliases.
+	ui: dnscache returns ttl unless $HIDETTL is set.
+	ui: dnscache returns ttl 655360 for localhost et al.
+20001226
+	ui: dnscache supports $FORWARDONLY. tnx to several people for
+		the suggestion. tnx Dan Peterson for sample code.
+	ui: dnscache now logs sequential query numbers, not indices.
+	internal: revamped dnscache to separate udp from tcp.
+	ui: dnscache reports uactive, tactive separately.
+	ui: dnscache reports tcpopen/tcpclose by port and ip.
+	ui: dnscache artificially times out oldest UDP query if UDP
+		table is full, and oldest TCP connection if TCP table is
+		full.
+	ui: dnscache reports broken pipe when a TCP client sends FIN.
+20001228
+	ui: dnstrace supports dd.
+	ui: dnscache logs stats when it handles 1.0.0.127.in-addr.arpa.
+	ui: pickdns actively refuses queries for unknown types.
+	ui: pickdns responds to MX queries. tnx Mike Batchelor.
+	internal: added const at various places.
+	internal: removed some unused variables.
+	internal: used time_t in tai_now.c.
+	internal: used stdlib.h in alloc.c.
+	api: split dns_domain_suffix() into suffix(), suffixpos().
+	internal: switched to buffer_unix*.
+	internal: included unistd.h for various declarations.
+20010103
+	ui: increased maximum data size from 512 bytes to 32767 bytes in
+		tinydns, tinydns-get, axfrdns. allows big TXT records.
+	ui: dnsmx reformats name when it prints an artificial 0 MX.
+20010105
+	ui: increased MAXLEVEL to 5. the Internet is becoming more
+		glueless every day.
+20010106
+	version: djbdns 1.03.
+20010113
+	ui: increased MAXALIAS to 16.
+	ui: dnscache no longer caches SERVFAIL. per-ip is obviously the
+		way to go.
+	ui: tinydns et al. now respond FORMERR to non-Internet-class
+		queries.
+	ui: tdlookup now returns A records in a random order in the
+		answer section, and truncates the list after 8 records.
+	ui: tinydns-data skips lines starting -.
+20010114
+	internal: documented the tinydns data.cdb format.
+	ui: tinydns-data, tinydns, tinydns-get, axfrdns support client
+		differentiation.
+	ui: dnsqr aborts if it is given an extra argument.
+20010117
+	ui: dnstracesort removes duplicate lines.
+	ui: dnstracesort prints glue.
+	ui: dnstrace uses a ``start'' IP address for the root glue.
+20010121
+	version: djbdns 1.04.
+20010206
+	internal: response_query() takes a class argument.
+	internal: query_start() takes a class argument.
+	internal: packetquery() takes a class argument.
+	ui: tinydns et al., axfrdns, and dnscache repeat qclass * in
+		response to bogus * queries. tnx Mike Batchelor.
+	ui: axfrdns rejects queries for weird classes.
+	ui: axfrdns uses query ID instead of ID 0 in the series of AXFR
+		response messages between the SOAs, to support the AXFR
+		client in BIND 9.
+	ui: axfrdns sets AA in the series of AXFR response messages.
+20010211
+	ui: servers print starting message.
+	internal: some respond() declarations.
+	version: djbdns 1.05.
