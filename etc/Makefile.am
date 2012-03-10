@@ -13,7 +13,7 @@
 
 SUBDIRS = ip servers
 
-confdir = $(sysconfdir)/djbdns
+confdir = $(sysconfdir)/ndjbdns
 conf_DATA = axfrdns.conf dnscache.conf tinydns.conf
 
 $(conf_DATA): axfrdns-conf dnscache-conf tinydns-conf

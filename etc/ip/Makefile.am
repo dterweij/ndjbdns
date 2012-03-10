@@ -11,5 +11,5 @@
 ## 6. automake -ac --foreign
 ##
 
-confipdir = $(sysconfdir)/djbdns/ip
+confipdir = $(sysconfdir)/ndjbdns/ip
 dist_confip_DATA = 127.0.0.1
