@@ -34,5 +34,5 @@ for each domain name.
 .SH BUGS
 Report bugs to <pj.pandit@yahoo.co.in>
 
-.SH AUTHOR
+.SH Manual Author
 Prasad J Pandit

@@ -12,7 +12,7 @@ dnstxt - query DNS TXT record
 
 .SH SYNOPSYS
 .TP 5
-\fBdnstxt\fB [\fBOPTIONS\fR] <domain-name> [<domain-name> ...]
+\fBdnstxt\fR [\fBOPTIONS\fR] <domain-name> [<domain-name> ...]
 
 .SH DESCRIPTION
 .PP
@@ -35,5 +35,5 @@ opportunistic encryption details etc.
 .SH BUGS
 Report bugs to <pj.pandit@yahoo.co.in>
 
-.SH AUTHOR
+.SH Manual Author
 Prasad J Pandit
