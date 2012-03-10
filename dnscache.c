@@ -3,9 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * I've modified this file for good and am releasing this new version under
- * GNU General Public License.
- * Copyright (C) 2009 - 2011 Prasad J Pandit
+ * Copyright (C) 2009 - 2012 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -41,7 +39,7 @@
 
 #define PIDFILE "/var/run/dnscache.pid"
 #define LOGFILE "/var/log/dnscached.log"
-#define CFGFILE SYSCONFDIR"/djbdns/dnscache.conf"
+#define CFGFILE SYSCONFDIR"/ndjbdns/dnscache.conf"
 
 char *prog = NULL;
 short mode = 0, debug_level = 0;
