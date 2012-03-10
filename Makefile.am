@@ -16,7 +16,7 @@ AM_CFLAGS=-g -O2 -Wall -Wextra -D PREFIX=\"${prefix}\" \
 
 SUBDIRS = etc
 
-bin_PROGRAMS = dnscache dnsip dnsipq dnsq dnsmx dnsname dnstxt dnsqr \
+bin_PROGRAMS = dnscache dnsip dnsipq dnsq dnsname dnstxt dnsqr \
 	dnsfilter dnstrace tinydns tinydns-data tinydns-edit tinydns-get \
 	randomip axfrdns axfrdns-conf axfr-get tcprules
 
@@ -95,9 +95,9 @@ dnsipq_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
 dnsipq.1: dnsipq.ms
 	cp dnsipq.ms dnsipq.1
 
-dnsmx_SOURCES = dnsmx.c iopause.c select.h
-dnsmx_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
-	libunix.a libbyte.a
+# dnsmx_SOURCES = dnsmx.c iopause.c select.h
+# dnsmx_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
+#	libunix.a libbyte.a
 
 dnsname_SOURCES = dnsname.c iopause.c select.h
 dnsname_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
