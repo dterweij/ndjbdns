@@ -21,17 +21,18 @@ bin_PROGRAMS = dnscache dnsip dnsipq dnsq dnsname dnstxt dnsqr \
 	randomip axfrdns axfr-get tcprules
 
 noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-conf \
-	pickdns-data rbldns rbldns-conf rbldns-data walldns walldns-conf
+	pickdns-data rbldns rbldns-conf rbldns-data walldns walldns-conf \
+	axfrdns-conf dnsmx
 
 bin_SCRIPTS = dnscached tinydnsd dnstracesort
 
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
-	dnstxt.ms tcprules.ms dnsqr.ms random-ip.ms dnstrace.ms
+	dnstxt.ms tcprules.ms dnsqr.ms random-ip.ms dnstrace.ms axfrdns.ms
 
 nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
 	tinydns-data.1 tinydns-edit.1 tinydns-get.1 tinydns.1 dnsipq.1 \
-	dnstxt.1 tcprules.1 dnsqr.1 randomip.1 dnstrace.1
+	dnstxt.1 tcprules.1 dnsqr.1 randomip.1 dnstrace.1 axfrdns.1
 
 CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
 EXTRA_DIST = dnstracesort.sh dnscache.sh tinydns.sh readme.ms README \
@@ -45,9 +46,12 @@ axfrdns_SOURCES = axfrdns.c iopause.c droproot.c tdlookup.c response.c \
 axfrdns_LDADD = libdns.a libtai.a liballoc.a libenv.a libcdb.a \
 	libbuffer.a libunix.a libbyte.a
 
-# axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
-#	auto_home.h generic-conf.h
-# axfrdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
+axfrdns.1: axfrdns.ms
+	cp axfrdns.ms axfrdns.1
+
+axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
+	auto_home.h generic-conf.h
+axfrdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 
 axfr_get_SOURCES = axfr-get.c iopause.c timeoutread.c timeoutwrite.c \
 	timeoutread.h timeoutwrite.h select.h
@@ -95,9 +99,9 @@ dnsipq_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
 dnsipq.1: dnsipq.ms
 	cp dnsipq.ms dnsipq.1
 
-# dnsmx_SOURCES = dnsmx.c iopause.c select.h
-# dnsmx_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
-#	libunix.a libbyte.a
+dnsmx_SOURCES = dnsmx.c iopause.c select.h
+dnsmx_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
+	libunix.a libbyte.a
 
 dnsname_SOURCES = dnsname.c iopause.c select.h
 dnsname_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \

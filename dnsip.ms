@@ -1,6 +1,6 @@
 \"
 \" dnsip.1: This is a manuscript of the manual page for `dnsip'. This file is
-\" part of the `djbdns' project version 1.05.2 or greater.
+\" part of the `djbdns' project.
 \"
 
 \" No hyphenation
@@ -33,5 +33,5 @@ address. \fBdnsip\fR supports following options:
 .SH BUGS
 Report bugs to <pj.pandit@yahoo.co.in>
 
-.SH AUTHOR
+.SH Manual Author
 Prasad J Pandit
