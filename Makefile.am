@@ -27,11 +27,11 @@ bin_SCRIPTS = dnscached tinydnsd dnstracesort
 
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
-	dnstxt.ms tcprules.ms
+	dnstxt.ms tcprules.ms dnsqr.ms
 
 nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
 	tinydns-data.1 tinydns-edit.1 tinydns-get.1 tinydns.1 dnsipq.1 \
-	dnstxt.1 tcprules.1
+	dnstxt.1 tcprules.1 dnsqr.1
 
 CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
 EXTRA_DIST = dnstracesort.sh dnscache.sh tinydns.sh readme.ms README \
@@ -115,6 +115,9 @@ dnsqr_SOURCES = dnsqr.c iopause.c printrecord.c printpacket.c parsetype.c \
 	select.h printpacket.h parsetype.h printrecord.h
 dnsqr_LDADD = libdns.a libenv.a libtai.a libbuffer.a liballoc.a \
 	libunix.a libbyte.a
+
+dnsqr.1: dnsqr.ms
+	cp dnsqr.ms dnsqr.1
 
 dnstrace_SOURCES = dnstrace.c dd.c iopause.c printrecord.c parsetype.c \
 	select.h dd.h parsetype.h printrecord.h
