@@ -27,11 +27,11 @@ bin_SCRIPTS = dnscached tinydnsd dnstracesort
 
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
-	dnstxt.ms tcprules.ms dnsqr.ms
+	dnstxt.ms tcprules.ms dnsqr.ms random-ip.ms
 
 nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
 	tinydns-data.1 tinydns-edit.1 tinydns-get.1 tinydns.1 dnsipq.1 \
-	dnstxt.1 tcprules.1 dnsqr.1
+	dnstxt.1 tcprules.1 dnsqr.1 randomip.1
 
 CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
 EXTRA_DIST = dnstracesort.sh dnscache.sh tinydns.sh readme.ms README \
@@ -149,6 +149,9 @@ pickdns_data_LDADD = libcdb.a libdns.a liballoc.a libbuffer.a \
 
 randomip_SOURCES = random-ip.c
 randomip_LDADD = libdns.a libtai.a libbuffer.a libunix.a libbyte.a
+
+randomip.1: random-ip.ms
+	cp random-ip.ms randomip.1
 
 rbldns_SOURCES = rbldns.c server.c response.c dd.c droproot.c qlog.c prot.c \
 	common.c qlog.h response.h prot.h dd.h hasshsgr.h common.h
