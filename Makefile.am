@@ -18,7 +18,7 @@ SUBDIRS = etc
 
 bin_PROGRAMS = dnscache dnsip dnsipq dnsq dnsname dnstxt dnsqr \
 	dnsfilter dnstrace tinydns tinydns-data tinydns-edit tinydns-get \
-	randomip axfrdns axfrdns-conf axfr-get tcprules
+	randomip axfrdns axfr-get tcprules
 
 noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-conf \
 	pickdns-data rbldns rbldns-conf rbldns-data walldns walldns-conf
@@ -45,9 +45,9 @@ axfrdns_SOURCES = axfrdns.c iopause.c droproot.c tdlookup.c response.c \
 axfrdns_LDADD = libdns.a libtai.a liballoc.a libenv.a libcdb.a \
 	libbuffer.a libunix.a libbyte.a
 
-axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-axfrdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
+# axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
+#	auto_home.h generic-conf.h
+# axfrdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 
 axfr_get_SOURCES = axfr-get.c iopause.c timeoutread.c timeoutwrite.c \
 	timeoutread.h timeoutwrite.h select.h
