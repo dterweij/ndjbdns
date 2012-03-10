@@ -38,7 +38,7 @@ file placed under the ROOT directory specified in the configuration file.
  print version information.
 
 .SH FILES
- PREFIX/djbdns/tinydns.conf
+ PREFIX/ndjbdns/tinydns.conf
 
  /var/log/tinydnsd.log
 

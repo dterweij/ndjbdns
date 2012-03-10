@@ -55,9 +55,9 @@ Note: these files list IP addresses of name servers one on each line.
  print version information.
 
 .SH FILES
- PREFIX/djbdns/ip/
- PREFIX/djbdns/servers/
- PREFIX/djbdns/dnscache.conf
+ PREFIX/ndjbdns/ip/
+ PREFIX/ndjbdns/servers/
+ PREFIX/ndjbdns/dnscache.conf
 
  /var/log/dnscached.log
 

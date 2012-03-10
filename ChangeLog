@@ -277,7 +277,7 @@ Mar  3 2009 pjp <pj.pandit@yahoo.co.in>
 	  use of the GNU auto-tools and is fully integrated with the linux
 	  /sbin/service.
 
-	* dnscache.c: reads configuration file: PREFIX/etc/djbdns/dnscache.conf
+	* dnscache.c: reads configuration file: PREFIX/etc/ndjbdns/dnscache.conf
 	  PREFIX is the install prefix used by ./configure command.
 
 	* dnscache.c: changed to create log-file under /var/log, pid-file under

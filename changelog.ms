@@ -25,7 +25,7 @@ Major changes
 .br
 - The new commands now accept command-line options.
 .br
-- tinydns now reads from etc/djbdns/tinydns.conf and
+- tinydns now reads from etc/ndjbdns/tinydns.conf and
   logs messages to /var/log/tinydns.log and requires no
   support from daemontools.
 .br
