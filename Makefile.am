@@ -24,7 +24,8 @@ noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-conf \
 	pickdns-data rbldns rbldns-conf rbldns-data walldns walldns-conf \
 	axfrdns-conf dnsmx
 
-bin_SCRIPTS = dnscached tinydnsd dnstracesort
+bin_SCRIPTS = dnstracesort
+noinst_SCRIPTS = dnscached tinydnsd
 
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
