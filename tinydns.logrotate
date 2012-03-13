@@ -1,0 +1,11 @@
+/var/log/tinydnsd.log {
+    shred
+    size 64M
+    rotate 4
+    missingok
+    notifempty
+
+    postrotate
+        /bin/systemctl restart tinydns.service
+    endscript
+}

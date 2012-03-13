@@ -1,0 +1,12 @@
+[Unit]
+Description=A DNS zone transfer server.
+After=syslog.target
+
+[Service]
+Type=forking
+Restart=always
+PIDFile=/var/run/axfrdns.pid
+ExecStart=/usr/bin/axfrdns -d3 -D
+
+[Install]
+WantedBy=multi-user.target

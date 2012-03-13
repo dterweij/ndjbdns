@@ -54,8 +54,8 @@
 #include "timeoutread.h"
 #include "timeoutwrite.h"
 
-#define LOGFILE "/var/log/axfrdns.log"
 #define PIDFILE "/var/run/axfrdns.pid"
+#define LOGFILE "/var/log/axfrdnsd.log"
 #define CFGFILE SYSCONFDIR"/ndjbdns/axfrdns.conf"
 
 static char *prog = NULL;
@@ -79,7 +79,7 @@ safewrite (int fd, char *buf, unsigned int len)
 
 char netwritespace[1024];
 buffer netwrite = BUFFER_INIT (safewrite, 1,
-                                    netwritespace, sizeof netwritespace);
+                               netwritespace, sizeof netwritespace);
 
 void
 print (char *buf, unsigned int len)

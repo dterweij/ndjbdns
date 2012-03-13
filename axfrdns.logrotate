@@ -1,0 +1,11 @@
+/var/log/axfrdnsd.log {
+    shred
+    size 10M
+    rotate 4
+    missingok
+    notifempty
+
+    postrotate
+        /bin/systemctl restart axfrdns.service
+    endscript
+}
