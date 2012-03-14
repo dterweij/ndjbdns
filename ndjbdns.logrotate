@@ -1,0 +1,24 @@
+
+/var/log/axfrdnsd.log {
+    shred
+    weekly
+    rotate 4
+    missingok
+    notifempty
+}
+
+/var/log/dnscached.log {
+    shred
+    weekly
+    rotate 4
+    missingok
+    notifempty
+}
+
+/var/log/tinydnsd.log {
+    shred
+    weekly
+    rotate 4
+    missingok
+    notifempty
+}
