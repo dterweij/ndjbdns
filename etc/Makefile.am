@@ -14,13 +14,15 @@
 SUBDIRS = ip servers
 
 confdir = $(sysconfdir)/ndjbdns
-conf_DATA = axfrdns.conf dnscache.conf tinydns.conf
+conf_DATA = axfrdns.conf dnscache.conf tinydns.conf pickdns.conf
 
 $(conf_DATA): axfrdns-conf dnscache-conf tinydns-conf
 	sed -e 's:PREFIX:${confdir}:' axfrdns-conf > axfrdns.conf
 	sed -e 's:PREFIX:${confdir}:' dnscache-conf > dnscache.conf
 	sed -e 's:PREFIX:${confdir}:' tinydns-conf > tinydns.conf
+	sed -e 's:PREFIX:${confdir}:' pickdns-conf > pickdns.conf
 
 
 CLEANFILES = $(conf_DATA)
-EXTRA_DIST = axfrdns-conf dnscache-conf tinydns-conf dnsroots.global
+EXTRA_DIST = axfrdns-conf dnscache-conf tinydns-conf pickdns-conf \
+			dnsroots.global
