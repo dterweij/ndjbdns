@@ -29,13 +29,11 @@ autom4te.cache.*
 Makefile
 axfr-get
 axfrdns
-axfrdns-conf
 config.h
 config.log
 config.status
 djbdns.1
 dnscache
-dnscache-conf
 dnscache.1
 dnscached
 dnsfilter
@@ -58,16 +56,13 @@ etc/ip/Makefile
 etc/servers/Makefile
 etc/tinydns.conf
 pickdns
-pickdns-conf
 pickdns-data
 randomip
 rbldns
-rbldns-conf
 rbldns-data
 stamp-h1
 tcprules
 tinydns
-tinydns-conf
 tinydns-data
 tinydns-data.1
 tinydns-edit
@@ -77,4 +72,3 @@ tinydns-get.1
 tinydns.1
 tinydnsd
 walldns
-walldns-conf
