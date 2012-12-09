@@ -450,9 +450,46 @@ NEWNAME:
             }
         }
 
+        if (typematch (DNS_T_SOA, dtype))
+        {
+            byte_copy (key, 2, DNS_T_SOA);
+            cached = cache_get (key, dlen + 2, &cachedlen, &ttl);
+            if (cached && (cachedlen || byte_diff (dtype, 2, DNS_T_ANY)))
+            {
+                log_cachedanswer (d, DNS_T_SOA);
+                if (!rqa (z))
+                    goto DIE;
+
+                pos = 0;
+                while (pos = dns_packet_copy(cached, cachedlen, pos, misc, 20))
+                {
+                    pos = dns_packet_getname (cached, cachedlen, pos, &t2);
+                    if (!pos)
+                        break;
+
+                    pos = dns_packet_getname (cached, cachedlen, pos, &t3);
+                    if (!pos)
+                        break;
+
+                    if (!response_rstart (d, DNS_T_SOA, ttl))
+                        goto DIE;
+                    if (!response_addname (t2))
+                        goto DIE;
+                    if (!response_addname (t3))
+                        goto DIE;
+                    if (!response_addbytes(misc, 20))
+                        goto DIE;
+
+                    response_rfinish (RESPONSE_ANSWER);
+                }
+                cleanup (z);
+                return 1;
+            }
+        }
+
         if (typematch (DNS_T_A, dtype))
         {
-            byte_copy (key,2,DNS_T_A);
+            byte_copy (key, 2, DNS_T_A);
             cached = cache_get (key, dlen + 2, &cachedlen, &ttl);
             if (cached && (cachedlen || byte_diff (dtype, 2, DNS_T_ANY)))
             {
@@ -504,7 +541,8 @@ NEWNAME:
             && !typematch (DNS_T_NS, dtype)
             && !typematch (DNS_T_PTR, dtype)
             && !typematch (DNS_T_A, dtype)
-            && !typematch (DNS_T_MX, dtype))
+            && !typematch (DNS_T_MX, dtype)
+            && !typematch (DNS_T_SOA, dtype))
         {
             byte_copy (key, 2, dtype);
             cached = cache_get (key, dlen + 2, &cachedlen, &ttl);
@@ -853,6 +891,8 @@ HAVEPACKET:
             ;
         else if (byte_equal (type, 2, DNS_T_SOA))
         {
+            int non_authority = 0;
+            save_start ();
             while (i < j)
             {
                 pos = dns_packet_skipname (buf, len, records[i]);
@@ -867,10 +907,19 @@ HAVEPACKET:
                 pos = dns_packet_copy (buf, len, pos, misc, 20);
                 if (!pos)
                     goto DIE;
-                if (records[i] < posauthority && debug_level > 2)
-                      log_rrsoa (whichserver, t1, t2, t3, misc, ttl);
+                if (records[i] < posauthority)
+                {
+                      if (debug_level > 2)
+                          log_rrsoa (whichserver, t1, t2, t3, misc, ttl);
+                      save_data (misc, 20);
+                      save_data (t2, dns_domain_length (t2));
+                      save_data (t3, dns_domain_length (t3));
+                      non_authority++;
+                }
                 ++i;
             }
+            if (non_authority)
+                save_finish (DNS_T_SOA, t1, ttl);
         }
         else if (byte_equal (type, 2, DNS_T_CNAME))
         {
