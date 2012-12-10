@@ -69,6 +69,7 @@ enum op_mode { DAEMON = 1, DEBUG = 2 };
 #include "response.h"
 #include "okclient.h"
 #include "droproot.h"
+#include "maxclient.h"
 
 static int
 packetquery (char *buf, unsigned int len, char **q,
@@ -116,8 +117,6 @@ static char myipoutgoing[4];
 static char myipincoming[4];
 
 static int udp53 = 0;
-
-#define MAXUDP 200
 static struct udpclient
 {
     struct query q;
@@ -217,10 +216,7 @@ u_new (void)
     }
 }
 
-
 static int tcp53 = 0;
-
-#define MAXTCP 20
 struct tcpclient
 {
     struct query q;

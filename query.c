@@ -20,20 +20,20 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "error.h"
-#include "roots.h"
+#include "dd.h"
 #include "log.h"
-#include "case.h"
-#include "cache.h"
-#include "byte.h"
 #include "dns.h"
+#include "byte.h"
+#include "case.h"
+#include "alloc.h"
+#include "cache.h"
+#include "error.h"
+#include "query.h"
+#include "roots.h"
 #include "uint64.h"
 #include "uint32.h"
 #include "uint16.h"
-#include "dd.h"
-#include "alloc.h"
 #include "response.h"
-#include "query.h"
 
 extern short debug_level;
 static int flagforwardonly = 0;
@@ -122,7 +122,7 @@ cleanup (struct query *z)
 {
     int j = 0, k = 0;
 
-    dns_transmit_free (&z->dt);
+    qmerge_free (&z->qm);
     for (j = 0; j < QUERY_MAXALIAS; ++j)
         dns_domain_free (&z->alias[j]);
 
@@ -241,7 +241,6 @@ doit (struct query *z, int state)
     unsigned int posauthority = 0;
 
     uint16 numglue = 0;
-    unsigned int posglue = 0;
     unsigned int pos = 0, pos2 = 0;
 
     uint16 datalen = 0;
@@ -461,7 +460,7 @@ NEWNAME:
                     goto DIE;
 
                 pos = 0;
-                while (pos = dns_packet_copy(cached, cachedlen, pos, misc, 20))
+                while((pos = dns_packet_copy(cached, cachedlen,pos, misc, 20)))
                 {
                     pos = dns_packet_getname (cached, cachedlen, pos, &t2);
                     if (!pos)
@@ -651,25 +650,12 @@ HAVENS:
         goto SERVFAIL;
 
     dns_sortip (z->servers[z->level], 64);
-    if (z->level)
-    {
-        if (debug_level > 2)
-            log_tx (z->name[z->level], DNS_T_A,
-                        z->control[z->level], z->servers[z->level],z->level);
+    dtype = z->level ? DNS_T_A : z->type;
+    if (qmerge_start (&z->qm, z->servers[z->level],
+                      flagforwardonly, z->name[z->level], dtype,
+                      z->localip, z->control[z->level]) == -1)
+        goto DIE;
 
-        if (dns_transmit_start (&z->dt, z->servers[z->level], flagforwardonly,
-                                z->name[z->level], DNS_T_A,z->localip) == -1)
-            goto DIE;
-    }
-    else
-    {
-        if (debug_level > 2)
-            log_tx (z->name[0], z->type, z->control[0], z->servers[0], 0);
-
-        if (dns_transmit_start (&z->dt, z->servers[0], flagforwardonly,
-                                z->name[0], z->type, z->localip) == -1)
-            goto DIE;
-    }
     return 0;
 
 
@@ -684,10 +670,10 @@ LOWERLEVEL:
 HAVEPACKET:
     if (++z->loop == 100)
         goto DIE;
-    buf = z->dt.packet;
-    len = z->dt.packetlen;
+    buf = z->qm->dt.packet;
+    len = z->qm->dt.packetlen;
 
-    whichserver = z->dt.servers + 4 * z->dt.curserver;
+    whichserver = z->qm->dt.servers + 4 * z->qm->dt.curserver;
     control = z->control[z->level];
     d = z->name[z->level];
     dtype = z->level ? DNS_T_A : z->type;
@@ -765,7 +751,6 @@ HAVEPACKET:
         uint16_unpack_big (header + 8, &datalen);
         pos += datalen;
     }
-    posglue = pos;
 
     if (!flagcname && !rcode && !flagout && flagreferral && !flagsoa)
     {
@@ -1302,7 +1287,7 @@ query_start (struct query *z, char *dn, char type[2],
 int
 query_get (struct query *z, iopause_fd *x, struct taia *stamp)
 {
-    switch (dns_transmit_get (&z->dt, x, stamp))
+    switch (qmerge_get (&z->qm, x, stamp))
     {
     case 1:
         return doit (z, 1);
@@ -1316,5 +1301,5 @@ query_get (struct query *z, iopause_fd *x, struct taia *stamp)
 void
 query_io (struct query *z, iopause_fd *x, struct taia *deadline)
 {
-    dns_transmit_io (&z->dt, x, deadline);
+    qmerge_io (z->qm, x, deadline);
 }

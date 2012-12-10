@@ -250,6 +250,18 @@ log_tx (const char *q, const char qtype[2], const char *control,
 }
 
 void
+log_tx_piggyback (const char *q, const char qtype[2], const char *control)
+{
+    string("txpb ");
+    logtype (qtype);
+    space ();
+    name (q);
+    space ();
+    name (control);
+    line ();
+}
+
+void
 log_cachedanswer (const char *q, const char type[2])
 {
     string ("cached ");

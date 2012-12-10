@@ -70,9 +70,9 @@ djbdns.1: djbdns.ms
 	cp djbdns.ms djbdns.1
 
 dnscache_SOURCES = dnscache.c droproot.c okclient.c log.c cache.c query.c \
-	response.c dd.c roots.c iopause.c prot.c common.c \
+	response.c dd.c roots.c iopause.c prot.c common.c qmerge.c \
 	response.h select.h prot.h roots.h query.h cache.h log.h okclient.h \
-	dd.h direntry.h hasshsgr.h version.h common.h
+	dd.h direntry.h hasshsgr.h version.h common.h qmerge.h
 dnscache_LDADD = libdns.a libenv.a liballoc.a libbuffer.a libtai.a \
 	libunix.a libbyte.a
 
