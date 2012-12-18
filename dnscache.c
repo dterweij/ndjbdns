@@ -65,11 +65,11 @@ enum op_mode { DAEMON = 1, DEBUG = 2 };
 #include "uint64.h"
 #include "socket.h"
 #include "common.h"
+#include "clients.h"
 #include "iopause.h"
 #include "response.h"
 #include "okclient.h"
 #include "droproot.h"
-#include "maxclient.h"
 
 static int
 packetquery (char *buf, unsigned int len, char **q,
@@ -750,6 +750,8 @@ main (int argc, char *argv[])
         response_hidettl ();
     if (env_get ("FORWARDONLY"))
         query_forwardonly ();
+    if (env_get ("MERGEQUERIES"))
+        dns_enable_merge (log_merge);
     if (!roots_init ())
         err (-1, "could not read servers");
     if (socket_listen (tcp53, 20) == -1)

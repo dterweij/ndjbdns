@@ -250,14 +250,14 @@ log_tx (const char *q, const char qtype[2], const char *control,
 }
 
 void
-log_tx_piggyback (const char *q, const char qtype[2], const char *control)
+log_merge (const char *addr, const char qtype[2], const char *q)
 {
-    string("txpb ");
-    logtype (qtype);
+    string ("merge ");
+    ip(addr);
+    space();
+    logtype(qtype);
     space ();
     name (q);
-    space ();
-    name (control);
     line ();
 }
 
