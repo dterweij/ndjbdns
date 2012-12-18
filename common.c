@@ -170,7 +170,8 @@ check_variable (const char *var)
     const char *known_variable[] = \
     {
         "AXFR", "DATALIMIT", "CACHESIZE", "IP", "IPSEND",
-        "UID", "GID", "ROOT", "HIDETTL", "FORWARDONLY"
+        "UID", "GID", "ROOT", "HIDETTL", "FORWARDONLY",
+        "MERGEQUERIES"
     };
 
     l = sizeof (known_variable) / sizeof (*known_variable);
