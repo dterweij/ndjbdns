@@ -58,3 +58,10 @@ HIDETTL=
 # according to NS records.
 #
 FORWARDONLY=
+
+# If MERGEQUERIES is set, dnscache would merge identical outgoing requests
+# into a single query and buffer requesting clients into local queue.
+# When response is received for the single query, the same is served to all
+# requesting clients.
+#
+MERGEQUERIES=1
