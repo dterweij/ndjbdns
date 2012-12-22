@@ -65,3 +65,8 @@ FORWARDONLY=
 # requesting clients.
 #
 MERGEQUERIES=1
+
+# If DEBUG_LEVEL is set, dnscache displays helpful debug messages to
+# the console.
+#
+DEBUG_LEVEL=1

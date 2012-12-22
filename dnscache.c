@@ -41,10 +41,8 @@
 #define LOGFILE "/var/log/dnscached.log"
 #define CFGFILE SYSCONFDIR"/ndjbdns/dnscache.conf"
 
-char *prog = NULL;
+static char *prog = NULL;
 short mode = 0, debug_level = 0;
-
-enum op_mode { DAEMON = 1, DEBUG = 2 };
 
 #include "dns.h"
 #include "env.h"
@@ -675,6 +673,11 @@ main (int argc, char *argv[])
     warnx ("version %s: starting: %s\n", VERSION, char_seed);
 
     read_conf (CFGFILE);
+
+    if (!debug_level)
+        if ((x = env_get ("DEBUG_LEVEL")))
+            debug_level = atol (x);
+    warnx ("DEBUG_LEVEL set to `%ld'", debug_level);
 
     if ((x = env_get ("DATALIMIT")))
     {
