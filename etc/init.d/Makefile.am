@@ -11,7 +11,7 @@
 ## 6. automake -ac --foreign
 ##
 
-confdir = $(sysconfdir)/init.d/
+confdir = $(sysconfdir)/rc.d/init.d/
 conf_SCRIPTS = axfrdnsd dnscached tinydnsd
 
 $(conf_SCRIPTS): axfrdns.sh dnscache.sh tinydns.sh

@@ -11,8 +11,8 @@
 ## 6. automake -ac --foreign
 ##
 
-AM_CFLAGS=-g -O2 -Wall -Wextra -D PREFIX=\"${prefix}\" \
-                               -D SYSCONFDIR=\"${sysconfdir}\"
+AM_CFLAGS=-g -O2 -Wall -Wextra -fstack-check -Xlinker -s \
+			-D PREFIX=\"${prefix}\" -D SYSCONFDIR=\"${sysconfdir}\"
 
 SUBDIRS = etc
 
@@ -24,7 +24,7 @@ noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-data \
 	pickdns-conf rbldns rbldns-conf rbldns-data walldns walldns-conf \
 	axfrdns-conf dnsmx
 
-bin_SCRIPTS = axfrdnsd dnscached tinydnsd dnstracesort
+bin_SCRIPTS = dnstracesort
 
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
@@ -37,9 +37,9 @@ nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
 	axfr-get.1 dnsname.1
 
 CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
-EXTRA_DIST = axfrdns.sh dnstracesort.sh dnscache.sh tinydns.sh \
-	readme.ms README INSTALL TODO ChangeLog COPYING $(noinst_MANS) \
-	dnscache.service tinydns.service axfrdns.service ndjbdns.logrotate
+EXTRA_DIST = dnstracesort.sh readme.ms README INSTALL TODO ChangeLog \
+	COPYING $(noinst_MANS) dnscache.service tinydns.service axfrdns.service \
+	ndjbdns.logrotate
 
 axfrdns_SOURCES = axfrdns.c iopause.c droproot.c tdlookup.c response.c \
 	qlog.c prot.c timeoutread.c timeoutwrite.c common.c \
@@ -51,10 +51,6 @@ axfrdns_LDADD = libdns.a libtai.a liballoc.a libenv.a libcdb.a \
 axfrdns.1: axfrdns.ms
 	cp axfrdns.ms axfrdns.1
 
-# an init script for axfrdns service.
-axfrdnsd: axfrdns.sh
-	sed -e 's:PREFIX:${prefix}:' axfrdns.sh > axfrdnsd
-
 axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h
 axfrdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
@@ -65,10 +61,6 @@ axfr_get_LDADD = libdns.a libtai.a liballoc.a libbuffer.a libunix.a libbyte.a
 
 axfr-get.1: axfr-get.ms
 	cp axfr-get.ms axfr-get.1
-
-# an init script for dnscache service.
-dnscached: dnscache.sh
-	sed -e 's:PREFIX:${prefix}:' dnscache.sh > dnscached
 
 djbdns.1: djbdns.ms
 	cp djbdns.ms djbdns.1
