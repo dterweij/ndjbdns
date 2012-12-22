@@ -39,5 +39,6 @@ AC_CHECK_FUNCS([dup2 fchdir gethostname gettimeofday memset mkdir munmap select 
 AC_CONFIG_FILES([Makefile
                  etc/Makefile
                  etc/ip/Makefile
+                 etc/init.d/Makefile
                  etc/servers/Makefile])
 AC_OUTPUT
