@@ -1,19 +1,21 @@
 #!/bin/sh
 #
-# axfrdnsd: an init script to start & stop the axfrdns service daemon.
+# dnscached: an init script to start & stop the dnscache service daemon.
 #
 # chkconfig: 35 20 80
-# description: axfrdns is a DNS zone transfer server.
+# description: dnscache is an iterative DNS resolver daemon. An iterative
+#              resolver is a program used to map the given domain name to
+#              it's IP address or vice versa.
 #
 
 ### BEGIN INIT INFO
-# Provides:          axfrdnsd
+# Provides:          dnscached
 # Required-Start:    $network
 # Required-Stop:     $network
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Short-Description: start and stop axfrdns daemon at boot time.
-# Description:       axfrdns is a DNS zone transfer server.
+# Short-Description: start and stop dnscache daemon at boot time.
+# Description:       dnscache is an iterative DNS resolver daemon.
 ### END INIT INFO
 
 # Source function library.
@@ -22,9 +24,9 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/axfrdns
-logfile="/var/log/axfrdnsd.log"
-lockfile="/var/lock/subsys/axfrdnsd"
+prog=PREFIX/bin/dnscache
+logfile="/var/log/dnscached.log"
+lockfile="/var/lock/subsys/dnscached"
 
 start ()
 {
@@ -35,7 +37,7 @@ start ()
 
     # Start daemon.
     echo -n $"Starting ${prog##[a-z/.]*/}: "
-    daemon $prog -d3 -D 2>> $logfile
+    daemon $prog -D 2>> $logfile
     RETVAL=$?
 
     chmod og= $logfile

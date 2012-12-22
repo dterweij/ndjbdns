@@ -1,21 +1,19 @@
 #!/bin/sh
 #
-# tinydnsd: an init script to start & stop the tinydns service daemon.
+# axfrdnsd: an init script to start & stop the axfrdns service daemon.
 #
 # chkconfig: 35 20 80
-# description: tinydns is a DNS server program.
-#              tinydns server maps & serves IP addresses for a given domain
-#              name from a local static database of domain names.
+# description: axfrdns is a DNS zone transfer server.
 #
 
 ### BEGIN INIT INFO
-# Provides:          tinydnsd
+# Provides:          axfrdnsd
 # Required-Start:    $network
 # Required-Stop:     $network
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Short-Description: start and stop tinydns daemon at boot time.
-# Description:       tinydns is a DNS server program.
+# Short-Description: start and stop axfrdns daemon at boot time.
+# Description:       axfrdns is a DNS zone transfer server.
 ### END INIT INFO
 
 # Source function library.
@@ -24,9 +22,9 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/tinydns
-logfile="/var/log/tinydnsd.log"
-lockfile="/var/lock/subsys/tinydnsd"
+prog=PREFIX/bin/axfrdns
+logfile="/var/log/axfrdnsd.log"
+lockfile="/var/lock/subsys/axfrdnsd"
 
 start ()
 {
@@ -37,7 +35,7 @@ start ()
 
     # Start daemon.
     echo -n $"Starting ${prog##[a-z/.]*/}: "
-    daemon $prog -d3 -D 2>> $logfile
+    daemon $prog -D 2>> $logfile
     RETVAL=$?
 
     chmod og= $logfile

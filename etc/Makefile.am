@@ -11,7 +11,7 @@
 ## 6. automake -ac --foreign
 ##
 
-SUBDIRS = ip servers
+SUBDIRS = ip init.d servers
 
 confdir = $(sysconfdir)/ndjbdns
 conf_DATA = axfrdns.conf dnscache.conf tinydns.conf

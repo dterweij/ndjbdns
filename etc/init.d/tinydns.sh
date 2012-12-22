@@ -1,21 +1,21 @@
 #!/bin/sh
 #
-# dnscached: an init script to start & stop the dnscache service daemon.
+# tinydnsd: an init script to start & stop the tinydns service daemon.
 #
 # chkconfig: 35 20 80
-# description: dnscache is an iterative DNS resolver daemon. An iterative
-#              resolver is a program used to map the given domain name to
-#              it's IP address or vice versa.
+# description: tinydns is a DNS server program.
+#              tinydns server maps & serves IP addresses for a given domain
+#              name from a local static database of domain names.
 #
 
 ### BEGIN INIT INFO
-# Provides:          dnscached
+# Provides:          tinydnsd
 # Required-Start:    $network
 # Required-Stop:     $network
 # Default-Start:     3 5
 # Default-Stop:      0 1 2 4 6
-# Short-Description: start and stop dnscache daemon at boot time.
-# Description:       dnscache is an iterative DNS resolver daemon.
+# Short-Description: start and stop tinydns daemon at boot time.
+# Description:       tinydns is a DNS server program.
 ### END INIT INFO
 
 # Source function library.
@@ -24,9 +24,9 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/dnscache
-logfile="/var/log/dnscached.log"
-lockfile="/var/lock/subsys/dnscached"
+prog=PREFIX/bin/tinydns
+logfile="/var/log/tinydnsd.log"
+lockfile="/var/lock/subsys/tinydnsd"
 
 start ()
 {
@@ -37,7 +37,7 @@ start ()
 
     # Start daemon.
     echo -n $"Starting ${prog##[a-z/.]*/}: "
-    daemon $prog -d3 -D 2>> $logfile
+    daemon $prog -D 2>> $logfile
     RETVAL=$?
 
     chmod og= $logfile
