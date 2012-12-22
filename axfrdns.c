@@ -61,8 +61,6 @@
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
 
-enum op_mode { DAEMON = 1, DEBUG = 2 };
-
 extern int respond(char *,char *,char *);
 
 int
@@ -522,6 +520,11 @@ main (int argc, char *argv[])
     memset (seed, 0, sizeof (seed));
 
     read_conf (CFGFILE);
+
+    if (!debug_level)
+        if ((x = env_get ("DEBUG_LEVEL")))
+            debug_level = atol (x);
+    warnx ("DEBUG_LEVEL set to `%ld'", debug_level);
 
     dns_random_init (seed);
 
