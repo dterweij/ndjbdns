@@ -64,7 +64,7 @@ extend_buffer (char **buf)
     return n;
 }
 
-ssize_t
+size_t
 getline (char **lineptr, ssize_t *n, FILE *stream)
 {
     assert (stream != NULL);
@@ -171,7 +171,7 @@ check_variable (const char *var)
     {
         "AXFR", "DATALIMIT", "CACHESIZE", "IP", "IPSEND",
         "UID", "GID", "ROOT", "HIDETTL", "FORWARDONLY",
-        "MERGEQUERIES"
+        "MERGEQUERIES", "DEBUG_LEVEL"
     };
 
     l = sizeof (known_variable) / sizeof (*known_variable);

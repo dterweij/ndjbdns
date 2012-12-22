@@ -25,6 +25,8 @@
 
 #include "uint32.h"
 
+enum op_mode { DAEMON = 1, DEBUG = 2 };
+
 #if defined (__FreeBSD__)
 
 extern ssize_t extend_buffer (char **);

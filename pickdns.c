@@ -34,8 +34,6 @@
 #define CFGFILE SYSCONFDIR"/ndjbdns/pickdns.conf"
 
 extern short mode;
-enum op_mode { DAEMON = 1, DEBUG = 2 };
-
 static struct cdb c;
 static char key[258];
 static char seed[128];
