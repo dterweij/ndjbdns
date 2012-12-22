@@ -30,8 +30,6 @@
 extern short mode;
 static char seed[128];
 
-enum op_mode { DAEMON = 1, DEBUG = 2 };
-
 void
 initialize (void)
 {

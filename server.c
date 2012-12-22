@@ -61,8 +61,6 @@ static char buf[1024];
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
 
-enum op_mode { DAEMON = 1, DEBUG = 2 };
-
 void
 usage (void)
 {
@@ -236,6 +234,11 @@ main (int argc, char *argv[])
     warnx ("version %s: starting: %s\n", VERSION, buf);
 
     initialize ();
+
+    if (!debug_level)
+        if ((x = env_get ("DEBUG_LEVEL")))
+            debug_level = atol (x);
+    warnx ("DEBUG_LEVEL set to `%ld'", debug_level);
 
     if ((x = env_get ("DATALIMIT")))
     {

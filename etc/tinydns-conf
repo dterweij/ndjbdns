@@ -57,3 +57,8 @@ ROOT=PREFIX
 # according to NS records.
 #
 # FORWARDONLY=
+
+# If DEBUG_LEVEL is set, tinydns displays helpful debug messages to
+# the console.
+#
+DEBUG_LEVEL=1
