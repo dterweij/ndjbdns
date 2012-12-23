@@ -1,14 +1,36 @@
-Name:		ndjbdns
-Version:	1.05.4
-Release:	9%{?dist}
-Summary:	New djbdns: usable djbdns
+Name:       ndjbdns
+Version:    1.05.5
+Release:    1%{?dist}
+Summary:    New djbdns: usable djbdns
 
-Group:		Applications/System
-License:	GPLv2+
-URL:		http://pjp.dgplug.org/djbdns/
-Source0:	http://pjp.dgplug.org/djbdns/%{name}-%{version}.tar.gz
-BuildRequires:	systemd-units
+Group:      Applications/System
+License:    GPLv2+
+URL:        http://pjp.dgplug.org/djbdns/
+Source0:    http://pjp.dgplug.org/djbdns/%{name}-%{version}.tar.gz
 
+%if 0%{?fedora} || 0%{?rhel} >= 7
+BuildRequires:  systemd-units
+%endif
+
+%if 0%{?fedora} == 16 || 0%{?fedora} == 17
+Requires(post):     systemd-units
+Requires(preun):    systemd-units
+Requires(postun):   systemd-units
+%endif
+
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+Requires(post):     systemd-sysv
+Requires(post):     systemd
+Requires(preun):    systemd
+Requires(postun):   systemd
+%endif
+
+%if 0%{?rhel} == 5 || 0%{?rhel} == 6
+Requires(post):     /sbin/chkconfig
+Requires(preun):    /sbin/chkconfig
+Requires(preun):    /sbin/service
+Requires(postun):   /sbin/service
+%endif
 
 %description
 New djbdns: is a usable fork of djbdns. `djbdns' is a Domain Name System
@@ -34,14 +56,95 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
+%if 0%{?fedora} || 0%{?rhel} >= 7
 mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
-mv axfrdns.service $RPM_BUILD_ROOT/%{_unitdir}/
-mv dnscache.service $RPM_BUILD_ROOT/%{_unitdir}/
-mv tinydns.service $RPM_BUILD_ROOT/%{_unitdir}/
-
+install -p -m 644 axfrdns.service $RPM_BUILD_ROOT/%{_unitdir}/
+install -p -m 644 dnscache.service $RPM_BUILD_ROOT/%{_unitdir}/
+install -p -m 644 tinydns.service $RPM_BUILD_ROOT/%{_unitdir}/
+rm -r $RPM_BUILD_ROOT/%{_initrddir}/
+%else
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/
 mv ndjbdns.logrotate $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/ndjbdns
+%endif
 
+%if 0%{?fedora} == 16 || 0%{?fedora} == 17
+
+%post
+if [ $1 -eq 1 ]; then
+    # Initial installation
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+
+%preun
+if [ $1 -eq 0 ]; then
+    # Package removal, not upgrade
+    /sbin/systemctl --no-reload disable axfrdns.service > /dev/null 2>&1 || :
+    /sbin/systemctl stop axfrdns.service > /dev/null 2>&1 || :
+
+    /sbin/systemctl --no-reload disable dnscache.service > /dev/null 2>&1 || :
+    /sbin/systemctl stop dnscache.service > /dev/null 2>&1 || :
+
+    /sbin/systemctl --no-reload disable tinydns.service > /dev/null 2>&1 || :
+    /sbin/systemctl stop tinydns.service > /dev/null 2>&1 || :
+fi
+
+%postun
+/bin/systemctl daemon-reload > /dev/null 2>&1 || :
+if [ $1 -ge 1 ]; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart axfrdns.service > /dev/null 2>&1 || :
+    /bin/systemctl try-restart dnscache.service > /dev/null 2>&1 || :
+    /bin/systemctl try-restart tinydns.service > /dev/null 2>&1 || :
+fi
+
+%endif
+
+%if 0%{?fedora} >= 18 || 0%{?rhel} >= 7
+
+%post
+%systemd_post axfrdns.service
+%systemd_post dnscache.service
+%systemd_post tinydns.service
+
+%preun
+%systemd_preun axfrdns.service
+%systemd_preun dnscache.service
+%systemd_preun tinydns.service
+
+%postun
+%systemd_postun_with_restart axfrdns.service
+%systemd_postun_with_restart dnscache.service
+%systemd_postun_with_restart tinydns.service
+
+%endif
+
+%if 0%{?rhel} == 6 || 0%{?rhel} == 5
+
+%post
+#/sbin/chkconfig --add axfrdnsd
+/sbin/chkconfig --add dnscached
+#/sbin/chkconfig --add tinydnsd
+
+%preun
+if [ "$1" = 0 ]; then
+    /sbin/service axfrdnsd stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del axfrdnsd
+
+    /sbin/service dnscached stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del dnscached
+
+    /sbin/service tinydnsd stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del tinydnsd
+fi
+
+%postun
+if [ "$1" -ge "1" ]; then
+    /sbin/service axfrdnsd restart > /dev/null 2>&1 || :
+    /sbin/service dnscached restart > /dev/null 2>&1 || :
+    /sbin/service tinydnsd restart > /dev/null 2>&1 || :
+fi
+
+%endif
 
 %files
 %doc README COPYING ChangeLog
@@ -65,16 +168,22 @@ mv ndjbdns.logrotate $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/ndjbdns
 %{_bindir}/tinydns-edit
 %{_bindir}/tinydns-get
 
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %{_unitdir}/axfrdns.service
 %{_unitdir}/dnscache.service
 %{_unitdir}/tinydns.service
+%else
+%{_initrddir}/axfrdnsd
+%{_initrddir}/dnscached
+%{_initrddir}/tinydnsd
+%config(noreplace) %{_sysconfdir}/logrotate.d/ndjbdns
+%endif
 
 %config(noreplace) %{_sysconfdir}/%{name}/ip/127.0.0.1
 %config(noreplace) %{_sysconfdir}/%{name}/tinydns.conf
 %config(noreplace) %{_sysconfdir}/%{name}/axfrdns.conf
 %config(noreplace) %{_sysconfdir}/%{name}/servers/roots
 %config(noreplace) %{_sysconfdir}/%{name}/dnscache.conf
-%config(noreplace) %{_sysconfdir}/logrotate.d/ndjbdns
 
 %{_mandir}/man1/axfrdns.1.gz
 %{_mandir}/man1/axfr-get.1.gz
@@ -97,6 +206,13 @@ mv ndjbdns.logrotate $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/ndjbdns
 
 
 %changelog
+* Wed Dec 23 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.5-1
+- Applied patch to make SOA responses cache-able.
+- Applied patch to merge identical outgoing requests.
+- Applied patch to install Sys-V init scripts for RHEL and systemd
+  unit files for latest fedora and RHEL-7 distributions.
+  patch from: Simone Caronni <negativo17@gmail.com>
+
 * Tue Mar 13 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.4-9
 - added logrotate configuration file /etc/logrotate.d/ndjbdns and a
   systemd service unit file: axfrdns.service.
