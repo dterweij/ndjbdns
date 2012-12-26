@@ -1,7 +1,9 @@
 #ifndef UINT32_H
 #define UINT32_H
 
-typedef unsigned int uint32;
+#include <stdint.h>
+
+typedef uint32_t uint32;
 
 extern void uint32_pack(char *,uint32);
 extern void uint32_pack_big(char *,uint32);

@@ -28,6 +28,7 @@ AC_TYPE_UID_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
+AC_TYPE_UINT32_T
 
 # Checks for library functions.
 AC_FUNC_CHOWN
