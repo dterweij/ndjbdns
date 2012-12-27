@@ -2,7 +2,7 @@
 #
 # tinydnsd: an init script to start & stop the tinydns service daemon.
 #
-# chkconfig: 35 20 80
+# chkconfig: - 20 80
 # description: tinydns is a DNS server program.
 #              tinydns server maps & serves IP addresses for a given domain
 #              name from a local static database of domain names.
@@ -12,8 +12,7 @@
 # Provides:          tinydnsd
 # Required-Start:    $network
 # Required-Stop:     $network
-# Default-Start:     3 5
-# Default-Stop:      0 1 2 4 6
+# Default-Stop:      0 1 2 3 4 5 6
 # Short-Description: start and stop tinydns daemon at boot time.
 # Description:       tinydns is a DNS server program.
 ### END INIT INFO
@@ -25,73 +24,82 @@
 . /etc/sysconfig/network
 
 prog=PREFIX/bin/tinydns
-logfile="/var/log/tinydnsd.log"
-lockfile="/var/lock/subsys/tinydnsd"
+config=/etc/ndjbdns/tinydns.conf
+logfile=/var/log/tinydnsd.log
+lockfile=/var/lock/subsys/tinydnsd
 
-start ()
-{
-    # Check if networking is up.
-    [ "$NETWORKING" = "no" ] && exit 1
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
+start() {
     [ -x $prog ] || exit 5
-
-    # Start daemon.
+    [ -f $config ] || exit 6
     echo -n $"Starting ${prog##[a-z/.]*/}: "
     daemon $prog -D 2>> $logfile
     RETVAL=$?
-
-    chmod og= $logfile
     echo
     [ $RETVAL -eq 0 ] && touch $lockfile
-
     return $RETVAL
 }
 
-stop ()
-{
-    echo -n $"Shutting down ${prog##[a-z/.]*/}: "
+stop() {
+    echo -n $"Stopping ${prog##[a-z/.]*/}: "
     killproc $prog
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && rm -f $lockfile
-
     return $RETVAL
 }
 
-
-cmd="${0##[a-z/.]*/}"
-
-# See how we were called.
-case "$1" in
-  start)
-    if [ `id -u` -ne 0 ]; then
-        echo "$cmd: you must be root to \`$1' this service."
-        exit -1
-    fi
-    start
-    ;;
-  stop)
-    if [ `id -u` -ne 0 ]; then
-        echo "$cmd: you must be root to \`$1' this service."
-        exit -1
-    fi
+restart() {
     stop
-    ;;
-  status)
+    start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+rh_status() {
     status $prog
-    ;;
-  restart)
-    if [ `id -u` -ne 0 ]; then
-        echo "$cmd: you must be root to \`$1' this service."
-        exit -1
-    fi
-    stop
-    start
-    ;;
-  reload)
-    exit 3
-    ;;
-  *)
-    echo $"Usage: $cmd {start|stop|status|restart}"
-    exit 2
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 7
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+        exit 2
 esac
+exit $?

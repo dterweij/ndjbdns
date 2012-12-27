@@ -2,7 +2,7 @@
 #
 # dnscached: an init script to start & stop the dnscache service daemon.
 #
-# chkconfig: 35 20 80
+# chkconfig: - 20 80
 # description: dnscache is an iterative DNS resolver daemon. An iterative
 #              resolver is a program used to map the given domain name to
 #              it's IP address or vice versa.
@@ -12,8 +12,7 @@
 # Provides:          dnscached
 # Required-Start:    $network
 # Required-Stop:     $network
-# Default-Start:     3 5
-# Default-Stop:      0 1 2 4 6
+# Default-Stop:      0 1 2 3 4 5 6
 # Short-Description: start and stop dnscache daemon at boot time.
 # Description:       dnscache is an iterative DNS resolver daemon.
 ### END INIT INFO
@@ -25,73 +24,82 @@
 . /etc/sysconfig/network
 
 prog=PREFIX/bin/dnscache
-logfile="/var/log/dnscached.log"
-lockfile="/var/lock/subsys/dnscached"
+config=/etc/ndjbdns/dnscache.conf
+logfile=/var/log/dnscached.log
+lockfile=/var/lock/subsys/dnscached
 
-start ()
-{
-    # Check if networking is up.
-    [ "$NETWORKING" = "no" ] && exit 1
+[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
+start() {
     [ -x $prog ] || exit 5
-
-    # Start daemon.
+    [ -f $config ] || exit 6
     echo -n $"Starting ${prog##[a-z/.]*/}: "
     daemon $prog -D 2>> $logfile
     RETVAL=$?
-
-    chmod og= $logfile
     echo
     [ $RETVAL -eq 0 ] && touch $lockfile
-
     return $RETVAL
 }
 
-stop ()
-{
-    echo -n $"Shutting down ${prog##[a-z/.]*/}: "
+stop() {
+    echo -n $"Stopping ${prog##[a-z/.]*/}: "
     killproc $prog
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && rm -f $lockfile
-
     return $RETVAL
 }
 
-
-cmd="${0##[a-z/.]*/}"
-
-# See how we were called.
-case "$1" in
-  start)
-    if [ `id -u` -ne 0 ]; then
-        echo "$cmd: you must be root to \`$1' this service."
-        exit -1
-    fi
-    start
-    ;;
-  stop)
-    if [ `id -u` -ne 0 ]; then
-        echo "$cmd: you must be root to \`$1' this service."
-        exit -1
-    fi
+restart() {
     stop
-    ;;
-  status)
+    start
+}
+
+reload() {
+    restart
+}
+
+force_reload() {
+    restart
+}
+
+rh_status() {
     status $prog
-    ;;
-  restart)
-    if [ `id -u` -ne 0 ]; then
-        echo "$cmd: you must be root to \`$1' this service."
-        exit -1
-    fi
-    stop
-    start
-    ;;
-  reload)
-    exit 3
-    ;;
-  *)
-    echo $"Usage: $cmd {start|stop|status|restart}"
-    exit 2
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+
+case "$1" in
+    start)
+        rh_status_q && exit 0
+        $1
+        ;;
+    stop)
+        rh_status_q || exit 0
+        $1
+        ;;
+    restart)
+        $1
+        ;;
+    reload)
+        rh_status_q || exit 7
+        $1
+        ;;
+    force-reload)
+        force_reload
+        ;;
+    status)
+        rh_status
+        ;;
+    condrestart|try-restart)
+        rh_status_q || exit 0
+        restart
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|try-restart|reload|force-reload}"
+        exit 2
 esac
+exit $?
