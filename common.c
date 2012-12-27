@@ -171,7 +171,7 @@ check_variable (const char *var)
     {
         "AXFR", "DATALIMIT", "CACHESIZE", "IP", "IPSEND",
         "UID", "GID", "ROOT", "HIDETTL", "FORWARDONLY",
-        "MERGEQUERIES", "DEBUG_LEVEL"
+        "MERGEQUERIES", "DEBUG_LEVEL", "BASE"
     };
 
     l = sizeof (known_variable) / sizeof (*known_variable);

@@ -32,8 +32,14 @@
 #include "str.h"
 #include "byte.h"
 #include "open.h"
+#include "common.h"
 #include "response.h"
 
+#define PIDFILE "/var/run/rbldns.pid"
+#define LOGFILE "/var/log/rbldns.log"
+#define CFGFILE SYSCONFDIR"/ndjbdns/rbldns.conf"
+
+extern short mode;
 static char *base;
 static struct cdb c;
 static char key[5];
@@ -153,6 +159,14 @@ void
 initialize(void)
 {
     char *x = NULL;
+
+    read_conf (CFGFILE);
+    if (mode & DAEMON)
+    {
+        /* redirect stdout & stderr to a log file */
+        redirect_to_log (LOGFILE);
+        write_pid (PIDFILE);
+    }
 
     x = env_get("BASE");
     if (!x)
