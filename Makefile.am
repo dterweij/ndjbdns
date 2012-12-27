@@ -18,11 +18,10 @@ SUBDIRS = etc
 
 bin_PROGRAMS = dnscache dnsip dnsipq dnsq dnsname dnstxt dnsqr \
 	dnsfilter dnstrace tinydns tinydns-data tinydns-edit tinydns-get \
-	randomip axfrdns axfr-get tcprules
+	randomip axfrdns axfr-get tcprules rbldns rbldns-data
 
 noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-data \
-	pickdns-conf rbldns rbldns-conf rbldns-data walldns walldns-conf \
-	axfrdns-conf dnsmx
+	pickdns-conf rbldns-conf walldns walldns-conf axfrdns-conf dnsmx
 
 bin_SCRIPTS = dnstracesort
 
