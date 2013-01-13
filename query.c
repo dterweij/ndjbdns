@@ -878,6 +878,16 @@ HAVEPACKET:
             i = j;
             continue;
         }
+        if (!flagforwardonly && byte_equal (type, 2, DNS_T_NS)
+            && dns_domain_equal (t1, control))
+        {
+            char dummy[256];
+            if (!roots (dummy, control))
+            {
+                i = j;
+                continue;
+            }
+        }
         if (!roots_same (t1, control))
         {
             i = j;
