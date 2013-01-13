@@ -28,12 +28,12 @@ bin_SCRIPTS = dnstracesort
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
 	dnstxt.ms tcprules.ms dnsqr.ms random-ip.ms dnstrace.ms axfrdns.ms \
-	axfr-get.ms dnsname.ms
+	axfr-get.ms dnsname.ms rbldns.ms rbldns-data.ms
 
 nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
 	tinydns-data.1 tinydns-edit.1 tinydns-get.1 tinydns.1 dnsipq.1 \
 	dnstxt.1 tcprules.1 dnsqr.1 randomip.1 dnstrace.1 axfrdns.1 \
-	axfr-get.1 dnsname.1
+	axfr-get.1 dnsname.1 rbldns.1 rbldns-data.1
 
 CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
 EXTRA_DIST = dnstracesort.sh readme.ms README INSTALL TODO ChangeLog \
@@ -168,12 +168,18 @@ rbldns_SOURCES = rbldns.c server.c response.c dd.c droproot.c qlog.c prot.c \
 rbldns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a
 
+rbldns.1: rbldns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' rbldns.ms > rbldns.1
+
 rbldns_conf_SOURCES = rbldns-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h
 rbldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 
 rbldns_data_SOURCES = rbldns-data.c
 rbldns_data_LDADD = libcdb.a liballoc.a libbuffer.a libunix.a libbyte.a
+
+rbldns-data.1: rbldns-data.ms
+	cp rbldns-data.ms rbldns-data.1
 
 tcprules_SOURCES = tcprules.c
 tcprules_LDADD = libcdb.a liballoc.a libbuffer.a libunix.a libbyte.a

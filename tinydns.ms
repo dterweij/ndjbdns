@@ -1,6 +1,6 @@
 \"
 \" tinydns.1: This is a manuscript of the manual page for `tinydns'. This file
-\" is part of the `djbdns' project version 1.05.3 and later.
+\" is part of the `New djbdns' project.
 \"
 
 \" No hyphenation
