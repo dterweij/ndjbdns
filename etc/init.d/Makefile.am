@@ -12,12 +12,13 @@
 ##
 
 confdir = $(sysconfdir)/rc.d/init.d/
-conf_SCRIPTS = axfrdnsd dnscached tinydnsd
+conf_SCRIPTS = axfrdns dnscache rbldns tinydns
 
-$(conf_SCRIPTS): axfrdns.sh dnscache.sh tinydns.sh
-	sed -e 's:PREFIX:${prefix}:' axfrdns.sh > axfrdnsd
-	sed -e 's:PREFIX:${prefix}:' dnscache.sh > dnscached
-	sed -e 's:PREFIX:${prefix}:' tinydns.sh > tinydnsd
+$(conf_SCRIPTS): axfrdns.sh dnscache.sh rbldns.sh tinydns.sh
+	sed -e 's:PREFIX:${prefix}:' axfrdns.sh > axfrdns
+	sed -e 's:PREFIX:${prefix}:' dnscache.sh > dnscache
+	sed -e 's:PREFIX:${prefix}:' rbldns.sh > rbldns
+	sed -e 's:PREFIX:${prefix}:' tinydns.sh > tinydns
 
 CLEANFILES = $(conf_SCRIPTS)
-EXTRA_DIST = axfrdns.sh dnscache.sh tinydns.sh
+EXTRA_DIST = axfrdns.sh dnscache.sh rbldns.sh tinydns.sh

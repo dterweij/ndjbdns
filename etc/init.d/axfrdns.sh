@@ -1,13 +1,13 @@
 #!/bin/sh
 #
-# axfrdnsd: an init script to start & stop the axfrdns service daemon.
+# axfrdns: an init script to start & stop the axfrdns service daemon.
 #
 # chkconfig: - 20 80
 # description: axfrdns is a DNS zone transfer server.
 #
 
 ### BEGIN INIT INFO
-# Provides:          axfrdnsd
+# Provides:          axfrdns
 # Required-Start:    $network
 # Required-Stop:     $network
 # Default-Stop:      0 1 2 3 4 5 6
@@ -23,8 +23,8 @@
 
 prog=PREFIX/bin/axfrdns
 config=/etc/ndjbdns/axfrdns.conf
-logfile=/var/log/axfrdnsd.log
-lockfile=/var/lock/subsys/axfrdnsd
+logfile=/var/log/axfrdns.log
+lockfile=/var/lock/subsys/axfrdns
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 

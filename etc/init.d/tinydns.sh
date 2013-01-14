@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# tinydnsd: an init script to start & stop the tinydns service daemon.
+# tinydns: an init script to start & stop the tinydns service daemon.
 #
 # chkconfig: - 20 80
 # description: tinydns is a DNS server program.
@@ -9,7 +9,7 @@
 #
 
 ### BEGIN INIT INFO
-# Provides:          tinydnsd
+# Provides:          tinydns
 # Required-Start:    $network
 # Required-Stop:     $network
 # Default-Stop:      0 1 2 3 4 5 6
@@ -25,8 +25,8 @@
 
 prog=PREFIX/bin/tinydns
 config=/etc/ndjbdns/tinydns.conf
-logfile=/var/log/tinydnsd.log
-lockfile=/var/lock/subsys/tinydnsd
+logfile=/var/log/tinydns.log
+lockfile=/var/lock/subsys/tinydns
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 

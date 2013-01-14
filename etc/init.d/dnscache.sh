@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# dnscached: an init script to start & stop the dnscache service daemon.
+# dnscache: an init script to start & stop the dnscache service daemon.
 #
 # chkconfig: - 20 80
 # description: dnscache is an iterative DNS resolver daemon. An iterative
@@ -9,7 +9,7 @@
 #
 
 ### BEGIN INIT INFO
-# Provides:          dnscached
+# Provides:          dnscache
 # Required-Start:    $network
 # Required-Stop:     $network
 # Default-Stop:      0 1 2 3 4 5 6
@@ -25,8 +25,8 @@
 
 prog=PREFIX/bin/dnscache
 config=/etc/ndjbdns/dnscache.conf
-logfile=/var/log/dnscached.log
-lockfile=/var/lock/subsys/dnscached
+logfile=/var/log/dnscache.log
+lockfile=/var/lock/subsys/dnscache
 
 [ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
