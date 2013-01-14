@@ -60,6 +60,7 @@ make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
 install -p -m 644 axfrdns.service $RPM_BUILD_ROOT/%{_unitdir}/
 install -p -m 644 dnscache.service $RPM_BUILD_ROOT/%{_unitdir}/
+install -p -m 644 rbldns.service $RPM_BUILD_ROOT/%{_unitdir}/
 install -p -m 644 tinydns.service $RPM_BUILD_ROOT/%{_unitdir}/
 rm -r $RPM_BUILD_ROOT/%{_initrddir}/
 %else
@@ -84,6 +85,9 @@ if [ $1 -eq 0 ]; then
     /sbin/systemctl --no-reload disable dnscache.service > /dev/null 2>&1 || :
     /sbin/systemctl stop dnscache.service > /dev/null 2>&1 || :
 
+    /sbin/systemctl --no-reload disable rbldns.service > /dev/null 2>&1 || :
+    /sbin/systemctl stop rbldns.service > /dev/null 2>&1 || :
+
     /sbin/systemctl --no-reload disable tinydns.service > /dev/null 2>&1 || :
     /sbin/systemctl stop tinydns.service > /dev/null 2>&1 || :
 fi
@@ -94,6 +98,7 @@ if [ $1 -ge 1 ]; then
     # Package upgrade, not uninstall
     /bin/systemctl try-restart axfrdns.service > /dev/null 2>&1 || :
     /bin/systemctl try-restart dnscache.service > /dev/null 2>&1 || :
+    /bin/systemctl try-restart rbldns.service > /dev/null 2>&1 || :
     /bin/systemctl try-restart tinydns.service > /dev/null 2>&1 || :
 fi
 
@@ -104,16 +109,19 @@ fi
 %post
 %systemd_post axfrdns.service
 %systemd_post dnscache.service
+%systemd_post rbldns.service
 %systemd_post tinydns.service
 
 %preun
 %systemd_preun axfrdns.service
 %systemd_preun dnscache.service
+%systemd_preun rbldns.service
 %systemd_preun tinydns.service
 
 %postun
 %systemd_postun_with_restart axfrdns.service
 %systemd_postun_with_restart dnscache.service
+%systemd_postun_with_restart rbldns.service
 %systemd_postun_with_restart tinydns.service
 
 %endif
@@ -121,27 +129,32 @@ fi
 %if 0%{?rhel} == 6 || 0%{?rhel} == 5
 
 %post
-#/sbin/chkconfig --add axfrdnsd
-/sbin/chkconfig --add dnscached
-#/sbin/chkconfig --add tinydnsd
+/sbin/chkconfig --add axfrdns
+/sbin/chkconfig --add dnscache
+/sbin/chkconfig --add rbldns
+/sbin/chkconfig --add tinydns
 
 %preun
 if [ "$1" = 0 ]; then
-    /sbin/service axfrdnsd stop > /dev/null 2>&1 || :
-    /sbin/chkconfig --del axfrdnsd
+    /sbin/service axfrdns stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del axfrdns
 
-    /sbin/service dnscached stop > /dev/null 2>&1 || :
-    /sbin/chkconfig --del dnscached
+    /sbin/service dnscache stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del dnscache
 
-    /sbin/service tinydnsd stop > /dev/null 2>&1 || :
-    /sbin/chkconfig --del tinydnsd
+    /sbin/service rbldns stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del rbldns
+
+    /sbin/service tinydns stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del tinydns
 fi
 
 %postun
 if [ "$1" -ge "1" ]; then
-    /sbin/service axfrdnsd restart > /dev/null 2>&1 || :
-    /sbin/service dnscached restart > /dev/null 2>&1 || :
-    /sbin/service tinydnsd restart > /dev/null 2>&1 || :
+    /sbin/service axfrdns restart > /dev/null 2>&1 || :
+    /sbin/service dnscache restart > /dev/null 2>&1 || :
+    /sbin/service rbldns restart > /dev/null 2>&1 || :
+    /sbin/service tinydns restart > /dev/null 2>&1 || :
 fi
 
 %endif
@@ -162,6 +175,8 @@ fi
 %{_bindir}/dnstracesort
 %{_bindir}/dnstxt
 %{_bindir}/randomip
+%{_bindir}/rbldns
+%{_bindir}/rbldns-data
 %{_bindir}/tcprules
 %{_bindir}/tinydns
 %{_bindir}/tinydns-data
@@ -171,19 +186,23 @@ fi
 %if 0%{?fedora} || 0%{?rhel} >= 7
 %{_unitdir}/axfrdns.service
 %{_unitdir}/dnscache.service
+%{_unitdir}/rbldns.service
 %{_unitdir}/tinydns.service
 %else
-%{_initrddir}/axfrdnsd
-%{_initrddir}/dnscached
-%{_initrddir}/tinydnsd
+%{_initrddir}/axfrdns
+%{_initrddir}/dnscache
+%{_initrddir}/rbldns
+%{_initrddir}/tinydns
 %config(noreplace) %{_sysconfdir}/logrotate.d/ndjbdns
 %endif
 
 %config(noreplace) %{_sysconfdir}/%{name}/ip/127.0.0.1
-%config(noreplace) %{_sysconfdir}/%{name}/tinydns.conf
-%config(noreplace) %{_sysconfdir}/%{name}/axfrdns.conf
 %config(noreplace) %{_sysconfdir}/%{name}/servers/roots
+
+%config(noreplace) %{_sysconfdir}/%{name}/axfrdns.conf
 %config(noreplace) %{_sysconfdir}/%{name}/dnscache.conf
+%config(noreplace) %{_sysconfdir}/%{name}/rbldns.conf
+%config(noreplace) %{_sysconfdir}/%{name}/tinydns.conf
 
 %{_mandir}/man1/axfrdns.1.gz
 %{_mandir}/man1/axfr-get.1.gz
@@ -197,6 +216,8 @@ fi
 %{_mandir}/man1/dnsqr.1.gz
 %{_mandir}/man1/dnstrace.1.gz
 %{_mandir}/man1/dnstxt.1.gz
+%{_mandir}/man1/rbldns.1.gz
+%{_mandir}/man1/rbldns-data.1.gz
 %{_mandir}/man1/randomip.1.gz
 %{_mandir}/man1/tcprules.1.gz
 %{_mandir}/man1/tinydns.1.gz
@@ -206,6 +227,14 @@ fi
 
 
 %changelog
+* Sun Jan 14 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.6-1
+- Updated SysV scripts according to the packaging guidelines.
+- Disabled system services by default, registerd all.
+  patch from: Simone Caronni <negativo17@gmail.com>
+- Built rbldns & rbldns-data tools.
+- Added systemd unit and Sys-v init files for rbldns server.
+- Few minor changes to fix regressions, define uint32 type etc.
+
 * Wed Dec 23 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.5-1
 - Applied patch to make SOA responses cache-able.
 - Applied patch to merge identical outgoing requests.
