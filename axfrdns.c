@@ -55,7 +55,7 @@
 #include "timeoutwrite.h"
 
 #define PIDFILE "/var/run/axfrdns.pid"
-#define LOGFILE "/var/log/axfrdnsd.log"
+#define LOGFILE "/var/log/axfrdns.log"
 #define CFGFILE SYSCONFDIR"/ndjbdns/axfrdns.conf"
 
 static char *prog = NULL;

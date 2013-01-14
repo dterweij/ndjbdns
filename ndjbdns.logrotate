@@ -1,5 +1,5 @@
 
-/var/log/axfrdnsd.log {
+/var/log/axfrdns.log {
     shred
     weekly
     rotate 4
@@ -7,7 +7,7 @@
     notifempty
 }
 
-/var/log/dnscached.log {
+/var/log/dnscache.log {
     shred
     weekly
     rotate 4
@@ -15,7 +15,15 @@
     notifempty
 }
 
-/var/log/tinydnsd.log {
+/var/log/rbldns.log {
+    shred
+    weekly
+    rotate 4
+    missingok
+    notifempty
+}
+
+/var/log/tinydns.log {
     shred
     weekly
     rotate 4

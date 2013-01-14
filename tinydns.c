@@ -24,7 +24,7 @@
 #include "common.h"
 
 #define PIDFILE "/var/run/tinydns.pid"
-#define LOGFILE "/var/log/tinydnsd.log"
+#define LOGFILE "/var/log/tinydns.log"
 #define CFGFILE SYSCONFDIR"/ndjbdns/tinydns.conf"
 
 extern short mode;

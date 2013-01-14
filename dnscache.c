@@ -38,7 +38,7 @@
 #include "version.h"
 
 #define PIDFILE "/var/run/dnscache.pid"
-#define LOGFILE "/var/log/dnscached.log"
+#define LOGFILE "/var/log/dnscache.log"
 #define CFGFILE SYSCONFDIR"/ndjbdns/dnscache.conf"
 
 static char *prog = NULL;
