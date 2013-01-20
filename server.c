@@ -132,7 +132,7 @@ doit (void)
     char header[12];
     unsigned int pos = 0;
 
-    if (len >= sizeof buf)
+    if ((unsigned)len >= sizeof buf)
         goto NOQ;
     if (!(pos = dns_packet_copy (buf, len, 0, header, 12)))
         goto NOQ;
@@ -238,7 +238,7 @@ main (int argc, char *argv[])
     if (!debug_level)
         if ((x = env_get ("DEBUG_LEVEL")))
             debug_level = atol (x);
-    warnx ("DEBUG_LEVEL set to `%ld'", debug_level);
+    warnx ("DEBUG_LEVEL set to `%d'", debug_level);
 
     if ((x = env_get ("DATALIMIT")))
     {
@@ -269,7 +269,7 @@ main (int argc, char *argv[])
         err (-1, "could not bind UDP socket");
 
     droproot ();
-  
+
     ndelay_off (udp53);
     socket_tryreservein (udp53, 65536);
 

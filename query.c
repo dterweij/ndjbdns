@@ -460,7 +460,7 @@ NEWNAME:
                     goto DIE;
 
                 pos = 0;
-                while (pos = dns_packet_copy(cached, cachedlen, pos, misc, 20))
+                while ((pos=dns_packet_copy(cached, cachedlen, pos, misc, 20)))
                 {
                     pos = dns_packet_getname (cached, cachedlen, pos, &t2);
                     if (!pos)

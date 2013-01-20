@@ -40,7 +40,7 @@ roots_find (char *q)
 {
     int i = 0, j = 0;
 
-    while (i < data.len)
+    while ((unsigned)i < data.len)
     {
         j = dns_domain_length (data.s + i);
         if (dns_domain_equal (data.s + i, q))
@@ -120,7 +120,7 @@ init2 (DIR *dir)
             if (!dns_domain_fromdot (&q, fqdn, str_len (fqdn)))
                 return 0;
 
-            for (i = 0; i < text.len; ++i)
+            for (i = 0; (unsigned)i < text.len; ++i)
             {
                 if (text.s[i] == '\n')
                 {
