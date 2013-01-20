@@ -146,7 +146,7 @@ doaddressdata (void)
         if (byte_chr (address.s, address.len, '@') == address.len)
         {
             i = byte_chr (address.s, address.len, '-');
-            if (i < address.len)
+            if ((unsigned)i < address.len)
             {
                 left = byte_rchr (address.s, i, '.');
                 left = (left == i) ? 0 : left + 1;

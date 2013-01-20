@@ -311,7 +311,7 @@ int
 main(int argc, char *argv[])
 {
     int fddata = 0;
-    int i = 0, j = 0, k = 0;
+    unsigned int i = 0, j = 0, k = 0;
 
     unsigned long u = 0;
     unsigned long ttl = 0;
@@ -344,7 +344,7 @@ main(int argc, char *argv[])
     {
         linenum++;
         if (getln (&b, &line, &match, '\n') == -1)
-            err (-1, "could not read line: %d", linenum);
+            err (-1, "could not read line: %ld", linenum);
 
         while (line.len)
         {
@@ -402,31 +402,31 @@ main(int argc, char *argv[])
             if (!stralloc_0 (&f[3]))
                 err (-1, "could not allocate enough memory");
             if (!scan_ulong (f[3].s, &u))
-                uint32_unpack_big (defaultsoa, &u);
+                uint32_unpack_big (defaultsoa, (uint32 *)&u);
             uint32_pack_big (soa, u);
 
             if (!stralloc_0 (&f[4]))
                 err (-1, "could not allocate enough memory");
             if (!scan_ulong (f[4].s, &u))
-                uint32_unpack_big (defaultsoa + 4, &u);
+                uint32_unpack_big (defaultsoa + 4, (uint32 *)&u);
             uint32_pack_big (soa + 4, u);
 
             if (!stralloc_0 (&f[5]))
                 err (-1, "could not allocate enough memory");
             if (!scan_ulong (f[5].s, &u))
-                uint32_unpack_big (defaultsoa + 8, &u);
+                uint32_unpack_big (defaultsoa + 8, (uint32 *)&u);
             uint32_pack_big (soa + 8, u);
 
             if (!stralloc_0 (&f[6]))
                 err (-1, "could not allocate enough memory");
             if (!scan_ulong (f[6].s, &u))
-                uint32_unpack_big (defaultsoa + 12, &u);
+                uint32_unpack_big (defaultsoa + 12, (uint32 *)&u);
             uint32_pack_big (soa + 12, u);
 
             if (!stralloc_0 (&f[7]))
                 err (-1, "could not allocate enough memory");
             if (!scan_ulong (f[7].s, &u))
-                uint32_unpack_big (defaultsoa + 16, &u);
+                uint32_unpack_big (defaultsoa + 16, (uint32 *)&u);
             uint32_pack_big (soa + 16, u);
 
             if (!stralloc_0 (&f[8]))
