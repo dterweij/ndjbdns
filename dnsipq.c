@@ -119,7 +119,7 @@ main (int argc,char *argv[])
 
         buffer_put (buffer_1, fqdn.s, fqdn.len);
         buffer_puts (buffer_1, " ");
-        for (i = 0; i + 4 <= out.len; i += 4)
+        for (i = 0; (unsigned)i + 4 <= out.len; i += 4)
         {
             buffer_put (buffer_1, str, ip4_fmt (str, out.s + i));
             buffer_puts (buffer_1, " ");

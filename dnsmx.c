@@ -139,7 +139,7 @@ main (int argc, char *argv[])
         else
         {
               i = 0;
-              while (i + 2 < out.len)
+              while ((unsigned)i + 2 < out.len)
               {
                   j = byte_chr (out.s + i + 2, out.len - i - 2, 0);
                   uint16_unpack_big (out.s + i, &pref);

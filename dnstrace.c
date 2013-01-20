@@ -233,8 +233,8 @@ void
 qt_add (const char *q, const char type[2],
                        const char *control, const char ip[4])
 {
-    int i = 0;
     struct qt x;
+    unsigned i = 0;
 
     if (!*q)
         return; /* don't ask the roots about our artificial . host */
@@ -265,7 +265,7 @@ void
 query_add (const char *owner, const char type[2])
 {
     struct query x;
-    int i = 0, j = 0;
+    unsigned i = 0, j = 0;
 
     for (i = 0; i < query.len; i++)
     {
@@ -301,7 +301,7 @@ void
 ns_add (const char *owner, const char *server)
 {
     struct ns x;
-    int i = 0, j = 0;
+    unsigned i = 0, j = 0;
 
     buffer_put (buffer_1, querystr.s, querystr.len);
     buffer_puts (buffer_1, "NS:");
@@ -347,8 +347,8 @@ ns_add (const char *owner, const char *server)
 void
 address_add (const char *owner, const char ip[4])
 {
-    int i = 0, j = 0;
     struct address x;
+    unsigned i = 0, j = 0;
 
     buffer_put (buffer_1, querystr.s, querystr.len);
     buffer_puts (buffer_1, "A:");
@@ -409,16 +409,12 @@ parsepacket (const char *buf, unsigned int len, const char *d,
     uint16 numanswers = 0;
     unsigned int posanswers = 0;
 
-    uint16 numauthority = 0;
-    unsigned int posauthority = 0;
-
     uint16 numglue = 0;
-    unsigned int posglue = 0;
-
     uint16 datalen = 0;
     unsigned int rcode = 0;
+    uint16 numauthority = 0;
 
-    int j = 0;
+    uint16 j = 0;
     const char *x = NULL;
 
     int flagout = 0, flagcname = 0;
@@ -471,7 +467,6 @@ parsepacket (const char *buf, unsigned int len, const char *d,
         pos += datalen;
     }
 
-    posauthority = pos;
     for (j = 0; j < numauthority; ++j)
     {
         pos = dns_packet_getname (buf, len, pos, &t1);
@@ -491,7 +486,6 @@ parsepacket (const char *buf, unsigned int len, const char *d,
         uint16_unpack_big (header + 8, &datalen);
         pos += datalen;
     }
-    posglue = pos;
 
     if (!flagcname && !rcode && !flagout && flagreferral && !flagsoa)
     {
@@ -610,7 +604,7 @@ main (int argc, char *argv[])
     static stralloc fqdn;
     static char *q = NULL;
 
-    int i = 0;
+    unsigned i = 0;
     uint16 u16 = 0;
 
     char ip[64];
