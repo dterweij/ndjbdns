@@ -249,9 +249,10 @@ liballoc_a_SOURCES = alloc.c alloc_re.c getln.c getln2.c stralloc_cat.c \
 	alloc.h error.h byte.h getln.h buffer.h stralloc.h gen_alloc.h \
 	gen_allocdefs.h str.h
 
-libbuffer_a_SOURCES = buffer.c buffer_1.c buffer_2.c buffer_copy.c \
-	buffer_get.c buffer_put.c strerr_die.c strerr_sys.c \
+libbuffer_a_SOURCES = buffer.c strerr_die.c strerr_sys.c \
 	buffer.h byte.h error.h str.h strerr.h
+#	buffer_1.c buffer_2.c buffer_copy.c \
+#	buffer_get.c buffer_put.c buffer_read.c buffer_write.c
 
 libbyte_a_SOURCES = byte_chr.c byte_rchr.c byte_copy.c byte_cr.c \
 	byte_diff.c byte_zero.c case_diffb.c case_diffs.c case_lowerb.c \
@@ -280,9 +281,9 @@ libtai_a_SOURCES = tai_add.c tai_now.c tai_pack.c tai_sub.c tai_uint.c \
 	taia_now.c taia_pack.c taia_sub.c taia_tai.c taia_uint.c \
 	tai.h uint64.h taia.h
 
-libunix_a_SOURCES = buffer_read.c buffer_write.c error.c error_str.c \
-	ndelay_off.c ndelay_on.c open_read.c open_trunc.c openreadclose.c \
-	readclose.c seek_set.c socket_accept.c socket_bind.c socket_conn.c \
-	socket_listen.c socket_recv.c socket_send.c socket_tcp.c socket_udp.c \
-	buffer.h error.h ndelay.h open.h readclose.h stralloc.h gen_alloc.h \
-	openreadclose.h seek.h byte.h socket.h uint16.h
+libunix_a_SOURCES = error.c error_str.c ndelay_off.c ndelay_on.c \
+	open_read.c open_trunc.c openreadclose.c readclose.c seek_set.c \
+	socket_accept.c socket_bind.c socket_conn.c socket_listen.c \
+	socket_recv.c socket_send.c socket_tcp.c socket_udp.c error.h \
+	ndelay.h open.h readclose.h stralloc.h gen_alloc.h openreadclose.h \
+	seek.h byte.h socket.h uint16.h
