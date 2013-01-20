@@ -1,5 +1,5 @@
 Name:       ndjbdns
-Version:    1.05.5
+Version:    1.05.6
 Release:    1%{?dist}
 Summary:    New djbdns: usable djbdns
 
