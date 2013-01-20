@@ -524,7 +524,7 @@ main (int argc, char *argv[])
     if (!debug_level)
         if ((x = env_get ("DEBUG_LEVEL")))
             debug_level = atol (x);
-    warnx ("DEBUG_LEVEL set to `%ld'", debug_level);
+    warnx ("DEBUG_LEVEL set to `%d'", debug_level);
 
     dns_random_init (seed);
 
