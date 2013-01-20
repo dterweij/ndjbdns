@@ -503,7 +503,7 @@ dns_transmit_get (struct dns_transmit *d, const iopause_fd *x,
 
             return nextudp (d);
         }
-        if (r + 1 > sizeof (udpbuf))
+        if ((unsigned)r + 1 > sizeof (udpbuf))
             return 0;
 
         if (irrelevant (d, udpbuf, r))
