@@ -188,7 +188,7 @@ u_new (void)
     len = socket_recv4 (udp53, buf, sizeof (buf), x->ip, &x->port);
     if (len == -1)
         return;
-    if (len >= sizeof buf)
+    if ((unsigned)len >= sizeof buf)
         return;
     if (x->port < 1024 && x->port != 53)
         return;
@@ -677,7 +677,7 @@ main (int argc, char *argv[])
     if (!debug_level)
         if ((x = env_get ("DEBUG_LEVEL")))
             debug_level = atol (x);
-    warnx ("DEBUG_LEVEL set to `%ld'", debug_level);
+    warnx ("DEBUG_LEVEL set to `%d'", debug_level);
 
     if ((x = env_get ("DATALIMIT")))
     {
@@ -734,7 +734,7 @@ main (int argc, char *argv[])
     socket_tryreservein (udp53, 131072);
 
     memset (char_seed, 0, sizeof (char_seed));
-    for (i = 0, x = (char *)seed; i < sizeof (char_seed); i++, x++)
+    for (i = 0, x = (char *)seed; (unsigned)i < sizeof (char_seed); i++, x++)
         char_seed[i] = *x;
     dns_random_init (char_seed);
 
