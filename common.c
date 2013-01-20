@@ -200,7 +200,7 @@ read_conf (const char *file)
     if (!(fp = fopen (file, "r")))
         err (-1, "could not open file `%s'", file);
 
-    while ((n = getline (&line, &l, fp)) != -1)
+    while ((signed)(n = getline (&line, &l, fp)) != -1)
     {
         lcount++;
         line[n - 1] = '\0';

@@ -74,7 +74,7 @@ static int match(struct cdb *c,const char *key,unsigned int len,uint32 pos)
 
   while (len > 0) {
     n = sizeof buf;
-    if (n > len) n = len;
+    if ((unsigned)n > len) n = len;
     if (cdb_read(c,buf,n,pos) == -1) return -1;
     if (byte_diff(buf,n,key)) return 0;
     pos += n;
