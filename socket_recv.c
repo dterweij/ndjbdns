@@ -11,7 +11,7 @@ socket_recv4 (int s, char *buf, int len, char ip[4], uint16 *port)
 {
     int r = 0;
     struct sockaddr_in sa;
-    int dummy = sizeof (sa);
+    socklen_t dummy = sizeof (sa);
 
     r = recvfrom (s, buf, len, 0, (struct sockaddr *)&sa, &dummy);
     if (r == -1)
