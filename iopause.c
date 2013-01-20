@@ -44,7 +44,7 @@ iopause (iopause_fd *x, unsigned int len,
         millisecs = d * 1000.0 + 20.0;
     }
 
-    for (i = 0; i < len; ++i)
+    for (i = 0; (unsigned)i < len; ++i)
         x[i].revents = 0;
 
 #ifdef IOPAUSE_POLL

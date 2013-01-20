@@ -96,13 +96,14 @@ ip (const char i[4])
     number ((int)(i[3] & 0xFF));
 }
 
+/*
 static void
 logid (const char id[2])
 {
     hex (id[0]);
     hex (id[1]);
 }
-
+*/
 static void
 logtype (const char type[2])
 {
@@ -373,7 +374,7 @@ log_rr (const char server[4], const char *q, const char type[2],
     name (q);
     space ();
 
-    for (i = 0; i < len; ++i)
+    for (i = 0; (unsigned)i < len; ++i)
     {
         hex (buf[i]);
         if (i > 30)

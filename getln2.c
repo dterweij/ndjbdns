@@ -24,7 +24,7 @@ getln2 (buffer *ss, stralloc *sa, char **cont, unsigned int *clen, int sep)
         }
         x = buffer_PEEK (ss);
         i = byte_chr (x, n, sep);
-        if (i < n)
+        if (i < (unsigned)n)
         {
             buffer_SEEK (ss, *clen = i + 1);
             *cont = x;
