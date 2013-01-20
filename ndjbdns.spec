@@ -242,6 +242,9 @@ fi
   unit files for latest fedora and RHEL-7 distributions.
   patch from: Simone Caronni <negativo17@gmail.com>
 
+* Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.05.4-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Tue Mar 13 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.4-9
 - added logrotate configuration file /etc/logrotate.d/ndjbdns and a
   systemd service unit file: axfrdns.service.
