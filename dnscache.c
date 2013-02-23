@@ -757,6 +757,8 @@ main (int argc, char *argv[])
         dns_enable_merge (log_merge);
     if (!roots_init ())
         err (-1, "could not read servers");
+    if (debug_level > 3)
+        roots_display();
     if (socket_listen (tcp53, 20) == -1)
         err (-1, "could not listen on TCP socket");
 
