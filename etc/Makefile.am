@@ -11,7 +11,11 @@
 ## 6. automake -ac --foreign
 ##
 
+if HAVE_SYSTEMD
+SUBDIRS = ip servers systemd
+else
 SUBDIRS = ip init.d servers
+endif
 
 confdir = $(sysconfdir)/ndjbdns
 conf_DATA = axfrdns.conf dnscache.conf rbldns.conf tinydns.conf

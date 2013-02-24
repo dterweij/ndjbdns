@@ -37,8 +37,7 @@ nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
 
 CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
 EXTRA_DIST = dnstracesort.sh readme.ms README INSTALL TODO ChangeLog \
-	COPYING $(noinst_MANS) dnscache.service tinydns.service axfrdns.service \
-	rbldns.service ndjbdns.logrotate
+	COPYING $(noinst_MANS) ndjbdns.logrotate
 
 axfrdns_SOURCES = axfrdns.c iopause.c droproot.c tdlookup.c response.c \
 	qlog.c prot.c timeoutread.c timeoutwrite.c common.c \
