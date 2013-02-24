@@ -1,14 +1,12 @@
 [Unit]
 Description=An iterative DNS resolver daemon
 Documentation=man:dnscache(1)
-Requires=syslog.target network.target
-After=syslog.target
+Requires=network.target
 
 [Service]
 Restart=always
 PIDFile=/var/run/dnscache.pid
 ExecStart=/usr/bin/dnscache
-StandardOutput=syslog
 
 [Install]
 WantedBy=multi-user.target

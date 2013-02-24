@@ -1,14 +1,12 @@
 [Unit]
 Description=A DNS zone transfer server
 Documentation=man:axfrdns(1)
-Requires=syslog.target network.target
-After=syslog.target
+Requires=network.target
 
 [Service]
 Restart=always
 PIDFile=/var/run/axfrdns.pid
 ExecStart=/usr/bin/axfrdns
-StandardOutput=syslog
 
 [Install]
 WantedBy=multi-user.target
