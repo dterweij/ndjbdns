@@ -45,7 +45,6 @@ UID=2
 #
 GID=2
 
-
 # ROOT: is the new root & working directory for axfrdns.
 # Obviously, the user whose ID is mentioned above MUST be able to read from
 # this directory.

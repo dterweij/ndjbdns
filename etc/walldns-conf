@@ -1,7 +1,7 @@
 #
-# rbldns.conf: this file is part of the djbdns project.
+# walldns.conf: this file is part of the djbdns project.
 #
-# Here we define some variables vital for running rbldns.
+# Here we define some variables vital for running walldns.
 #
 # Things to remember:
 #
@@ -12,20 +12,15 @@
 
 # Maximum number of bytes that could be allocated if required.
 #
-DATALIMIT=8000000
+DATALIMIT=250000
 
 # No of bytes to allocate for the cache. This may not exceed DATALIMIT.
 #
-# CACHESIZE=5000000
+#CACHESIZE=250000
 
 # Address to listen on for incoming connections.
 #
 IP=127.0.0.1
-
-# rbldns handles queries of the form 4.3.2.1.base, where 1.2.3.4 is an
-# IP address in question and base is the domain defined by BASE variable.
-#
-BASE=basedomain.com
 
 # A non-root user whose privileges should be acquired by rbldns.
 # Default: daemon
