@@ -28,12 +28,12 @@ bin_SCRIPTS = dnstracesort
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
 	dnstxt.ms tcprules.ms dnsqr.ms random-ip.ms dnstrace.ms axfrdns.ms \
-	axfr-get.ms dnsname.ms rbldns.ms rbldns-data.ms
+	axfr-get.ms dnsname.ms rbldns.ms rbldns-data.ms walldns.ms
 
 nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
 	tinydns-data.1 tinydns-edit.1 tinydns-get.1 tinydns.1 dnsipq.1 \
 	dnstxt.1 tcprules.1 dnsqr.1 randomip.1 dnstrace.1 axfrdns.1 \
-	axfr-get.1 dnsname.1 rbldns.1 rbldns-data.1
+	axfr-get.1 dnsname.1 rbldns.1 rbldns-data.1 walldns.1
 
 CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
 EXTRA_DIST = dnstracesort.sh readme.ms README INSTALL TODO ChangeLog \
@@ -229,6 +229,9 @@ walldns_SOURCES = walldns.c server.c response.c droproot.c qlog.c prot.c dd.c \
 	common.c qlog.h response.h prot.h dd.h hasshsgr.h common.h
 walldns_LDADD = libdns.a libenv.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a libtai.a
+
+walldns.1: walldns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' walldns.ms > walldns.1
 
 walldns_conf_SOURCES = walldns-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h

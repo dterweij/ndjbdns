@@ -12,6 +12,8 @@
 ##
 
 confdir = $(prefix)/lib/systemd/system/
-conf_DATA = axfrdns.service dnscache.service rbldns.service tinydns.service
+conf_DATA = axfrdns.service dnscache.service rbldns.service \
+	tinydns.service walldns.service
 
-EXTRA_DIST = axfrdns.service dnscache.service rbldns.service tinydns.service
+EXTRA_DIST = axfrdns.service dnscache.service rbldns.service \
+	tinydns.service walldns.service

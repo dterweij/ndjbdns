@@ -1,0 +1,12 @@
+[Unit]
+Description=A reverse DNS wall
+Documentation=man:walldns(1)
+Requires=network.target
+
+[Service]
+Restart=always
+PIDFile=/var/run/walldns.pid
+ExecStart=/usr/bin/walldns
+
+[Install]
+WantedBy=multi-user.target
