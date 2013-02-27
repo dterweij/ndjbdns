@@ -1,5 +1,5 @@
 \"
-\" walldns.1: This is a manuscript of the manual page for `walldns'. This file
+\" walldns.8: This is a manuscript of the manual page for `walldns'. This file
 \" is part of the 'New djbdns' project.
 \"
 
@@ -7,7 +7,7 @@
 .hy
 .nr HY 0
 
-.TH walldns 1
+.TH walldns 8
 
 .SH NAME
 \fBwalldns\fR - a reverse DNS wall.

@@ -1,5 +1,5 @@
 \"
-\" dnscache.1: This is a manuscript of the manual page for `dnscache'. This
+\" dnscache.8: This is a manuscript of the manual page for `dnscache'. This
 \" file is part of the `djbdns' project version 1.05.1 and later.
 \"
 
@@ -7,7 +7,7 @@
 .hy 0
 .nr HY 0
 
-.TH dnscache 1
+.TH dnscache 8
 .SH NAME
 \fBdnscache\fR - djbdns DNS cache daemon.
 

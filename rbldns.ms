@@ -1,5 +1,5 @@
 \"
-\" rbldns.1: This is a manuscript of the manual page for `rbldns'. This file
+\" rbldns.8: This is a manuscript of the manual page for `rbldns'. This file
 \" is part of the 'New djbdns' project.
 \"
 
@@ -7,7 +7,7 @@
 .hy
 .nr HY 0
 
-.TH rbldns 1
+.TH rbldns 8
 
 .SH NAME
 \fBrbldns\fR - Real time Block List DNS server.

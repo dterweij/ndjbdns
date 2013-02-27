@@ -1,5 +1,5 @@
 \"
-\" tinydns.1: This is a manuscript of the manual page for `tinydns'. This file
+\" tinydns.8: This is a manuscript of the manual page for `tinydns'. This file
 \" is part of the `New djbdns' project.
 \"
 
@@ -7,7 +7,7 @@
 .hy 0
 .nr HY 0
 
-.TH tinydns 1
+.TH tinydns 8
 
 .SH NAME
 \fBtinydns\fR - DNS server.

@@ -1,5 +1,5 @@
 \"
-\" axfrdns.1: This is a manuscript of the manual page for `axfrdns'. This file
+\" axfrdns.8: This is a manuscript of the manual page for `axfrdns'. This file
 \" is part of the `new djbdns' project.
 \"
 
@@ -7,7 +7,7 @@
 .hy 0
 .nr HY 0
 
-.TH axfrdns 1
+.TH axfrdns 8
 axfrdns - a DNS zone transfer server.
 
 .SH SYNOPSIS
@@ -42,7 +42,7 @@ AXFR is a slash separated list of domain names. If AXFR is not set,
  print version information
 
 .SH FILES
-/etc/ndjbdns/axfrdns.conf
+ PREFIX/axfrdns.conf
 
 .SH SEE
 http://cr.yp.to/djbdns/axfrdns.html
