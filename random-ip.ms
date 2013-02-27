@@ -10,7 +10,7 @@
 .TH randomip 1
 randomip - generate random IP addresses
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBrandomip\fR [OPTIONS] [NUM] [BYTE1] [BYTE2] [BYTE3]
 

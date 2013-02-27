@@ -11,7 +11,7 @@
 .SH NAME
 \fBdnscache\fR - djbdns DNS cache daemon.
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBdnscache\fR [\fBOPTIONS\fR]
 

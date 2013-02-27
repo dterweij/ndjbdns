@@ -10,7 +10,7 @@
 .TH axfrget 1
 axfr-get - a DNS zone transfer client.
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBaxfr-get\fR [OPTIONS] <DOMAIN-NAME> <OUTFILE> <OUTFILE.TMP>
 

@@ -12,7 +12,7 @@
 .SH NAME
 \fBrbldns-data\fR
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBrbldns-data\fR [\fBOPTIONS\fR]
 
 .SH DESCRIPTION

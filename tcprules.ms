@@ -10,7 +10,7 @@
 .TH tcprules 1
 tcprules - compile rules for tcpserver
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBtcprules\fR [\fBOPTIONS\fR] <rules.cdb> <rules.tmp>
 

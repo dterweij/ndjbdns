@@ -12,7 +12,7 @@
 .SH NAME
 \fBtinydns\fR - DNS server.
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBtinydns\fR [\fBOPTIONS\fR]
 
 .SH DESCRIPTION

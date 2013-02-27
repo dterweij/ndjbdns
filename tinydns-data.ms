@@ -12,7 +12,7 @@
 .SH NAME
 \fBtinydns-data\fR
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBtinydns-data\fR [\fBOPTIONS\fR]
 
 .SH DESCRIPTION

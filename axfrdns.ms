@@ -10,7 +10,7 @@
 .TH axfrdns 1
 axfrdns - a DNS zone transfer server.
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBaxfrdns\fR [OPTIONS]
 

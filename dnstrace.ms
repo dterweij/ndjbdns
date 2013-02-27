@@ -10,7 +10,7 @@
 .TH dnstrace 1
 dnstrace - a kind of traceroute(8) for DNS records
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBdnstrace\fR [OPTIONS] <TYPE> <DOMAIN-NAME> <ROOT-IP> [<ROOT-IP> ...]
 
 .SH DESCRIPTION

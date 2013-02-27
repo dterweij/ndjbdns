@@ -12,7 +12,7 @@
 .SH NAME
 \fBrbldns\fR - Real time Block List DNS server.
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBrbldns\fR [\fBOPTIONS\fR]
 
 .SH DESCRIPTION

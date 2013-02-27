@@ -10,7 +10,7 @@
 .TH dnsip 1
 dnsip - resolve a domain name
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBdnsip\fR [\fBOPTIONS\fR] <domain-name> [<domain-name> ...]
 

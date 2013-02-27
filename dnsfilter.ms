@@ -10,7 +10,7 @@
 .TH dnsfilter 1
 dnsfilter - convert IP address to host name
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBdnsfilter\fR [\fBOPTIONS\fR]
 
