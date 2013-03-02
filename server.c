@@ -45,6 +45,7 @@
 #include "ndelay.h"
 #include "socket.h"
 #include "common.h"
+#include "iopause.h"
 #include "droproot.h"
 #include "response.h"
 
@@ -203,7 +204,8 @@ main (int argc, char *argv[])
     time_t t = 0;
     char *x = NULL;
     struct sigaction sa;
-    int i = 0, udp53 = 0;
+    iopause_fd *iop = NULL;
+    int i = 0, n = 0, *udp53 = NULL;
 
     prog = strdup ((x = strrchr (argv[0], '/')) != NULL ? x + 1 : argv[0]);
 
@@ -259,31 +261,63 @@ main (int argc, char *argv[])
 
     if (!(x = env_get ("IP")))
         err (-1, "$IP not set");
-    if (!ip4_scan (x, ip))
-        err (-1, "could not parse IP address `%s'", x);
+    for (i = 0; (unsigned)i < strlen (x); i++)
+        n = (x[i] == ',') ? n+1 : n;
+    if (!(udp53 = calloc (n+1, sizeof (int))))
+        err (-1, "could not allocate enough memory for udp53");
+    if (!(iop = calloc (n+1, sizeof (iopause_fd))))
+        err (-1, "could not allocate enough memory for iop");
 
-    udp53 = socket_udp();
-    if (udp53 == -1)
-        err (-1, "could not open UDP socket");
-    if (socket_bind4_reuse (udp53, ip, 53) == -1)
-        err (-1, "could not bind UDP socket");
+    i = n = 0;
+    while (x[i])
+    {
+        unsigned int l = 0;
+
+        if (!(l = ip4_scan(x+i, ip)))
+            errx (-1, "could not parse IP address `%s'", x + i);
+
+        udp53[n] = socket_udp();
+        if (udp53[n] == -1)
+            errx (-1, "could not open UDP socket");
+        if (socket_bind4_reuse (udp53[n], ip, 53) == -1)
+            errx (-1, "could not bind UDP socket");
+
+        ndelay_off (udp53[n]);
+        socket_tryreservein (udp53[n], 65536);
+
+        iop[n].fd = udp53[n];
+        iop[n].events = IOPAUSE_READ;
+
+        n++;
+        i += l + 1;
+    }
 
     droproot ();
-
-    ndelay_off (udp53);
-    socket_tryreservein (udp53, 65536);
-
-    for (;;)
+    while (1)
     {
-        len = socket_recv4 (udp53, buf, sizeof buf, ip, &port);
-        if (len < 0)
-            continue;
-        if (!doit ())
-            continue;
-        if (response_len > 512)
-            response_tc ();
+        struct taia stamp;
+        struct taia deadline;
 
-        /* may block for buffer space; if it fails, too bad */
-        socket_send4 (udp53, response, response_len, ip, port);
+        taia_now (&stamp);
+        taia_uint (&deadline, 300);
+        taia_add (&deadline, &deadline, &stamp);
+        iopause (iop, n, &deadline, &stamp);
+
+        for (i = 0; i < n; i++)
+        {
+            if (!iop[i].revents)
+                continue;
+
+            len = socket_recv4 (udp53[i], buf, sizeof (buf), ip, &port);
+            if (len < 0)
+                continue;
+            if (!doit ())
+                continue;
+            if (response_len > 512)
+                response_tc ();
+
+            /* may block for buffer space; if it fails, too bad */
+            socket_send4 (udp53[i], response, response_len, ip, port);
+        }
     }
 }

@@ -18,7 +18,10 @@ DATALIMIT=300000
 #
 # CACHESIZE=100000
 
-# Address to listen on for incoming connections.
+# Address to listen on for incoming connections. It could be comma separated
+# list of IP addresses.
+#
+# IP=127.0.0.1[,x.x.x.x,...]
 #
 IP=127.0.0.1
 
