@@ -1,12 +1,12 @@
 [Unit]
 Description=A DNS server daemon
-Documentation=man:tinydns(1)
+Documentation=man:tinydns(8)
 Requires=network.target
 
 [Service]
 Restart=always
 PIDFile=/var/run/tinydns.pid
-ExecStart=/usr/bin/tinydns
+ExecStart=PREFIX/sbin/tinydns
 
 [Install]
 WantedBy=multi-user.target

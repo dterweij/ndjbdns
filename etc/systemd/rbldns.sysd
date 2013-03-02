@@ -1,12 +1,12 @@
 [Unit]
 Description=A Real time Block List DNS server
-Documentation=man:rbldns(1)
+Documentation=man:rbldns(8)
 Requires=network.target
 
 [Service]
 Restart=always
 PIDFile=/var/run/rbldns.pid
-ExecStart=/usr/bin/rbldns
+ExecStart=PREFIX/sbin/rbldns
 
 [Install]
 WantedBy=multi-user.target

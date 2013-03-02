@@ -23,7 +23,7 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/dnscache
+prog=PREFIX/sbin/dnscache
 config=/etc/ndjbdns/dnscache.conf
 logfile=/var/log/dnscache.log
 lockfile=/var/lock/subsys/dnscache

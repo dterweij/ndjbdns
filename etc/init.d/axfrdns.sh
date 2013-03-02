@@ -21,7 +21,7 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/axfrdns
+prog=PREFIX/sbin/axfrdns
 config=/etc/ndjbdns/axfrdns.conf
 logfile=/var/log/axfrdns.log
 lockfile=/var/lock/subsys/axfrdns

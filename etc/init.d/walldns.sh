@@ -21,7 +21,7 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/walldns
+prog=PREFIX/sbin/walldns
 config=/etc/ndjbdns/walldns.conf
 logfile=/var/log/walldns.log
 lockfile=/var/lock/subsys/walldns

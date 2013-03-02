@@ -21,7 +21,7 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/rbldns
+prog=PREFIX/sbin/rbldns
 config=/etc/ndjbdns/rbldns.conf
 logfile=/var/log/rbldns.log
 lockfile=/var/lock/subsys/rbldns

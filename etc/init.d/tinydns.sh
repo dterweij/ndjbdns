@@ -23,7 +23,7 @@
 # Source networking configuration
 . /etc/sysconfig/network
 
-prog=PREFIX/bin/tinydns
+prog=PREFIX/sbin/tinydns
 config=/etc/ndjbdns/tinydns.conf
 logfile=/var/log/tinydns.log
 lockfile=/var/lock/subsys/tinydns
