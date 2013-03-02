@@ -529,19 +529,24 @@ main (int argc, char *argv[])
     dns_random_init (seed);
 
     axfr = env_get ("AXFR");
+    if (debug_level)
+        warnx ("AXFR set to `%s'", axfr);
     x = env_get ("TCPREMOTEIP");
+    if (debug_level)
+        warnx ("TCPREMOTEIP set to `%s'", x);
     if (x)
         ip4_scan (x, ip);
     else
         byte_zero (ip, 4);
 
     x = env_get ("TCPREMOTEPORT");
+    if (debug_level)
+        warnx ("TCPREMOTEPORT set to `%s'", x);
     if (!x)
         x = "0";
     scan_ulong (x, &port);
 
     droproot ();
-
     for (;;)
     {
         netread (tcpheader, 2);

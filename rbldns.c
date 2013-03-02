@@ -156,7 +156,7 @@ respond (char *q, char qtype[2], char ip[4])
 }
 
 void
-initialize(void)
+initialize (void)
 {
     char *x = NULL;
 

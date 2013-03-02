@@ -24,14 +24,13 @@
 #
 AXFR=
 
-# Address to listen on for incoming connections.
+# Address of the remote host.
 #
-# IP=127.0.0.1
+# TCPREMOTEIP=
 
-# Address to use while sending out-going requests. 0.0.0.0 means machines
-# primary IP address.
+# Remote TCP port.
 #
-# IPSEND=0.0.0.0
+# TCPREMOTEPORT=
 
 # A non-root user whose privileges should be acquired by axfrdns.
 # Default: daemon
