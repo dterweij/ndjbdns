@@ -16,9 +16,11 @@ AM_CFLAGS=-g -O2 -Wall -Wextra -fstack-check \
 
 SUBDIRS = etc
 
-bin_PROGRAMS = dnscache dnsip dnsipq dnsq dnsname dnstxt dnsqr \
-	dnsfilter dnstrace tinydns tinydns-data tinydns-edit tinydns-get \
-	randomip axfrdns axfr-get tcprules rbldns rbldns-data walldns
+sbin_PROGRAMS = axfrdns dnscache rbldns tinydns walldns
+
+bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
+	dnstrace tinydns-data tinydns-edit tinydns-get randomip axfr-get \
+	tcprules rbldns-data
 
 noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-data \
 	pickdns-conf rbldns-conf walldns-conf axfrdns-conf dnsmx
@@ -30,12 +32,13 @@ noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	dnstxt.ms tcprules.ms dnsqr.ms random-ip.ms dnstrace.ms axfrdns.ms \
 	axfr-get.ms dnsname.ms rbldns.ms rbldns-data.ms walldns.ms
 
-nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
-	tinydns-data.1 tinydns-edit.1 tinydns-get.1 tinydns.1 dnsipq.1 \
-	dnstxt.1 tcprules.1 dnsqr.1 randomip.1 dnstrace.1 axfrdns.1 \
-	axfr-get.1 dnsname.1 rbldns.1 rbldns-data.1 walldns.1
+nodist_man8_MANS = axfrdns.8 dnscache.8 rbldns.8 tinydns.8 walldns.8
 
-CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
+nodist_man1_MANS = dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 tinydns-data.1 \
+	tinydns-edit.1 tinydns-get.1 dnsipq.1 dnstxt.1 tcprules.1 dnsqr.1 \
+	randomip.1 dnstrace.1 axfr-get.1 dnsname.1 rbldns-data.1
+
+CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS) $(nodist_man8_MANS)
 EXTRA_DIST = dnstracesort.sh readme.ms README INSTALL TODO ChangeLog \
 	COPYING $(noinst_MANS) ndjbdns.logrotate
 
@@ -46,8 +49,8 @@ axfrdns_SOURCES = axfrdns.c iopause.c droproot.c tdlookup.c response.c \
 axfrdns_LDADD = libdns.a libtai.a liballoc.a libenv.a libcdb.a \
 	libbuffer.a libunix.a libbyte.a
 
-axfrdns.1: axfrdns.ms
-	cp axfrdns.ms axfrdns.1
+axfrdns.8: axfrdns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' axfrdns.ms > axfrdns.8
 
 axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h
@@ -70,8 +73,8 @@ dnscache_SOURCES = dnscache.c droproot.c okclient.c log.c cache.c query.c \
 dnscache_LDADD = libdns.a libenv.a liballoc.a libbuffer.a libtai.a \
 	libunix.a libbyte.a
 
-dnscache.1: dnscache.ms
-	sed -e 's:PREFIX:${sysconfdir}:' dnscache.ms > dnscache.1
+dnscache.8: dnscache.ms
+	sed -e 's:PREFIX:${sysconfdir}:' dnscache.ms > dnscache.8
 
 dnscache_conf_SOURCES = dnscache-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h hasdevtcp.h
@@ -167,8 +170,8 @@ rbldns_SOURCES = rbldns.c server.c response.c dd.c droproot.c qlog.c prot.c \
 rbldns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a
 
-rbldns.1: rbldns.ms
-	sed -e 's:PREFIX:${sysconfdir}:' rbldns.ms > rbldns.1
+rbldns.8: rbldns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' rbldns.ms > rbldns.8
 
 rbldns_conf_SOURCES = rbldns-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h
@@ -196,8 +199,8 @@ tinydns_LDADD = libdns.a libtai.a libenv.a libcdb.a liballoc.a libbuffer.a \
 tinydnsd: tinydns.sh
 	sed -e 's:PREFIX:${prefix}:' tinydns.sh > tinydnsd
 
-tinydns.1: tinydns.ms
-	sed -e 's:PREFIX:${sysconfdir}:' tinydns.ms > tinydns.1
+tinydns.8: tinydns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' tinydns.ms > tinydns.8
 
 tinydns_conf_SOURCES = tinydns-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h
@@ -230,8 +233,8 @@ walldns_SOURCES = walldns.c server.c response.c droproot.c qlog.c prot.c dd.c \
 walldns_LDADD = libdns.a libenv.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a libtai.a
 
-walldns.1: walldns.ms
-	sed -e 's:PREFIX:${sysconfdir}:' walldns.ms > walldns.1
+walldns.8: walldns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' walldns.ms > walldns.8
 
 walldns_conf_SOURCES = walldns-conf.c generic-conf.c auto_home.c \
 	auto_home.h generic-conf.h
