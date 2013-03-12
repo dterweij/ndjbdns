@@ -1,5 +1,5 @@
 Name:       ndjbdns
-Version:    1.05.6
+Version:    1.05.7
 Release:    1%{?dist}
 Summary:    New djbdns: usable djbdns
 
@@ -8,7 +8,10 @@ License:    GPLv2+
 URL:        http://pjp.dgplug.org/djbdns/
 Source0:    http://pjp.dgplug.org/djbdns/%{name}-%{version}.tar.gz
 
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
 %if 0%{?fedora} || 0%{?rhel} >= 7
+Requires:       pkgconfig
 BuildRequires:  systemd-units
 %endif
 
@@ -56,17 +59,14 @@ make %{?_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p"
 
-%if 0%{?fedora} || 0%{?rhel} >= 7
-mkdir -p $RPM_BUILD_ROOT/%{_unitdir}
-install -p -m 644 axfrdns.service $RPM_BUILD_ROOT/%{_unitdir}/
-install -p -m 644 dnscache.service $RPM_BUILD_ROOT/%{_unitdir}/
-install -p -m 644 rbldns.service $RPM_BUILD_ROOT/%{_unitdir}/
-install -p -m 644 tinydns.service $RPM_BUILD_ROOT/%{_unitdir}/
-rm -r $RPM_BUILD_ROOT/%{_initrddir}/
-%else
+%if 0%{?rhel} == 5 || 0%{?rhel} == 6
 mkdir -p $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/
 mv ndjbdns.logrotate $RPM_BUILD_ROOT/%{_sysconfdir}/logrotate.d/ndjbdns
 %endif
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %if 0%{?fedora} == 16 || 0%{?fedora} == 17
 
@@ -90,6 +90,9 @@ if [ $1 -eq 0 ]; then
 
     /sbin/systemctl --no-reload disable tinydns.service > /dev/null 2>&1 || :
     /sbin/systemctl stop tinydns.service > /dev/null 2>&1 || :
+
+    /sbin/systemctl --no-reload disable walldns.service > /dev/null 2>&1 || :
+    /sbin/systemctl stop walldns.service > /dev/null 2>&1 || :
 fi
 
 %postun
@@ -100,6 +103,7 @@ if [ $1 -ge 1 ]; then
     /bin/systemctl try-restart dnscache.service > /dev/null 2>&1 || :
     /bin/systemctl try-restart rbldns.service > /dev/null 2>&1 || :
     /bin/systemctl try-restart tinydns.service > /dev/null 2>&1 || :
+    /bin/systemctl try-restart walldns.service > /dev/null 2>&1 || :
 fi
 
 %endif
@@ -111,18 +115,21 @@ fi
 %systemd_post dnscache.service
 %systemd_post rbldns.service
 %systemd_post tinydns.service
+%systemd_post walldns.service
 
 %preun
 %systemd_preun axfrdns.service
 %systemd_preun dnscache.service
 %systemd_preun rbldns.service
 %systemd_preun tinydns.service
+%systemd_preun walldns.service
 
 %postun
 %systemd_postun_with_restart axfrdns.service
 %systemd_postun_with_restart dnscache.service
 %systemd_postun_with_restart rbldns.service
 %systemd_postun_with_restart tinydns.service
+%systemd_postun_with_restart walldns.service
 
 %endif
 
@@ -133,6 +140,7 @@ fi
 /sbin/chkconfig --add dnscache
 /sbin/chkconfig --add rbldns
 /sbin/chkconfig --add tinydns
+/sbin/chkconfig --add walldns
 
 %preun
 if [ "$1" = 0 ]; then
@@ -147,6 +155,9 @@ if [ "$1" = 0 ]; then
 
     /sbin/service tinydns stop > /dev/null 2>&1 || :
     /sbin/chkconfig --del tinydns
+
+    /sbin/service walldns stop > /dev/null 2>&1 || :
+    /sbin/chkconfig --del walldns
 fi
 
 %postun
@@ -155,6 +166,7 @@ if [ "$1" -ge "1" ]; then
     /sbin/service dnscache restart > /dev/null 2>&1 || :
     /sbin/service rbldns restart > /dev/null 2>&1 || :
     /sbin/service tinydns restart > /dev/null 2>&1 || :
+    /sbin/service walldns restart > /dev/null 2>&1 || :
 fi
 
 %endif
@@ -162,9 +174,13 @@ fi
 %files
 %doc README COPYING ChangeLog
 
-%{_bindir}/axfrdns
+%{_sbindir}/axfrdns
+%{_sbindir}/dnscache
+%{_sbindir}/rbldns
+%{_sbindir}/tinydns
+%{_sbindir}/walldns
+
 %{_bindir}/axfr-get
-%{_bindir}/dnscache
 %{_bindir}/dnsfilter
 %{_bindir}/dnsip
 %{_bindir}/dnsipq
@@ -175,10 +191,8 @@ fi
 %{_bindir}/dnstracesort
 %{_bindir}/dnstxt
 %{_bindir}/randomip
-%{_bindir}/rbldns
 %{_bindir}/rbldns-data
 %{_bindir}/tcprules
-%{_bindir}/tinydns
 %{_bindir}/tinydns-data
 %{_bindir}/tinydns-edit
 %{_bindir}/tinydns-get
@@ -188,11 +202,13 @@ fi
 %{_unitdir}/dnscache.service
 %{_unitdir}/rbldns.service
 %{_unitdir}/tinydns.service
+%{_unitdir}/walldns.service
 %else
 %{_initrddir}/axfrdns
 %{_initrddir}/dnscache
 %{_initrddir}/rbldns
 %{_initrddir}/tinydns
+%{_initrddir}/walldns
 %config(noreplace) %{_sysconfdir}/logrotate.d/ndjbdns
 %endif
 
@@ -203,11 +219,10 @@ fi
 %config(noreplace) %{_sysconfdir}/%{name}/dnscache.conf
 %config(noreplace) %{_sysconfdir}/%{name}/rbldns.conf
 %config(noreplace) %{_sysconfdir}/%{name}/tinydns.conf
+%config(noreplace) %{_sysconfdir}/%{name}/walldns.conf
 
-%{_mandir}/man1/axfrdns.1.gz
 %{_mandir}/man1/axfr-get.1.gz
 %{_mandir}/man1/djbdns.1.gz
-%{_mandir}/man1/dnscache.1.gz
 %{_mandir}/man1/dnsfilter.1.gz
 %{_mandir}/man1/dnsip.1.gz
 %{_mandir}/man1/dnsipq.1.gz
@@ -216,17 +231,31 @@ fi
 %{_mandir}/man1/dnsqr.1.gz
 %{_mandir}/man1/dnstrace.1.gz
 %{_mandir}/man1/dnstxt.1.gz
-%{_mandir}/man1/rbldns.1.gz
 %{_mandir}/man1/rbldns-data.1.gz
 %{_mandir}/man1/randomip.1.gz
 %{_mandir}/man1/tcprules.1.gz
-%{_mandir}/man1/tinydns.1.gz
 %{_mandir}/man1/tinydns-data.1.gz
 %{_mandir}/man1/tinydns-edit.1.gz
 %{_mandir}/man1/tinydns-get.1.gz
 
+%{_mandir}/man8/axfrdns.8.gz
+%{_mandir}/man8/dnscache.8.gz
+%{_mandir}/man8/rbldns.8.gz
+%{_mandir}/man8/tinydns.8.gz
+%{_mandir}/man8/walldns.8.gz
+
 
 %changelog
+* Sun Feb 24 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.7-1
+- Build & install walldns server.
+- Removed install commands for systemd unit files.
+- Merge patch to bind servers to multiple IP addresses.
+- Patch to respond to original destination address BZ#917580.
+- Update to correctly read servers/mydomain.dom files BZ#913651.
+
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.05.6-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
 * Sun Jan 14 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.6-1
 - Updated SysV scripts according to the packaging guidelines.
 - Disabled system services by default, registerd all.

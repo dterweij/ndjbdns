@@ -1,7 +1,7 @@
 /*
  * version.h: This file is part of the `djbdns' project.
  *
- * Copyright (C) 2009 - 2011 Prasad J Pandit
+ * Copyright (C) 2009 - 2013 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -21,6 +21,6 @@
 
 #ifndef VERSION_H
 
-#define VERSION "1.05.6"
+#define VERSION "1.05.7"
 
 #endif
