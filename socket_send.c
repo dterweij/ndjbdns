@@ -20,6 +20,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <string.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/socket.h>
@@ -29,14 +30,64 @@
 #include "socket.h"
 
 int
-socket_send4 (int s, const char *buf, int len, const char ip[4], uint16 port)
+socket_send4 (int s, char *buf, int len,
+                const char ip[4], uint16 port, void *src)
 {
+    char cbuf[256];
+    struct iovec iov;
+    struct msghdr msgh;
     struct sockaddr_in sa;
+    struct cmsghdr *cmsg = NULL;
 
-    byte_zero (&sa, sizeof sa);
+    byte_zero (&sa, sizeof (sa));
     sa.sin_family = AF_INET;
+
     uint16_pack_big ((char *)&sa.sin_port, port);
     byte_copy ((char *)&sa.sin_addr, 4, ip);
 
-    return sendto (s, buf, len, 0, (struct sockaddr *)&sa, sizeof sa);
+    /* return sendto (s, buf, len, 0, (struct sockaddr *)&sa, sizeof sa); */
+
+    memset (cbuf, 0, sizeof (cbuf));
+    memset (&msgh, 0, sizeof (msgh));
+
+    iov.iov_len = len;
+    iov.iov_base = buf;
+
+    msgh.msg_iov = &iov;
+    msgh.msg_iovlen = 1;
+
+    msgh.msg_name = &sa;
+    msgh.msg_namelen = sizeof (sa);
+
+#ifdef IP_PKTINFO
+    struct in_pktinfo *p = NULL;
+
+    msgh.msg_control = cbuf;
+    msgh.msg_controllen = CMSG_SPACE (sizeof (*p));
+
+    cmsg = CMSG_FIRSTHDR (&msgh);
+    cmsg->cmsg_type = IP_PKTINFO;
+    cmsg->cmsg_level = IPPROTO_IP;
+    cmsg->cmsg_len = CMSG_LEN (sizeof (*p));
+
+    p = (struct in_pktinfo *) CMSG_DATA (cmsg);
+    p->ipi_spec_dst = *(struct in_addr *)src;
+#elif defined IP_SENDSRCADDR
+    struct in_addr *p = NULL;
+
+    msgh.msg_control = cbuf;
+    msgh.msg_controllen = CMSG_SPACE (sizeof (*p));
+
+    cmsg = CMSG_FIRSTHDR (&msgh);
+    cmsg->cmsg_type = IP_SENDSRCADDR;
+    cmsg->cmsg_level = IPPROTO_IP;
+    cmsg->cmsg_len = CMSG_LEN (sizeof (*p));
+
+    p = (struct in_addr *)CMSG_DATA (cmsg);
+    p->s_addr = *(struct in_addr *)src;
+#endif
+
+    msgh.msg_flags = 0;
+    msgh.msg_controllen = cmsg->cmsg_len;
+    return sendmsg (s, &msgh, 0);
 }

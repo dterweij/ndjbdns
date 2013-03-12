@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <netinet/in.h>
 #include <sys/resource.h>
 
 #include "version.h"
@@ -111,6 +112,7 @@ packetquery (char *buf, unsigned int len, char **q,
 
 uint64 numqueries = 0;
 static char buf[1024];
+static struct in_addr odst; /* original destination IP */
 static char myipoutgoing[4];
 static char myipincoming[4];
 
@@ -150,7 +152,7 @@ u_respond (int j)
     response_id (u[j].id);
     if (response_len > 512)
         response_tc ();
-    socket_send4 (udp53, response, response_len, u[j].ip, u[j].port);
+    socket_send4 (udp53, response, response_len, u[j].ip, u[j].port, &odst);
 
     if (debug_level)
         log_querydone (&u[j].active, response_len);
@@ -185,7 +187,7 @@ u_new (void)
     x = u + j;
     taia_now (&x->start);
 
-    len = socket_recv4 (udp53, buf, sizeof (buf), x->ip, &x->port);
+    len = socket_recv4 (udp53, buf, sizeof (buf), x->ip, &x->port, &odst);
     if (len == -1)
         return;
     if ((unsigned)len >= sizeof buf)

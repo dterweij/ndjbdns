@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <netinet/in.h>
 #include <sys/resource.h>
 
 #include "version.h"
@@ -296,6 +297,7 @@ main (int argc, char *argv[])
     while (1)
     {
         struct taia stamp;
+        struct in_addr odst; /* original destination IP */
         struct taia deadline;
 
         taia_now (&stamp);
@@ -308,7 +310,7 @@ main (int argc, char *argv[])
             if (!iop[i].revents)
                 continue;
 
-            len = socket_recv4 (udp53[i], buf, sizeof (buf), ip, &port);
+            len = socket_recv4 (udp53[i], buf, sizeof (buf), ip, &port, &odst);
             if (len < 0)
                 continue;
             if (!doit ())
@@ -317,7 +319,7 @@ main (int argc, char *argv[])
                 response_tc ();
 
             /* may block for buffer space; if it fails, too bad */
-            socket_send4 (udp53[i], response, response_len, ip, port);
+            socket_send4 (udp53[i], response, response_len, ip, port, &odst);
         }
     }
 }
