@@ -30,3 +30,11 @@
     missingok
     notifempty
 }
+
+/var/log/walldns.log {
+    shred
+    weekly
+    rotate 4
+    missingok
+    notifempty
+}
