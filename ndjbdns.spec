@@ -76,6 +76,21 @@ if [ $1 -eq 1 ]; then
     /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 fi
 
+# remove old files from earlier installation, because these files
+# are moved to `../sbin/' and `../man8/' directories.
+#
+[ -f %{_bindir}/axfrdns ]  && rm %{_bindir}/axfrdns
+[ -f %{_bindir}/dnscache ] && rm %{_bindir}/dnscache
+[ -f %{_bindir}/rbldns ]   && rm %{_bindir}/rbldns
+[ -f %{_bindir}/tinydns ]  && rm %{_bindir}/tinydns
+[ -f %{_bindir}/walldns ]  && rm %{_bindir}/walldns
+
+[ -f %{_mandir}/man1/axfrdns.1.gz ]  && rm %{_mandir}/man1/axfrdns.1.gz
+[ -f %{_mandir}/man1/dnscache.1.gz ] && rm %{_mandir}/man1/dnscache.1.gz
+[ -f %{_mandir}/man1/rbldns.1.gz ]   && rm %{_mandir}/man1/rbldns.1.gz
+[ -f %{_mandir}/man1/tinydns.1.gz ]  && rm %{_mandir}/man1/tinydns.1.gz
+[ -f %{_mandir}/man1/walldns.1.gz ]  && rm %{_mandir}/man1/walldns.1.gz
+
 %preun
 if [ $1 -eq 0 ]; then
     # Package removal, not upgrade
