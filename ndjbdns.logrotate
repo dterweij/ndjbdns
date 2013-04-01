@@ -1,39 +1,32 @@
 
 shred
 dateext
+compress
+missingok
+notifempty
 copytruncate
 
 /var/log/axfrdns.log {
     weekly
     rotate 4
-    missingok
-    notifempty
 }
 
 /var/log/dnscache.log {
     weekly
     rotate 4
-    missingok
-    notifempty
 }
 
 /var/log/rbldns.log {
     weekly
     rotate 4
-    missingok
-    notifempty
 }
 
 /var/log/tinydns.log {
     weekly
     rotate 4
-    missingok
-    notifempty
 }
 
 /var/log/walldns.log {
     weekly
     rotate 4
-    missingok
-    notifempty
 }
