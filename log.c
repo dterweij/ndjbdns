@@ -34,6 +34,29 @@
 #define number(x) ( (u64 = (x)), u64_print() )
 
 static uint64 u64;
+static char *qtype_g[] = {
+    "\0",
+    "A",        /* 1 a host address */
+    "NS",       /* 2 an authoritative name server */
+    "MD",       /* 3 a mail destination (obsolete, use MX) */
+    "MF",       /* 4 a mail forwarder (obsolete, use MX) */
+    "CNAME",    /* 5 the canonical name for an alias */
+    "SOA",      /* 6 marks the start of a zone authority */
+    "MB",       /* 7 a mailbox domain name (experimental) */
+    "MG",       /* 8 a mail group member (experimental) */
+    "MR",       /* 9 a mail rename domain name (experimental) */
+    "NULL",     /*10 a NULL RR (experimental) */
+    "WKS",      /*11 a well known service description */
+    "PTR",      /*12 a domain name pointer */
+    "HINFO",    /*13 host information */
+    "MINFO",    /*14 mailbox or mail list information */
+    "MX",       /*15 mail exchange */
+    "TXT",      /*16 text strings */
+    "AXFR",     /*17 252 transfer of an entire zone */
+    "MAILB",    /*18 253 mailbox-related records MB, MG or MR */
+    "MAILA",    /*19 254 mail agent RRs (obsolete, use MX) */
+    "*",        /*20 255 requst for all records*/
+};
 
 static void
 u64_print (void)
@@ -82,11 +105,6 @@ space (void)
 static void
 ip (const char i[4])
 {
-/*  hex (i[0]);
-    hex (i[1]);
-    hex (i[2]);
-    hex (i[3]); */
-
     number ((int)(i[0] & 0xFF));
     string (".");
     number ((int)(i[1] & 0xFF));
@@ -96,21 +114,27 @@ ip (const char i[4])
     number ((int)(i[3] & 0xFF));
 }
 
-/*
+
 static void
 logid (const char id[2])
 {
-    hex (id[0]);
-    hex (id[1]);
+    uint16 u = 0;
+    uint16_unpack_big (id, &u);
+
+    number (u);
 }
-*/
+
 static void
 logtype (const char type[2])
 {
     uint16 u = 0;
 
     uint16_unpack_big (type, &u);
-    number (u);
+    u = (u < 17) ? u : (u > 251 && u < 256) ? u - 235 : u;
+    if (u < (sizeof (qtype_g) / sizeof (char *)))
+        string(qtype_g[u]);
+    else
+        number (u);
 }
 
 static void
@@ -141,43 +165,53 @@ name (const char *q)
 }
 
 void
-log_startup (void)
-{
-    string ("starting ");
-    line ();
-}
-
-void
-log_query (uint64 *qnum, const char client[4], unsigned int port, 
+log_query (uint64 *qnum, const char client[4], unsigned int port,
                     const char id[2], const char *q, const char qtype[2])
 {
-    string ("query ");
+    time_t t = 0;
+    char ltime[21];
+
+    time(&t);
+    strftime (ltime, sizeof (ltime), "%b %d %Y %T", localtime (&t));
+
+    string(ltime);
+    space();
+    string ("Q");
     number (*qnum);
     space ();
-    
+
     ip (client);
     string (":");
     number (port);
 
-    string (":");
-/*    logid (id); */
-    number ((int)id[0] & 0xFF);
-    number ((int)id[1] & 0xFF);
+    space();
+    logid(id);
     space ();
 
     logtype (qtype);
+    string("?");
     space ();
     name (q);
-    
-    line();
+
+    line ();
 }
 
 void
 log_querydone (uint64 *qnum, unsigned int len)
 {
-    string ("sent ");
+    time_t t = 0;
+    char ltime[21];
+
+    time(&t);
+    strftime (ltime, sizeof (ltime), "%b %d %Y %T", localtime (&t));
+    string(ltime);
+
+    space();
+    string ("R");
     number (*qnum);
+
     space ();
+    string("len ");
     number (len);
 
     line ();
@@ -186,9 +220,16 @@ log_querydone (uint64 *qnum, unsigned int len)
 void
 log_querydrop (uint64 *qnum)
 {
+    time_t t = 0;
+    char ltime[21];
     const char *x = error_str (errno);
 
-    string ("drop ");
+    time(&t);
+    strftime (ltime, sizeof (ltime), "%b %d %Y %T", localtime (&t));
+    string(ltime);
+
+    space();
+    string ("drop Q");
     number (*qnum);
     space ();
     string (x);
@@ -199,7 +240,14 @@ log_querydrop (uint64 *qnum)
 void
 log_tcpopen (const char client[4], unsigned int port)
 {
-    string ("tcpopen ");
+    time_t t = 0;
+    char ltime[21];
+
+    time(&t);
+    strftime (ltime, sizeof (ltime), "%b %d %Y %T", localtime (&t));
+    string(ltime);
+
+    string (" tcpopen ");
     ip (client);
     string (":");
     hex (port >> 8);
@@ -211,9 +259,15 @@ log_tcpopen (const char client[4], unsigned int port)
 void
 log_tcpclose (const char client[4], unsigned int port)
 {
+    time_t t = 0;
+    char ltime[21];
     const char *x = error_str (errno);
 
-    string ("tcpclose ");
+    time(&t);
+    strftime (ltime, sizeof (ltime), "%b %d %Y %T", localtime (&t));
+    string(ltime);
+
+    string (" tcpclose ");
     ip (client);
     string (":");
     hex (port >> 8);
@@ -230,7 +284,7 @@ log_tx (const char *q, const char qtype[2], const char *control,
 {
     int i = 0;
 
-    string ("tx ");
+    string (" + tx ");
     number (gluelessness);
     space ();
     logtype (qtype);
@@ -253,7 +307,7 @@ log_tx (const char *q, const char qtype[2], const char *control,
 void
 log_merge (const char *addr, const char qtype[2], const char *q)
 {
-    string ("merge ");
+    string (" + merge ");
     ip(addr);
     space();
     logtype(qtype);
@@ -265,7 +319,7 @@ log_merge (const char *addr, const char qtype[2], const char *q)
 void
 log_cachedanswer (const char *q, const char type[2])
 {
-    string ("cached ");
+    string ("     cc ");
     logtype (type);
     space ();
     name (q);
@@ -276,7 +330,7 @@ log_cachedanswer (const char *q, const char type[2])
 void
 log_cachedcname (const char *dn, const char *dn2)
 {
-    string("cached cname ");
+    string("     cc cname ");
     name (dn);
     space ();
     name (dn2);
@@ -287,7 +341,7 @@ log_cachedcname (const char *dn, const char *dn2)
 void
 log_cachedns (const char *control, const char *ns)
 {
-    string ("cached ns ");
+    string ("     cc ns ");
     name (control);
     space ();
     name (ns);
@@ -298,7 +352,7 @@ log_cachedns (const char *control, const char *ns)
 void
 log_cachednxdomain (const char *dn)
 {
-    string ("cached nxdomain ");
+    string ("     cc nxdomain ");
     name (dn);
 
     line ();
@@ -307,7 +361,7 @@ log_cachednxdomain (const char *dn)
 void
 log_nxdomain (const char server[4], const char *q, unsigned int ttl)
 {
-    string ("nxdomain ");
+    string ("     nxdomain ");
     ip (server);
     space ();
     number (ttl);
@@ -321,7 +375,7 @@ void
 log_nodata (const char server[4], const char *q,
                        const char qtype[2], unsigned int ttl)
 {
-    string ("nodata ");
+    string ("     nodata ");
     ip (server);
     space ();
     number (ttl);
@@ -336,7 +390,7 @@ log_nodata (const char server[4], const char *q,
 void
 log_lame (const char server[4], const char *control, const char *referral)
 {
-    string ("lame ");
+    string ("     lame ");
     ip (server);
     space ();
     name (control);
@@ -348,9 +402,15 @@ log_lame (const char server[4], const char *control, const char *referral)
 
 void log_servfail (const char *dn)
 {
+    time_t t = 0;
+    char ltime[21];
     const char *x = error_str (errno);
 
-    string ("servfail ");
+    time(&t);
+    strftime (ltime, sizeof (ltime), "%b %d %Y %T", localtime (&t));
+    string(ltime);
+
+    string (" servfail ");
     name (dn);
     space ();
     string (x);
@@ -364,7 +424,7 @@ log_rr (const char server[4], const char *q, const char type[2],
 {
     int i = 0;
 
-    string ("rr ");
+    string ("     rr ");
     ip (server);
     space ();
     number (ttl);
@@ -391,7 +451,7 @@ void
 log_rrns (const char server[4], const char *q,
                      const char *data, unsigned int ttl)
 {
-    string ("rr ");
+    string ("     rr ");
     ip (server);
     space ();
     number (ttl);
@@ -407,7 +467,7 @@ void
 log_rrcname (const char server[4], const char *q,
                         const char *data, unsigned int ttl)
 {
-    string ("rr ");
+    string ("     rr ");
     ip (server);
     space ();
     number (ttl);
@@ -423,7 +483,7 @@ void
 log_rrptr (const char server[4], const char *q,
                       const char *data, unsigned int ttl)
 {
-    string ("rr ");
+    string ("     rr ");
     ip (server);
     space ();
     number (ttl);
@@ -441,7 +501,7 @@ log_rrmx (const char server[4], const char *q,
 {
     uint16 u = 0;
 
-    string ("rr ");
+    string ("     rr ");
     ip (server);
     space ();
     number (ttl);
@@ -463,7 +523,7 @@ log_rrsoa (const char server[4], const char *q, const char *n1,
     int i = 0;
     uint32 u = 0;
 
-    string ("rr ");
+    string ("     rr ");
     ip (server);
     space ();
     number (ttl);
@@ -490,13 +550,13 @@ void log_stats(void)
     extern uint64 numqueries;
     extern uint64 cache_motion;
 
-    string ("stats ");
+    string ("   = ss Q");
     number (numqueries);
-    space ();
+    string (" Csize ");
     number (cache_motion);
-    space ();
+    string (" Qudp ");
     number (uactive);
-    space ();
+    string (" Qtcp ");
     number (tactive);
 
     line ();
