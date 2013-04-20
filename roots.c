@@ -136,6 +136,7 @@ roots_display (void)
 static int
 init2 (DIR *dir)
 {
+    char roots = 0;
     char servers[64];
     static stralloc text;
     static char *q = NULL;
@@ -152,12 +153,13 @@ init2 (DIR *dir)
         memset (&text, 0, sizeof (text));
         if (openreadclose (d->d_name, &text, 32) != 1)
             return 0;
-        /*if (!stralloc_append (&text, "\n"))
-            return 0; */
 
         fqdn = d->d_name;
         if (str_equal (fqdn, "roots"))
+        {
+            roots = 1;
             fqdn = ".";
+        }
         if (!dns_domain_fromdot (&q, fqdn, str_len (fqdn)))
             return 0;
 
@@ -172,13 +174,14 @@ init2 (DIR *dir)
                 j = i + 1;
             }
         }
-        /*byte_zero(servers + serverslen, 64 - serverslen);*/
         if (!stralloc_catb (&data, q, dns_domain_length (q)))
             return 0;
         if (!stralloc_catb (&data, servers, 64))
             return 0;
         errno = 0;
     }
+    if (!roots)
+        err (-1, "could not access file: servers/roots");
 
     return !errno;
 }
