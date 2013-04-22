@@ -1,3 +1,5 @@
+%global _hardened_build 1
+
 Name:       ndjbdns
 Version:    1.05.7
 Release:    1%{?dist}

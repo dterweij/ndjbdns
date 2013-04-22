@@ -11,7 +11,7 @@
 ## 6. automake -ac --foreign
 ##
 
-AM_CFLAGS=-g -O2 -Wall -Wextra -fstack-check \
+AM_CFLAGS=-g -O2 -Wall -Wextra -fstack-check -fPIC \
 			-D PREFIX=\"${prefix}\" -D SYSCONFDIR=\"${sysconfdir}\"
 
 SUBDIRS = etc
