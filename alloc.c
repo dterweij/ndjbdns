@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "byte.h"
 #include "alloc.h"
 #include "error.h"
 
@@ -61,11 +62,27 @@ alloc (unsigned int n)
 }
 
 void
-alloc_free(char *x)
+alloc_free (char *x)
 {
     if (x >= space)
         if (x < space + SPACE)
             return;             /* XXX: assuming that pointers are flat */
 
     free (x);
+}
+
+int
+alloc_re (char **x, unsigned int m, unsigned int n)
+{
+      char *y = (char *)0;
+
+      y = alloc(n);
+      if (!y)
+          return 0;
+
+      byte_copy(y, m, *x);
+      alloc_free(*x);
+      *x = y;
+
+      return 1;
 }
