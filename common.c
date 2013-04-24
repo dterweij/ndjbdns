@@ -23,6 +23,7 @@
 #define _GNU_SOURCE
 
 #include <err.h>
+#include <time.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -276,4 +277,21 @@ handle_term (int n)
 {
     warnx ("going down with signal: %d ---\n", n);
     exit (0);
+}
+
+/*
+ * set_timezone: set `TZ' environment variable to appropriate time zone value.
+ * `TZ' environment variable is used by numerous - <time.h> - functions to
+ * perform local time conversions. TZ: NAME[+-]HH:MM, ex: IST-5:30 etc.
+ */
+void
+set_timezone (void)
+{
+    char tzone[12] = "";
+    char hh = timezone / (60 * 60);
+    char mm = abs (timezone % (60 * 60) / 60);
+
+    tzset ();
+    snprintf (tzone, sizeof (tzone), "%s%+d:%d", tzname[0], hh, mm);
+    setenv ("TZ", tzone, 1);
 }

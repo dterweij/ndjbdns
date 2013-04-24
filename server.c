@@ -232,12 +232,14 @@ main (int argc, char *argv[])
 
     time (&t);
     memset (buf, 0, sizeof (buf));
-    strftime (buf, sizeof (buf), "%b-%d %Y %T", localtime (&t));
-    fprintf (stderr, "\n");
+    strftime (buf, sizeof (buf), "%b-%d %Y %T %Z", localtime (&t));
     warnx ("version %s: starting: %s\n", VERSION, buf);
 
-    initialize ();
+    set_timezone ();
+    if (debug_level)
+        warnx ("TIMEZONE: %s", env_get ("TZ"));
 
+    initialize ();
     if (!debug_level)
         if ((x = env_get ("DEBUG_LEVEL")))
             debug_level = atol (x);

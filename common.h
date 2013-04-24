@@ -51,4 +51,6 @@ extern void write_pid (const char *);
 
 extern void handle_term (int);
 
+extern void set_timezone (void);
+
 #endif

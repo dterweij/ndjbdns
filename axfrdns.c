@@ -514,13 +514,14 @@ main (int argc, char *argv[])
 
     time (&t);
     memset (seed, 0, sizeof (seed));
-    strftime (seed, sizeof (seed), "%b-%d %Y %T", localtime (&t));
-    fprintf (stderr, "\n");
+    strftime (seed, sizeof (seed), "%b-%d %Y %T %Z", localtime (&t));
     warnx ("version %s: starting %s\n", VERSION, seed);
-    memset (seed, 0, sizeof (seed));
+
+    set_timezone ();
+    if (debug_level)
+        warnx ("TIMEZONE: %s", env_get ("TZ"));
 
     read_conf (CFGFILE);
-
     if (!debug_level)
         if ((x = env_get ("DEBUG_LEVEL")))
             debug_level = atol (x);
