@@ -425,7 +425,7 @@ dns_transmit_start (struct dns_transmit *d, const char servers[64],
 
     d->udploop = flagrecursive ? 1 : 0;
 
-    if (len + 16 > 512)
+    if ((len + 16 > 512) || byte_equal (qtype, 2, DNS_T_ANY))
         return firsttcp (d);
 
     return firstudp (d);
