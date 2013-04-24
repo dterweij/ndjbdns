@@ -251,11 +251,12 @@ walldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 noinst_LIBRARIES = liballoc.a libbuffer.a libbyte.a libcdb.a libdns.a \
 	libenv.a libgetopt.a libtai.a libunix.a
 
-liballoc_a_SOURCES = alloc.c alloc_re.c getln.c getln2.c stralloc_cat.c \
-	stralloc_catb.c stralloc_cats.c stralloc_copy.c stralloc_eady.c \
-	stralloc_num.c stralloc_opyb.c stralloc_opys.c stralloc_pend.c \
+liballoc_a_SOURCES = alloc.c getln.c getln2.c stralloc.c \
 	alloc.h error.h byte.h getln.h buffer.h stralloc.h gen_alloc.h \
 	gen_allocdefs.h str.h
+#	stralloc_cat.c
+#	stralloc_catb.c stralloc_cats.c stralloc_copy.c stralloc_eady.c \
+#	stralloc_num.c stralloc_opyb.c stralloc_opys.c stralloc_pend.c
 
 libbuffer_a_SOURCES = buffer.c strerr_die.c strerr_sys.c \
 	buffer.h byte.h error.h str.h strerr.h
