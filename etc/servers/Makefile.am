@@ -11,5 +11,11 @@
 ## 6. automake -ac --foreign
 ##
 
-confserversdir = $(sysconfdir)/ndjbdns/servers
-dist_confservers_DATA = roots
+confdir = $(sysconfdir)/ndjbdns/servers
+conf_DATA = roots
+
+$(conf_DATA): dnsroots.global
+	cp dnsroots.global roots
+
+CLEANFILES = $(conf_DATA)
+EXTRA_DIST = dnsroots.global

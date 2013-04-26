@@ -30,4 +30,4 @@ $(conf_DATA): axfrdns-conf dnscache-conf rbldns-conf tinydns-conf walldns-conf
 
 CLEANFILES = $(conf_DATA)
 EXTRA_DIST = axfrdns-conf dnscache-conf rbldns-conf tinydns-conf \
-	walldns-conf dnsroots.global
+	walldns-conf
