@@ -155,7 +155,7 @@ u_respond (int j)
     socket_send4 (udp53, response, response_len, u[j].ip, u[j].port, &odst);
 
     if (debug_level)
-        log_querydone (&u[j].active, response_len);
+        log_querydone (&u[j].active, response, response_len);
 
     u[j].active = 0;
     --uactive;
@@ -299,7 +299,7 @@ t_respond (int j)
         return;
 
     if (debug_level)
-        log_querydone (&t[j].active, response_len);
+        log_querydone (&t[j].active, response, response_len);
 
     response_id (t[j].id);
     t[j].len = response_len + 2;

@@ -52,10 +52,20 @@ static char *qtype_g[] = {
     "MINFO",    /*14 mailbox or mail list information */
     "MX",       /*15 mail exchange */
     "TXT",      /*16 text strings */
-    "AXFR",     /*17 252 transfer of an entire zone */
-    "MAILB",    /*18 253 mailbox-related records MB, MG or MR */
-    "MAILA",    /*19 254 mail agent RRs (obsolete, use MX) */
-    "*",        /*20 255 requst for all records*/
+    "AAAA",     /*17  28 IPv6 host address */
+    "AXFR",     /*18 252 transfer of an entire zone */
+    "MAILB",    /*19 253 mailbox-related records MB, MG or MR */
+    "MAILA",    /*20 254 mail agent RRs (obsolete, use MX) */
+    "*",        /*21 255 requst for all records*/
+};
+
+static char *rcode_g[] = {
+    ":success",
+    ":format error",
+    ":server failure",
+    ":name error",
+    ":not implemented",
+    ":request refused",
 };
 
 static void
@@ -130,7 +140,7 @@ logtype (const char type[2])
     uint16 u = 0;
 
     uint16_unpack_big (type, &u);
-    u = (u < 17) ? u : (u > 251 && u < 256) ? u - 235 : u;
+    u = (u < 17) ? u : (u == 28) ? 17 : (u > 251 && u < 256) ? u - 234 : u;
     if (u < (sizeof (qtype_g) / sizeof (char *)))
         string(qtype_g[u]);
     else
@@ -197,10 +207,11 @@ log_query (uint64 *qnum, const char client[4], unsigned int port,
 }
 
 void
-log_querydone (uint64 *qnum, unsigned int len)
+log_querydone (uint64 *qnum, const char *resp, unsigned int len)
 {
     time_t t = 0;
-    char ltime[21];
+    uint16_t ancount = 0;
+    char ltime[21], rcode = *(resp + 3) & 0x0F;
 
     time(&t);
     strftime (ltime, sizeof (ltime), "%b %d %Y %T", localtime (&t));
@@ -209,11 +220,14 @@ log_querydone (uint64 *qnum, unsigned int len)
     space();
     string ("R");
     number (*qnum);
-
     space ();
-    string("len ");
+    number (rcode);
+    string (rcode_g[(int)rcode]);
+    space ();
+    uint16_unpack_big (resp + 6, &ancount);
+    number (ancount);
+    space ();
     number (len);
-
     line ();
 }
 
