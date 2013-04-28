@@ -51,7 +51,7 @@ ROOT=PREFIX
 #
 HIDETTL=
 
-# If FORWARDONLY is set, dnscache treats the servers/@ as a list of IP
+# If FORWARDONLY is set, dnscache treats the servers/roots as a list of IP
 # addresses for other caches, not root servers. It forwards queries to those
 # caches the same way a client does, rather than contacting a chain of servers
 # according to NS records.
