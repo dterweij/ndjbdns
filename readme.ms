@@ -42,6 +42,7 @@ Installation:
 .sp
 To install djbdns: just say
 .DS I
+sh>$ autoreconf -if     # to generate configure script.
 sh>$ ./configure [ --prefix=/usr/local ]
 sh>$ make
 sh># make install

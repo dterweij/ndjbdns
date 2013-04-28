@@ -27,10 +27,10 @@
 
           To install djbdns: just say
 
+               sh>$ autoreconf ‐if     # to generate configure script.
                sh>$ ./configure [ ‐‐prefix=/usr/local ]
                sh>$ make
                sh># make install
-
 
           Once  installed,  On  Linux  machines  add ‘dnscache’ to the
           system services by following steps. Note that, if you  chose
