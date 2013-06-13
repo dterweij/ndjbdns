@@ -293,6 +293,7 @@ main (int argc, char *argv[])
 
         n++;
         i += l + 1;
+        if(x[i] == ',') i++;
     }
 
     droproot ();
