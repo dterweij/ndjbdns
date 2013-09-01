@@ -1,7 +1,7 @@
 %global _hardened_build 1
 
 Name:       ndjbdns
-Version:    1.05.7
+Version:    1.05.8
 Release:    1%{?dist}
 Summary:    New djbdns: usable djbdns
 
@@ -263,6 +263,12 @@ fi
 
 
 %changelog
+* Tue Aug 27 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.8-1
+- Updated resolver logs to add timestamps and structure.
+- Added new IP to the root server list, and removed one.
+- Updated resolver to make ANY queries over TCP.
+- Added 'After=network.target' to the Systemd unit files.
+
 * Sun Feb 24 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.7-1
 - Build & install walldns server.
 - Removed install commands for systemd unit files.

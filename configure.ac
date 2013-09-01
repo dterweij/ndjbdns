@@ -2,8 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([ndjbdns], [1.05.7], [pj.pandit@yahoo.co.in])
+AC_INIT([ndjbdns], [1.05.8], [pj.pandit@yahoo.co.in])
 AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([dnsip.c])
 AC_CONFIG_HEADERS([config.h])
 
