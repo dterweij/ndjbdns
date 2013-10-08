@@ -73,7 +73,7 @@ getline (char **lineptr, ssize_t *n, FILE *stream)
     int i = 0;
     char c = 0, *buf = *lineptr;
 
-    while ((c = fgetc (stream)) != EOF)
+    while ((c = (char)fgetc (stream)) != EOF)
     {
         if (!buf || i + 1 == *n)
             *n = extend_buffer (&buf);
@@ -264,7 +264,7 @@ write_pid (const char *pidfile)
     if ((fd = open (pid, O_CREAT | O_WRONLY | O_TRUNC, perm)) == -1)
         err (-1, "could not open file: `%s'", pid);
 
-    memset (pid, '\0', sizeof (pid));
+    memset (pid, '\0', strlen (pid));
     n = sprintf (pid, "%d\n", getpid ());
     write (fd, pid, n);
 

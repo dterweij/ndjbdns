@@ -45,8 +45,6 @@ socket_send4 (int s, char *buf, int len,
     uint16_pack_big ((char *)&sa.sin_port, port);
     byte_copy ((char *)&sa.sin_addr, 4, ip);
 
-    /* return sendto (s, buf, len, 0, (struct sockaddr *)&sa, sizeof sa); */
-
     memset (cbuf, 0, sizeof (cbuf));
     memset (&msgh, 0, sizeof (msgh));
 

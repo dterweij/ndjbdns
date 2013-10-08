@@ -73,11 +73,7 @@ socket_recv4 (int s, char *buf, int len, char ip[4], uint16 *port, void *odst)
     struct iovec iov;
     struct msghdr msgh;
     struct sockaddr_in sa;
-/*
-    r = recvfrom (s, buf, len, 0, (struct sockaddr *)&sa, sizeof (sa));
-    if (r == -1)
-        return -1;
-*/
+
     memset (buf, 0, len);
     memset (cbuf, 0, sizeof (cbuf));
     memset (&msgh, 0, sizeof (msgh));
