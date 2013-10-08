@@ -70,10 +70,10 @@ getline (char **lineptr, ssize_t *n, FILE *stream)
 {
     assert (stream != NULL);
 
-    int i = 0;
-    char c = 0, *buf = *lineptr;
+    int i = 0, c = 0;
+    char *buf = *lineptr;
 
-    while ((c = (char)fgetc (stream)) != EOF)
+    while ((c = fgetc (stream)) != EOF)
     {
         if (!buf || i + 1 == *n)
             *n = extend_buffer (&buf);
