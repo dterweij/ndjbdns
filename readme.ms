@@ -65,7 +65,7 @@ sh># service dnscached start
 sh># dnscache -D
 .DE
 
-Consult the dnscahce(8) manual page for more help.
+Consult the dnscache(8) manual page for more help.
 
 .DS L
 Problems:
