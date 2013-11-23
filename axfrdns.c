@@ -490,6 +490,7 @@ main (int argc, char *argv[])
     char header[12];
     const char *x = NULL;
     unsigned int pos = 0;
+    unsigned long long qnum = 0;
 
     sa.sa_handler = handle_term;
     sigaction (SIGINT, &sa, NULL);
@@ -578,7 +579,7 @@ main (int argc, char *argv[])
         if (byte_diff(qclass, 2, DNS_C_IN) && byte_diff(qclass, 2, DNS_C_ANY))
             errx (-1, "bogus query: bad class");
 
-        qlog (ip, port, header, zone, qtype, " ");
+        qlog (++qnum, ip, port, header, zone, qtype, " ");
         if (byte_equal(qtype,2,DNS_T_AXFR))
         {
             case_lowerb (zone, zonelen);

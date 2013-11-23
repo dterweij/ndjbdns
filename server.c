@@ -133,6 +133,7 @@ doit (void)
     char qclass[2];
     char header[12];
     unsigned int pos = 0;
+    static unsigned long long qnum = 0;
 
     if ((unsigned)len >= sizeof buf)
         goto NOQ;
@@ -156,6 +157,7 @@ doit (void)
         goto NOQ;
     response_id (header);
 
+    qnum++;
     if (byte_equal (qclass, 2, DNS_C_IN))
         response[2] |= 4;
     else if (byte_diff (qclass, 2, DNS_C_ANY))
@@ -172,29 +174,29 @@ doit (void)
     case_lowerb (q, dns_domain_length (q));
     if (!respond (q, qtype, ip))
     {
-        qlog (ip, port, header, q, qtype, " - ");
+        qlog (qnum, ip, port, header, q, qtype, " - ");
         return 0;
     }
-    qlog (ip, port, header, q, qtype, " + ");
+    qlog (qnum, ip, port, header, q, qtype, " + ");
 
     return 1;
 
 NOTIMP:
     response[3] &= ~15;
     response[3] |= 4;
-    qlog (ip, port, header, q, qtype, " I ");
+    qlog (qnum, ip, port, header, q, qtype, " I ");
 
     return 1;
 
 WEIRDCLASS:
     response[3] &= ~15;
     response[3] |= 1;
-    qlog (ip, port, header, q, qtype, " C ");
+    qlog (qnum, ip, port, header, q, qtype, " C ");
 
     return 1;
 
 NOQ:
-    qlog (ip, port, "\0\0", "", "\0\0", " / ");
+    qlog (qnum, ip, port, "\0\0", "", "\0\0", " / ");
 
     return 0;
 }
