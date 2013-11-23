@@ -29,35 +29,7 @@
 #include "buffer.h"
 #include "uint32.h"
 #include "uint16.h"
-
-/* work around gcc 2.95.2 bug */
-#define number(x) ( (u64 = (x)), u64_print() )
-
-static uint64 u64;
-static char *qtype_g[] = {
-    "\0",
-    "A",        /* 1 a host address */
-    "NS",       /* 2 an authoritative name server */
-    "MD",       /* 3 a mail destination (obsolete, use MX) */
-    "MF",       /* 4 a mail forwarder (obsolete, use MX) */
-    "CNAME",    /* 5 the canonical name for an alias */
-    "SOA",      /* 6 marks the start of a zone authority */
-    "MB",       /* 7 a mailbox domain name (experimental) */
-    "MG",       /* 8 a mail group member (experimental) */
-    "MR",       /* 9 a mail rename domain name (experimental) */
-    "NULL",     /*10 a NULL RR (experimental) */
-    "WKS",      /*11 a well known service description */
-    "PTR",      /*12 a domain name pointer */
-    "HINFO",    /*13 host information */
-    "MINFO",    /*14 mailbox or mail list information */
-    "MX",       /*15 mail exchange */
-    "TXT",      /*16 text strings */
-    "AAAA",     /*17  28 IPv6 host address */
-    "AXFR",     /*18 252 transfer of an entire zone */
-    "MAILB",    /*19 253 mailbox-related records MB, MG or MR */
-    "MAILA",    /*20 254 mail agent RRs (obsolete, use MX) */
-    "*",        /*21 255 requst for all records*/
-};
+#include "common.h"
 
 static char *rcode_g[] = {
     ":success",
@@ -69,35 +41,17 @@ static char *rcode_g[] = {
 };
 
 static void
-u64_print (void)
-{
-    char buf[20];
-    unsigned int pos = 0;
-
-    pos = sizeof (buf);
-    do
-    {
-        if (!pos)
-            break;
-        buf[--pos] = '0' + (u64 % 10);
-        u64 /= 10;
-    } while (u64);
-
-    buffer_put (buffer_2, buf + pos, sizeof (buf) - pos);
-}
-
-static void
 hex (unsigned char c)
 {
     buffer_put (buffer_2, "0123456789abcdef" + (c >> 4), 1);
     buffer_put (buffer_2, "0123456789abcdef" + (c & 15), 1);
 }
 
-static void
+/*static void
 string (const char *s)
 {
     buffer_puts (buffer_2, s);
-}
+}*/
 
 static void
 line (void)
@@ -124,8 +78,7 @@ ip (const char i[4])
     number ((int)(i[3] & 0xFF));
 }
 
-
-static void
+/* static void
 logid (const char id[2])
 {
     uint16 u = 0;
@@ -145,7 +98,7 @@ logtype (const char type[2])
         string(qtype_g[u]);
     else
         number (u);
-}
+} */
 
 static void
 name (const char *q)
@@ -264,8 +217,7 @@ log_tcpopen (const char client[4], unsigned int port)
     string (" tcpopen ");
     ip (client);
     string (":");
-    hex (port >> 8);
-    hex (port & 255);
+    number (port);
 
     line ();
 }
@@ -284,8 +236,7 @@ log_tcpclose (const char client[4], unsigned int port)
     string (" tcpclose ");
     ip (client);
     string (":");
-    hex (port >> 8);
-    hex (port & 255);
+    number (port);
     space ();
     string (x);
 
