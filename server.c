@@ -37,7 +37,7 @@
 #include "env.h"
 #include "ip4.h"
 #include "dns.h"
-#include "qlog.h"
+#include "log.h"
 #include "byte.h"
 #include "case.h"
 #include "buffer.h"
@@ -126,6 +126,8 @@ check_option (int argc, char *argv[])
     return optind;
 }
 
+static unsigned long long qnum = 0;
+
 static int
 doit (void)
 {
@@ -133,7 +135,6 @@ doit (void)
     char qclass[2];
     char header[12];
     unsigned int pos = 0;
-    static unsigned long long qnum = 0;
 
     if ((unsigned)len >= sizeof buf)
         goto NOQ;
@@ -174,29 +175,29 @@ doit (void)
     case_lowerb (q, dns_domain_length (q));
     if (!respond (q, qtype, ip))
     {
-        qlog (qnum, ip, port, header, q, qtype, " - ");
+        log_query (qnum, ip, port, header, q, qtype);
         return 0;
     }
-    qlog (qnum, ip, port, header, q, qtype, " + ");
+    log_query (qnum, ip, port, header, q, qtype);
 
     return 1;
 
 NOTIMP:
     response[3] &= ~15;
     response[3] |= 4;
-    qlog (qnum, ip, port, header, q, qtype, " I ");
+    log_query (qnum, ip, port, header, q, qtype);
 
     return 1;
 
 WEIRDCLASS:
     response[3] &= ~15;
     response[3] |= 1;
-    qlog (qnum, ip, port, header, q, qtype, " C ");
+    log_query (qnum, ip, port, header, q, qtype);
 
     return 1;
 
 NOQ:
-    qlog (qnum, ip, port, "\0\0", "", "\0\0", " / ");
+    log_query (qnum, ip, port, "\0\0", "", "\0\0");
 
     return 0;
 }
@@ -323,7 +324,14 @@ main (int argc, char *argv[])
                 response_tc ();
 
             /* may block for buffer space; if it fails, too bad */
-            socket_send4 (udp53[i], response, response_len, ip, port, &odst);
+            len = socket_send4 (udp53[i], response,
+                                response_len, ip, port, &odst);
+            if (len < 0)
+                continue;
+            if (debug_level > 1)
+                log_querydone(qnum, response, response_len);
         }
     }
+
+    return 0;
 }

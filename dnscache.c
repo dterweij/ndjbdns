@@ -137,7 +137,7 @@ u_drop (int j)
         return;
 
     if (debug_level > 2)
-        log_querydrop (&u[j].active);
+        log_querydrop (u[j].active);
 
     u[j].active = 0;
     --uactive;
@@ -155,7 +155,7 @@ u_respond (int j)
     socket_send4 (udp53, response, response_len, u[j].ip, u[j].port, &odst);
 
     if (debug_level)
-        log_querydone (&u[j].active, response, response_len);
+        log_querydone (u[j].active, response, response_len);
 
     u[j].active = 0;
     --uactive;
@@ -203,7 +203,7 @@ u_new (void)
     ++uactive;
 
     if (debug_level)
-        log_query (&x->active, x->ip, x->port, x->id, q, qtype);
+        log_query (x->active, x->ip, x->port, x->id, q, qtype);
 
     switch (query_start (&x->q, q, qtype, qclass, myipoutgoing))
     {
@@ -286,7 +286,7 @@ void
 t_drop (int j)
 {
     if (debug_level > 2)
-        log_querydrop (&t[j].active);
+        log_querydrop (t[j].active);
 
     errno = error_pipe;
     t_close (j);
@@ -299,7 +299,7 @@ t_respond (int j)
         return;
 
     if (debug_level)
-        log_querydone (&t[j].active, response, response_len);
+        log_querydone (t[j].active, response, response_len);
 
     response_id (t[j].id);
     t[j].len = response_len + 2;
@@ -400,7 +400,7 @@ t_rw (int j)
     x->active = ++numqueries;
 
     if (debug_level)
-        log_query (&x->active, x->ip, x->port, x->id, q, qtype);
+        log_query (x->active, x->ip, x->port, x->id, q, qtype);
 
     switch (query_start (&x->q, q, qtype, qclass, myipoutgoing))
     {

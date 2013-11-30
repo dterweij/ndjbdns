@@ -37,9 +37,9 @@
 #include "tai.h"
 #include "cdb.h"
 #include "str.h"
+#include "log.h"
 #include "byte.h"
 #include "case.h"
-#include "qlog.h"
 #include "scan.h"
 #include "open.h"
 #include "seek.h"
@@ -579,7 +579,7 @@ main (int argc, char *argv[])
         if (byte_diff(qclass, 2, DNS_C_IN) && byte_diff(qclass, 2, DNS_C_ANY))
             errx (-1, "bogus query: bad class");
 
-        qlog (++qnum, ip, port, header, zone, qtype, " ");
+        log_query (++qnum, ip, port, header, zone, qtype);
         if (byte_equal(qtype,2,DNS_T_AXFR))
         {
             case_lowerb (zone, zonelen);

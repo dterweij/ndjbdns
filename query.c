@@ -255,6 +255,11 @@ doit (struct query *z, int state)
     int i = 0, j = 0, k = 0, p = 0, q = 0;
     uint32 ttl = 0, soattl = 0, cnamettl = 0;
 
+    extern int uactive;
+    extern int tactive;
+    extern uint64 numqueries;
+    extern uint64 cache_motion;
+
     errno = error_io;
     if (state == 1)
         goto HAVEPACKET;
@@ -319,7 +324,7 @@ NEWNAME:
         }
         cleanup (z);
         if (debug_level > 2)
-            log_stats ();
+            log_stats (uactive, tactive, numqueries, cache_motion);
 
         return 1;
     }
@@ -1110,7 +1115,7 @@ NXDOMAIN:
                 }
 
     if (debug_level > 2)
-        log_stats ();
+        log_stats (uactive, tactive, numqueries, cache_motion);
 
     if (flagout || flagsoa || !flagreferral)
     {
