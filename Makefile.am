@@ -43,8 +43,8 @@ EXTRA_DIST = dnstracesort.sh readme.ms README INSTALL TODO ChangeLog \
 	COPYING $(noinst_MANS) ndjbdns.logrotate
 
 axfrdns_SOURCES = axfrdns.c iopause.c droproot.c tdlookup.c response.c \
-	qlog.c prot.c timeoutread.c timeoutwrite.c common.c \
-	droproot.h timeoutread.h timeoutwrite.h qlog.h response.h select.h \
+	log.c prot.c timeoutread.c timeoutwrite.c common.c \
+	droproot.h timeoutread.h timeoutwrite.h response.h select.h \
 	prot.h hasshsgr.h common.h
 axfrdns_LDADD = libdns.a libtai.a liballoc.a libenv.a libcdb.a \
 	libbuffer.a libunix.a libbyte.a
@@ -146,9 +146,9 @@ dnstxt_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
 dnstxt.1: dnstxt.ms
 	cp dnstxt.ms dnstxt.1
 
-pickdns_SOURCES = pickdns.c server.c response.c droproot.c qlog.c prot.c \
+pickdns_SOURCES = pickdns.c server.c response.c droproot.c log.c prot.c \
 	common.c iopause.c \
-	qlog.h response.h prot.h hasshsgr.h common.h iopause.h
+	log.h response.h prot.h hasshsgr.h common.h iopause.h
 pickdns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a
 
@@ -166,9 +166,9 @@ randomip_LDADD = libdns.a libtai.a libbuffer.a libunix.a libbyte.a
 randomip.1: random-ip.ms
 	cp random-ip.ms randomip.1
 
-rbldns_SOURCES = rbldns.c server.c response.c dd.c droproot.c qlog.c prot.c \
-	common.c iopause.c \
-	qlog.h response.h prot.h dd.h hasshsgr.h common.h iopause.h
+rbldns_SOURCES = rbldns.c server.c response.c dd.c droproot.c prot.c \
+	common.c iopause.c log.c \
+	log.h response.h prot.h dd.h hasshsgr.h common.h iopause.h
 rbldns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a
 
@@ -192,8 +192,8 @@ tcprules.1: tcprules.ms
 	cp tcprules.ms tcprules.1
 
 tinydns_SOURCES = tinydns.c server.c droproot.c tdlookup.c response.c \
-	qlog.c prot.c common.c iopause.c \
-	qlog.h response.h prot.h hasshsgr.h common.h iopause.h
+	log.c prot.c common.c iopause.c \
+	log.h response.h prot.h hasshsgr.h common.h iopause.h
 tinydns_LDADD = libdns.a libtai.a libenv.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a
 
@@ -230,9 +230,9 @@ tinydns_get_LDADD = libdns.a libtai.a libcdb.a libbuffer.a liballoc.a \
 tinydns-get.1: tinydns-get.ms
 	cp tinydns-get.ms tinydns-get.1
 
-walldns_SOURCES = walldns.c server.c response.c droproot.c qlog.c prot.c dd.c \
-	common.c iopause.c \
-	qlog.h response.h prot.h dd.h hasshsgr.h common.h iopause.h
+walldns_SOURCES = walldns.c server.c response.c droproot.c prot.c dd.c \
+	common.c iopause.c log.c \
+	log.h response.h prot.h dd.h hasshsgr.h common.h iopause.h
 walldns_LDADD = libdns.a libenv.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a libtai.a
 
