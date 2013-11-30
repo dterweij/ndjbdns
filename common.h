@@ -24,7 +24,6 @@
 #define COMMON_H
 
 #include "uint32.h"
-#include "uint64.h"
 
 enum op_mode { DAEMON = 1, DEBUG = 2 };
 
@@ -53,13 +52,5 @@ extern void write_pid (const char *);
 extern void handle_term (int);
 
 extern void set_timezone (void);
-
-extern void number (uint64);
-
-extern void string (const char *);
-
-extern void logid (const char []);
-
-extern void logtype (const char []);
 
 #endif
