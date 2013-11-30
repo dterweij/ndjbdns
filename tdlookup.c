@@ -416,17 +416,33 @@ AUTHORITY:
 }
 
 int
-respond (char *q, char qtype[2], char ip[4])
+tdlookup_init (void)
 {
-    int r, fd;
-    char key[6];
-
-    tai_now (&now);
-    fd = open_read ("data.cdb");
+    int fd = open_read ("data.cdb");
     if (fd == -1)
         return 0;
 
     cdb_init (&c, fd);
+    close (fd);
+
+    return 1;
+}
+
+int
+respond (char *q, char qtype[2], char ip[4])
+{
+    int r;
+    char key[6];
+    static char tdinit = 0;
+
+    tai_now (&now);
+    if (!tdinit)
+    {
+        if (!tdlookup_init ())
+            return 0;
+        tdinit++;
+    }
+
     byte_zero (clientloc, 2);
     key[0] = 0;
     key[1] = '%';
@@ -448,9 +464,5 @@ respond (char *q, char qtype[2], char ip[4])
             return 0;
 
     r = doit (q, qtype);
-
-    cdb_free (&c);
-    close (fd);
-
     return r;
 }
