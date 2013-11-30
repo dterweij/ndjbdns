@@ -27,12 +27,12 @@
 
 extern void log_startup(void);
 
-extern void log_query(uint64 *, const char *, unsigned int,
+extern void log_query(uint64, const char *, unsigned int,
                         const char *, const char *, const char *);
 
-extern void log_querydrop(uint64 *);
+extern void log_querydrop(uint64);
 
-extern void log_querydone(uint64 *, const char *, unsigned int);
+extern void log_querydone(uint64, const char *, unsigned int);
 
 extern void log_tcpopen(const char *, unsigned int);
 
@@ -74,6 +74,6 @@ extern void log_rrmx(const char *, const char *,
 extern void log_rrsoa(const char *, const char *, const char *,
                         const char *, const char *, unsigned int);
 
-extern void log_stats(void);
+extern void log_stats(int, int, uint64, uint64);
 
 #endif
