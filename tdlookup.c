@@ -20,6 +20,8 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <err.h>
+#include <signal.h>
 #include <unistd.h>
 
 #include "tai.h"
@@ -415,7 +417,16 @@ AUTHORITY:
     return 1;
 }
 
-int
+static char tdinit = 0;
+
+static void
+handle_usr1 (int n)
+{
+    tdinit = 0;
+    warnx ("received SIGUSR1(%d): reloading data.cdb", n);
+}
+
+static int
 tdlookup_init (void)
 {
     int fd = open_read ("data.cdb");
@@ -433,14 +444,17 @@ respond (char *q, char qtype[2], char ip[4])
 {
     int r;
     char key[6];
-    static char tdinit = 0;
+    struct sigaction sa;
 
     tai_now (&now);
     if (!tdinit)
     {
         if (!tdlookup_init ())
             return 0;
+
         tdinit++;
+        sa.sa_handler = handle_usr1;
+        sigaction (SIGUSR1, &sa, NULL);
     }
 
     byte_zero (clientloc, 2);

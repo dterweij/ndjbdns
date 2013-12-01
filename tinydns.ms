@@ -20,8 +20,13 @@
 \fBtinydns\fR is a DNS server that answers DNS queries from other hosts with
 locally configured information. When invoked, \fBtinydns\fR reads from the
 configuration file and listens on UDP port 53 for the incoming requests. When
-the request is received, \fBtinydns\fR answers it by looking into `data.cdb'
+a request is received, \fBtinydns\fR answers it by looking into `data.cdb'
 file placed under the ROOT directory specified in the configuration file.
+
+Until version 1.05.8, \fBtinydns\fR used to read from `data.cdb' for each
+request it received and responded to. From version 1.05.9, \fBtinydns\fR reads
+`data.cdb' only ones at the beginning and later when signaled for the same
+via SIGUSR1.
 
 .SH OPTIONS
 .TP
@@ -36,6 +41,9 @@ file placed under the ROOT directory specified in the configuration file.
 .TP
 .B \-v \-\-version
  print version information.
+
+.SH SIGNALS
+SIGUSR1 - reload information from data.cdb file.
 
 .SH FILES
  PREFIX/ndjbdns/tinydns.conf
