@@ -8,6 +8,7 @@ After=network.target
 Restart=always
 PIDFile=/var/run/axfrdns.pid
 ExecStart=PREFIX/sbin/axfrdns
+StandardInput=socket
 
 [Install]
 WantedBy=multi-user.target

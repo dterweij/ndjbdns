@@ -518,6 +518,13 @@ main (int argc, char *argv[])
     strftime (seed, sizeof (seed), "%b-%d %Y %T %Z", localtime (&t));
     warnx ("version %s: starting %s\n", VERSION, seed);
 
+    if (mode & DAEMON)
+    {
+        /* redirect stdout & stderr to a log file */
+        redirect_to_log (LOGFILE);
+        write_pid (PIDFILE);
+    }
+
     set_timezone ();
     if (debug_level)
         warnx ("TIMEZONE: %s", env_get ("TZ"));
