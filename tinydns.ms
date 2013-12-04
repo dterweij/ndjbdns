@@ -25,7 +25,7 @@ file placed under the ROOT directory specified in the configuration file.
 
 Until version 1.05.8, \fBtinydns\fR used to read from `data.cdb' for each
 request it received and responded to. From version 1.05.9, \fBtinydns\fR reads
-`data.cdb' only ones at the beginning and later when signaled for the same
+`data.cdb' only ones at the beginning and later when signalled for the same
 via SIGUSR1.
 
 .SH OPTIONS
