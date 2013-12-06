@@ -28,7 +28,7 @@ config=/etc/ndjbdns/tinydns.conf
 logfile=/var/log/tinydns.log
 lockfile=/var/lock/subsys/tinydns
 
-[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+[ -e /etc/sysconfig/${prog##[a-z/.]*/} ] && . /etc/sysconfig/${prog##[a-z/.]*/}
 
 start() {
     [ -x $prog ] || exit 5

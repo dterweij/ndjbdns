@@ -26,7 +26,7 @@ config=/etc/ndjbdns/rbldns.conf
 logfile=/var/log/rbldns.log
 lockfile=/var/lock/subsys/rbldns
 
-[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+[ -e /etc/sysconfig/${prog##[a-z/.]*/} ] && . /etc/sysconfig/${prog##[a-z/.]*/}
 
 start() {
     [ -x $prog ] || exit 5

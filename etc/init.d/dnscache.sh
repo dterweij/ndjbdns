@@ -28,7 +28,7 @@ config=/etc/ndjbdns/dnscache.conf
 logfile=/var/log/dnscache.log
 lockfile=/var/lock/subsys/dnscache
 
-[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+[ -e /etc/sysconfig/${prog##[a-z/.]*/} ] && . /etc/sysconfig/${prog##[a-z/.]*/}
 
 start() {
     [ -x $prog ] || exit 5

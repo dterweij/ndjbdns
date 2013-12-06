@@ -26,7 +26,7 @@ config=/etc/ndjbdns/walldns.conf
 logfile=/var/log/walldns.log
 lockfile=/var/lock/subsys/walldns
 
-[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
+[ -e /etc/sysconfig/${prog##[a-z/.]*/} ] && . /etc/sysconfig/${prog##[a-z/.]*/}
 
 start() {
     [ -x $prog ] || exit 5
