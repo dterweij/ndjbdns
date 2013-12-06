@@ -233,9 +233,12 @@ read_conf (const char *file)
     fclose (fp);
 }
 
-/* redirect stdout & stderr to a log file */
+/*
+ * redirect stdout & stderr to a log file. flag parameter decides which
+ * descriptors to redirect; It is an 'OR' of STDOUT_FILENO & STDERR_FILENO.
+ */
 void
-redirect_to_log (const char *logfile)
+redirect_to_log (const char *logfile, unsigned char flag)
 {
     assert (logfile != NULL);
 
@@ -244,9 +247,9 @@ redirect_to_log (const char *logfile)
     if ((fd = open (logfile, O_CREAT | O_WRONLY | O_APPEND, perm)) == -1)
         err (-1, "could not open logfile `%s'", logfile);
 
-    if (dup2 (fd, STDOUT_FILENO) == -1)
+    if (flag & STDOUT_FILENO && dup2 (fd, STDOUT_FILENO) == -1)
         err (-1, "could not duplicate stdout");
-    if (dup2 (fd, STDERR_FILENO) == -1)
+    if (flag & STDERR_FILENO && dup2 (fd, STDERR_FILENO) == -1)
         err (-1, "could not duplicate stderr");
 }
 

@@ -45,7 +45,7 @@ extern int check_variable (const char *);
 
 extern void read_conf (const char *);
 
-extern void redirect_to_log (const char *);
+extern void redirect_to_log (const char *, unsigned char);
 
 extern void write_pid (const char *);
 

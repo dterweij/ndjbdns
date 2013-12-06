@@ -164,7 +164,7 @@ initialize (void)
     if (mode & DAEMON)
     {
         /* redirect stdout & stderr to a log file */
-        redirect_to_log (LOGFILE);
+        redirect_to_log (LOGFILE, STDOUT_FILENO | STDERR_FILENO);
         write_pid (PIDFILE);
     }
 
