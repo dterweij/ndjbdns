@@ -22,8 +22,8 @@ bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
 	dnstrace tinydns-data tinydns-edit tinydns-get randomip axfr-get \
 	tcprules rbldns-data
 
-noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-data \
-	pickdns-conf rbldns-conf walldns-conf axfrdns-conf dnsmx
+noinst_PROGRAMS = dnscache-conf tinydns-conf rbldns-conf \
+	walldns-conf axfrdns-conf dnsmx
 
 bin_SCRIPTS = dnstracesort
 
@@ -145,20 +145,6 @@ dnstxt_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
 
 dnstxt.1: dnstxt.ms
 	cp dnstxt.ms dnstxt.1
-
-pickdns_SOURCES = pickdns.c server.c response.c droproot.c log.c prot.c \
-	common.c iopause.c \
-	log.h response.h prot.h hasshsgr.h common.h iopause.h
-pickdns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
-	libunix.a libbyte.a
-
-pickdns_conf_SOURCES = pickdns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-pickdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
-
-pickdns_data_SOURCES = pickdns-data.c
-pickdns_data_LDADD = libcdb.a libdns.a liballoc.a libbuffer.a \
-	libunix.a libbyte.a
 
 randomip_SOURCES = random-ip.c
 randomip_LDADD = libdns.a libtai.a libbuffer.a libunix.a libbyte.a
