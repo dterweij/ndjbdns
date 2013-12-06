@@ -7,7 +7,7 @@ After=network.target
 [Service]
 Restart=always
 PIDFile=/var/run/axfrdns.pid
-ExecStart=PREFIX/sbin/axfrdns
+ExecStart=-PREFIX/sbin/axfrdns -D
 StandardInput=socket
 
 [Install]

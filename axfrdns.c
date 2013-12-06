@@ -505,25 +505,13 @@ main (int argc, char *argv[])
     argv += n;
 
     if (mode & DAEMON)
-    {
-        n = fork ();
-        if (n == -1)
-            err (-1, "could not fork a daemon process");
-        if (n > 0)
-            return 0;
-    }
+        /* redirect stderr to a log file */
+        redirect_to_log (LOGFILE, STDERR_FILENO);
 
     time (&t);
     memset (seed, 0, sizeof (seed));
     strftime (seed, sizeof (seed), "%b-%d %Y %T %Z", localtime (&t));
     warnx ("version %s: starting %s\n", VERSION, seed);
-
-    if (mode & DAEMON)
-    {
-        /* redirect stdout & stderr to a log file */
-        redirect_to_log (LOGFILE);
-        write_pid (PIDFILE);
-    }
 
     set_timezone ();
     if (debug_level)

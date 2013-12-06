@@ -8,10 +8,10 @@ service axfrdns
         socket_type             = stream
         bind                    = 127.0.0.1
         only_from               = 127.0.0.1
-        wait                    = yes
+        wait                    = no
         user                    = root
         server                  = /usr/sbin/axfrdns
-        server_args             = -d2 -D
+        server_args             = -D
         disable                 = yes
         flags                   = IPv4
         type                    = UNLISTED
