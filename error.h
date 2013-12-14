@@ -46,6 +46,7 @@ extern int error_nodevice;
 extern int error_inprogress;
 extern int error_wouldblock;
 extern int error_connrefused;
+extern int error_blockedbydbl;
 
 extern int error_temp (int);
 
