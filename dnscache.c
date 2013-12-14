@@ -45,6 +45,7 @@
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
 
+#include "cdb.h"
 #include "dns.h"
 #include "env.h"
 #include "ip4.h"
@@ -53,6 +54,7 @@ short mode = 0, debug_level = 0;
 #include "scan.h"
 #include "taia.h"
 #include "byte.h"
+#include "open.h"
 #include "query.h"
 #include "alloc.h"
 #include "error.h"
@@ -108,7 +110,6 @@ packetquery (char *buf, unsigned int len, char **q,
 
     return 1;
 }
-
 
 uint64 numqueries = 0;
 static char buf[1024];
@@ -630,6 +631,20 @@ check_option (int argc, char *argv[])
     return optind;
 }
 
+static int
+dbl_init (void)
+{
+    extern struct cdb bl;    /* dns block list */
+
+    int fd = open_read ("dnsbl.cdb");
+    if (fd == -1)
+        return 0;
+
+    cdb_init (&bl, fd);
+    close (fd);
+
+    return 1;
+}
 
 int
 main (int argc, char *argv[])
@@ -764,6 +779,8 @@ main (int argc, char *argv[])
         roots_display();
     if (socket_listen (tcp53, 20) == -1)
         err (-1, "could not listen on TCP socket");
+    if (!dbl_init() && debug_level > 1)
+        warnx ("could not read dnsbl.cdb");
 
     doit ();
 

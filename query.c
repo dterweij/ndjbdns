@@ -21,6 +21,7 @@
  */
 
 #include "dd.h"
+#include "cdb.h"
 #include "dns.h"
 #include "log.h"
 #include "byte.h"
@@ -37,6 +38,8 @@
 
 extern short debug_level;
 static int flagforwardonly = 0;
+
+struct cdb bl;      /* dns block list */
 
 void
 query_forwardonly (void)
@@ -662,11 +665,17 @@ HAVENS:
                         z->control[z->level], z->servers[z->level],z->level);
 
         if (dns_transmit_start (&z->dt, z->servers[z->level], flagforwardonly,
-                                z->name[z->level], DNS_T_A,z->localip) == -1)
+                                z->name[z->level], DNS_T_A, z->localip) == -1)
             goto DIE;
     }
     else
     {
+        if (bl.map
+            && cdb_find (&bl, z->name[0], dns_domain_length (z->name[0])) > 0)
+        {
+            errno = error_blockedbydbl;
+            goto DIE;
+        }
         if (debug_level > 2)
             log_tx (z->name[0], z->type, z->control[0], z->servers[0], 0);
 
