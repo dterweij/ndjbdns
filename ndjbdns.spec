@@ -1,7 +1,7 @@
 %global _hardened_build 1
 
 Name:       ndjbdns
-Version:    1.05.8
+Version:    1.05.9
 Release:    1%{?dist}
 Summary:    New djbdns: usable djbdns
 
@@ -215,17 +215,18 @@ fi
 %{_bindir}/tinydns-get
 
 %if 0%{?fedora} || 0%{?rhel} >= 7
-%{_unitdir}/axfrdns.service
+%{_unitdir}/axfrdns.socket
+%{_unitdir}/axfrdns@.service
 %{_unitdir}/dnscache.service
 %{_unitdir}/rbldns.service
 %{_unitdir}/tinydns.service
 %{_unitdir}/walldns.service
 %else
-%{_initrddir}/axfrdns
 %{_initrddir}/dnscache
 %{_initrddir}/rbldns
 %{_initrddir}/tinydns
 %{_initrddir}/walldns
+%config(noreplace) %{_sysconfdir}/xinetd.d/axfrdns
 %config(noreplace) %{_sysconfdir}/logrotate.d/ndjbdns
 %endif
 
@@ -263,6 +264,13 @@ fi
 
 
 %changelog
+* Sat Dec 14 2013 pjp <pj.pandit@yahoo.co.in> - 1.05-9-1
+- Introduced support for DNS block list in dnscache(8).
+- Improved root server's log structure, added timestamps etc.
+- Changed tinydns(8) server to read data ones at the beginning
+  and later when signaled via SIGUSR1.
+- Added xinetd(8) & Systemd(1) configurations for axfrdns(8).
+
 * Tue Aug 27 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.8-1
 - Updated resolver logs to add timestamps and structure.
 - Added new IP to the root server list, and removed one.
