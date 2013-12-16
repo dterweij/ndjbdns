@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2013 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -86,6 +86,6 @@ socket_send4 (int s, char *buf, int len,
 #endif
 
     msgh.msg_flags = 0;
-    msgh.msg_controllen = cmsg->cmsg_len;
+    msgh.msg_controllen = cmsg ? cmsg->cmsg_len : 0;
     return sendmsg (s, &msgh, 0);
 }
