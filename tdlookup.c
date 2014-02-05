@@ -417,44 +417,28 @@ AUTHORITY:
     return 1;
 }
 
-static char tdinit = 0;
-
-static void
-handle_usr1 (int n)
-{
-    tdinit = 0;
-    warnx ("received SIGUSR1(%d): reloading data.cdb", n);
-}
-
-static int
-tdlookup_init (void)
-{
-    int fd = open_read ("data.cdb");
-    if (fd == -1)
-        return 0;
-
-    cdb_init (&c, fd);
-    close (fd);
-
-    return 1;
-}
-
 int
 respond (char *q, char qtype[2], char ip[4])
 {
     int r;
     char key[6];
-    struct sigaction sa;
+
+    static int fd = -1;
+    struct tai one_second = { 1 };
+    static struct tai cdb_valid = { 0 };
 
     tai_now (&now);
-    if (!tdinit)
+    if (tai_less (&cdb_valid, &now))
     {
-        if (!tdlookup_init ())
+        if (fd != -1)
+            close (fd);
+
+        fd = open_read ("data.cdb");
+        if (fd == -1)
             return 0;
 
-        tdinit++;
-        sa.sa_handler = handle_usr1;
-        sigaction (SIGUSR1, &sa, NULL);
+        cdb_init (&c, fd);
+        tai_add (&cdb_valid, &now, &one_second);
     }
 
     byte_zero (clientloc, 2);
