@@ -23,9 +23,14 @@
 
 #include <err.h>
 #include <stdio.h>
+#include <getopt.h>
+#include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include "version.h"
 
 #include "fmt.h"
 #include "ip4.h"
@@ -41,6 +46,7 @@
 buffer b;
 int fd = 0;
 char bspace[1024];
+static char *prog = NULL;
 
 int fdcdb = 0;
 struct cdb_make cdb;
@@ -50,12 +56,65 @@ int match = 1;
 static stralloc line;
 unsigned long linenum = 0;
 
+static void
+usage (void)
+{
+    printf ("Usage: %s [OPTIONS]\n",  prog);
+}
+
+static void
+printh (void)
+{
+    usage ();
+    printf ("\n Options:\n");
+    printf ("%-17s %s\n", "    -h --help", "print this help");
+    printf ("%-17s %s\n", "    -v --version", "print version information");
+    printf ("\nReport bugs to <pj.pandit@yahoo.co.in>\n");
+}
+
+static int
+check_option (int argc, char *argv[])
+{
+    int n = 0, ind = 0;
+    const char optstr[] = "+:hv";
+    struct option lopt[] = \
+    {
+        { "help", no_argument, NULL, 'h' },
+        { "version", no_argument, NULL, 'v' },
+        { 0, 0, 0, 0 }
+    };
+
+    opterr = optind = 0;
+    while ((n = getopt_long (argc, argv, optstr, lopt, &ind)) != -1)
+    {
+        switch (n)
+        {
+        case 'h':
+            printh ();
+            exit (0);
+
+        case 'v':
+            printf ("%s is part of ndjbdns version %s\n", prog, VERSION);
+            exit (0);
+
+        default:
+            errx (-1, "unknown option `%c', see: --help", optopt);
+        }
+    }
+
+    return optind;
+}
+
 int
 main (int argc, char *argv[])
 {
+    char *x = NULL;
     char ip[4], ch = 0;
     unsigned long u = 0;
     unsigned int j = 0, k = 0;
+
+    prog = strdup ((x = strrchr (argv[0], '/')) != NULL ? x + 1 : argv[0]);
+    j = check_option (argc, argv);
 
     umask(022);
     fd = open_read ("data");

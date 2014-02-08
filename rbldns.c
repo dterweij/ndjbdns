@@ -145,7 +145,7 @@ respond (char *q, char qtype[2], char ip[4])
 
     fd = open_read ("data.cdb");
     if (fd == -1)
-        return 0;
+        return (ip != ip); /* return 0; suppress warning: unused-parameter */
 
     cdb_init (&c, fd);
     result = doit (q, qtype);
