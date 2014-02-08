@@ -81,7 +81,7 @@ dnscache_conf_SOURCES = dnscache-conf.c generic-conf.c auto_home.c \
 dnscache_conf_LDADD = libtai.a libbuffer.a libunix.a libbyte.a
 
 dnsfilter_SOURCES = dnsfilter.c iopause.c select.h
-dnsfilter_LDADD = libgetopt.a libdns.a libenv.a libtai.a liballoc.a \
+dnsfilter_LDADD = libdns.a libenv.a libtai.a liballoc.a \
 	libbuffer.a libunix.a libbyte.a
 
 dnsfilter.1: dnsfilter.ms
@@ -235,7 +235,7 @@ walldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 #
 
 noinst_LIBRARIES = liballoc.a libbuffer.a libbyte.a libcdb.a libdns.a \
-	libenv.a libgetopt.a libtai.a libunix.a
+	libenv.a libtai.a libunix.a
 
 liballoc_a_SOURCES = alloc.c getln.c getln2.c stralloc.c \
 	alloc.h error.h byte.h getln.h buffer.h stralloc.h gen_alloc.h \
@@ -267,9 +267,6 @@ libdns_a_SOURCES = dns_dfd.c dns_domain.c dns_dtda.c dns_ip.c dns_ipq.c \
 	ip4.h env.h socket.h select.h
 
 libenv_a_SOURCES = env.c str.h env.h
-
-libgetopt_a_SOURCES = sgetopt.c subgetopt.c \
-	buffer.h sgetopt.h subgetopt.h subgetopt.h
 
 libtai_a_SOURCES = tai_add.c tai_now.c tai_pack.c tai_sub.c tai_uint.c \
 	tai_unpack.c taia_add.c taia_approx.c taia_frac.c taia_less.c \
