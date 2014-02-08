@@ -23,7 +23,7 @@ bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
 	tcprules rbldns-data
 
 noinst_PROGRAMS = dnscache-conf tinydns-conf rbldns-conf \
-	walldns-conf axfrdns-conf dnsmx
+	walldns-conf dnsmx
 
 bin_SCRIPTS = dnstracesort
 
@@ -51,10 +51,6 @@ axfrdns_LDADD = libdns.a libtai.a liballoc.a libenv.a libcdb.a \
 
 axfrdns.8: axfrdns.ms
 	sed -e 's:PREFIX:${sysconfdir}:' axfrdns.ms > axfrdns.8
-
-axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-axfrdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 
 axfr_get_SOURCES = axfr-get.c iopause.c timeoutread.c timeoutwrite.c \
 	timeoutread.h timeoutwrite.h select.h
