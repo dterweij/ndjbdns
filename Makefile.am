@@ -23,7 +23,7 @@ bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
 	tcprules rbldns-data
 
 noinst_PROGRAMS = dnscache-conf tinydns-conf rbldns-conf \
-	walldns-conf dnsmx
+	dnsmx
 
 bin_SCRIPTS = dnstracesort
 
@@ -220,10 +220,6 @@ walldns_LDADD = libdns.a libenv.a libcdb.a liballoc.a libbuffer.a \
 
 walldns.8: walldns.ms
 	sed -e 's:PREFIX:${sysconfdir}:' walldns.ms > walldns.8
-
-walldns_conf_SOURCES = walldns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-walldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 
 
 #
