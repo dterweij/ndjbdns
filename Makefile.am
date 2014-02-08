@@ -22,7 +22,7 @@ bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
 	dnstrace tinydns-data tinydns-edit tinydns-get randomip axfr-get \
 	tcprules rbldns-data
 
-noinst_PROGRAMS = dnscache-conf dnsmx
+noinst_PROGRAMS = dnsmx
 
 bin_SCRIPTS = dnstracesort
 
@@ -70,10 +70,6 @@ dnscache_LDADD = libdns.a libenv.a liballoc.a libbuffer.a libtai.a libcdb.a \
 
 dnscache.8: dnscache.ms
 	sed -e 's:PREFIX:${sysconfdir}:' dnscache.ms > dnscache.8
-
-dnscache_conf_SOURCES = dnscache-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h hasdevtcp.h
-dnscache_conf_LDADD = libtai.a libbuffer.a libunix.a libbyte.a
 
 dnsfilter_SOURCES = dnsfilter.c iopause.c select.h
 dnsfilter_LDADD = libdns.a libenv.a libtai.a liballoc.a \
