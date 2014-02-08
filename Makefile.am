@@ -22,8 +22,7 @@ bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
 	dnstrace tinydns-data tinydns-edit tinydns-get randomip axfr-get \
 	tcprules rbldns-data
 
-noinst_PROGRAMS = dnscache-conf tinydns-conf rbldns-conf \
-	dnsmx
+noinst_PROGRAMS = dnscache-conf tinydns-conf dnsmx
 
 bin_SCRIPTS = dnstracesort
 
@@ -156,10 +155,6 @@ rbldns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
 
 rbldns.8: rbldns.ms
 	sed -e 's:PREFIX:${sysconfdir}:' rbldns.ms > rbldns.8
-
-rbldns_conf_SOURCES = rbldns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-rbldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 
 rbldns_data_SOURCES = rbldns-data.c
 rbldns_data_LDADD = libcdb.a liballoc.a libbuffer.a libunix.a libbyte.a
