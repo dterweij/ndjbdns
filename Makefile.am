@@ -22,7 +22,7 @@ bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
 	dnstrace tinydns-data tinydns-edit tinydns-get randomip axfr-get \
 	tcprules rbldns-data
 
-noinst_PROGRAMS = dnscache-conf tinydns-conf dnsmx
+noinst_PROGRAMS = dnscache-conf dnsmx
 
 bin_SCRIPTS = dnstracesort
 
@@ -180,10 +180,6 @@ tinydnsd: tinydns.sh
 
 tinydns.8: tinydns.ms
 	sed -e 's:PREFIX:${sysconfdir}:' tinydns.ms > tinydns.8
-
-tinydns_conf_SOURCES = tinydns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-tinydns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 
 tinydns_data_SOURCES = tinydns-data.c
 tinydns_data_LDADD = libcdb.a libdns.a liballoc.a libbuffer.a \
