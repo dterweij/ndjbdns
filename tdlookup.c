@@ -424,7 +424,7 @@ respond (char *q, char qtype[2], char ip[4])
     char key[6];
 
     static int fd = -1;
-    struct tai one_second = { 1 };
+    struct tai step = { 5 };
     static struct tai cdb_valid = { 0 };
 
     tai_now (&now);
@@ -438,7 +438,7 @@ respond (char *q, char qtype[2], char ip[4])
             return 0;
 
         cdb_init (&c, fd);
-        tai_add (&cdb_valid, &now, &one_second);
+        tai_add (&cdb_valid, &now, &step);
     }
 
     byte_zero (clientloc, 2);
