@@ -3,7 +3,8 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
+ *               2012 - 2014 Frank Denis <j at pureftpd dot org>
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -112,7 +113,7 @@ packetquery (char *buf, unsigned int len, char **q,
 }
 
 uint64 numqueries = 0;
-static char buf[1024];
+static char buf[65535];
 static struct in_addr odst; /* original destination IP */
 static char myipoutgoing[4];
 static char myipincoming[4];
@@ -321,8 +322,9 @@ void
 t_rw (int j)
 {
     int r;
-    char ch;
+    char *ch;
     static char *q = 0;
+    unsigned int toread;
     char qtype[2], qclass[2];
     struct tcpclient *x = NULL;
 
@@ -344,7 +346,25 @@ t_rw (int j)
         return;
     }
 
-    r = read (x->tcp, &ch, 1);
+    switch (x->state)
+    {
+    case 1:
+        toread = 2U;
+        break;
+
+    case 2:
+        toread = 1U;
+        break;
+
+    case 3:
+        toread = x->len - x->pos;
+        break;
+
+    default:
+        return; /* impossible */
+    }
+
+    r = read (x->tcp, buf, toread);
     if (r == 0)
     {
         errno = error_pipe;
@@ -357,17 +377,20 @@ t_rw (int j)
         return;
     }
 
+    ch = buf;
     if (x->state == 1)
     {
-        x->len = (unsigned char)ch;
+        x->len = (unsigned char)*ch++;
         x->len <<= 8;
         x->state = 2;
-        return;
+
+        if (--r <= 0)
+            return;
     }
     if (x->state == 2)
     {
-        x->len += (unsigned char)ch;
-        if (!x->len)
+        x->len += (unsigned char)*ch;
+        if (x->len < 12)
         {
             errno = error_proto;
             t_close (j);
@@ -384,11 +407,11 @@ t_rw (int j)
 
         return;
     }
-
     if (x->state != 3)
         return; /* impossible */
 
-    x->buf[x->pos++] = ch;
+    byte_copy (&x->buf[x->pos], r, ch);
+    x->pos += r;
     if (x->pos < x->len)
         return;
 
