@@ -285,16 +285,25 @@ handle_term (int n)
 /*
  * set_timezone: set `TZ' environment variable to appropriate time zone value.
  * `TZ' environment variable is used by numerous - <time.h> - functions to
- * perform local time conversions. TZ: NAME[+-]HH:MM, ex: IST-5:30 etc.
+ * perform local time conversions. TZ: NAME[+-]HH:MM:SS[DST]
+ * ex: IST-5:30:00, EST+5:00:00EDT etc.
  */
 void
 set_timezone (void)
 {
-    char tzone[12] = "";
-    char hh = timezone / (60 * 60);
-    char mm = abs (timezone % (60 * 60) / 60);
+    time_t t;
+    char tzone[22] = "";
+    struct tm *tt = NULL;
+    char hh = 0, mm = 0, ss = 0;
 
-    tzset ();
-    snprintf (tzone, sizeof (tzone), "%s%+d:%d", tzname[0], hh, mm);
+    t = time (NULL);
+    tt = localtime (&t);
+
+    hh = timezone / (60 * 60);
+    mm = abs (timezone % (60 * 60) / 60);
+    ss = abs (timezone % (60 * 60) % 60);
+
+    snprintf (tzone, sizeof (tzone), "%s%+02d:%02d:%02d%s",
+                tzname[0], hh, mm, ss, (tt->tm_isdst > 0) ? tzname[1] : "");
     setenv ("TZ", tzone, 1);
 }
