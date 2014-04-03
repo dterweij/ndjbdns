@@ -31,6 +31,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <netinet/in.h>
 
 #include "taia.h"
 #include "uint32.h"
@@ -282,6 +285,61 @@ handle_term (int n)
     exit (0);
 }
 
+/* gettimezone: reads local timezone definition from '/etc/localtime'
+ * and returns a pointer to a POSIX TZ environment variable string or
+ * NULL in case of an error; See: tzfile(5), tzset(3).
+ *
+ *     std offset dst [offset],start[/time],end[/time]
+ *
+ * Ex: TZ="NZST-12:00:00NZDT-13:00:00,M10.1.0,M3.3.0"
+ */
+char *
+gettimezone (void)
+{
+#define TZ_VERSION  '2'
+#define TZ_MAGIC    "TZif"
+#define TZ_FILE     "/etc/localtime"
+
+    int32_t fd = 0;
+    char *tz = NULL;
+
+    struct stat st;
+    char *tzbuf = NULL;
+
+    if ((fd = open (TZ_FILE, O_RDONLY | O_NDELAY)) < 0)
+    {
+        warn ("could not access timezone: %s", TZ_FILE);
+        return tz;
+    }
+    if (fstat (fd, &st) < 0)
+        err (-1, "could not get file status: %s", TZ_FILE);
+
+    tzbuf = mmap (NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    if (tzbuf == MAP_FAILED)
+        err (-1, "could not mmap(2) file: %s", TZ_FILE);
+
+    if (memcmp (tzbuf, TZ_MAGIC, 4))
+        err (-1, "invalid timezone file: %s, see tzfile(5)", TZ_FILE);
+    if (TZ_VERSION == *(tzbuf + 4) || TZ_VERSION == *(tzbuf + 4) - 1)
+    {
+        char *p1 = NULL, *p2 = NULL;
+
+        if (!(p2 = memrchr (tzbuf, '\n', st.st_size)))
+            err (-1, "invalid timezone string (1)");
+        if (!(p1 = memrchr (tzbuf, '\n', st.st_size - 1)))
+            err (-1, "invalid timezone string (2)");
+
+        if (!(tz = calloc (abs (p2 - p1), sizeof (char))))
+            err (-1, "could not allocate memory for tz");
+        memcpy (tz, p1 + 1, abs (p2 - p1) - 1);
+    }
+
+    munmap (tzbuf, st.st_size);
+    close (fd);
+
+    return tz;
+}
+
 /*
  * set_timezone: set `TZ' environment variable to appropriate time zone value.
  * `TZ' environment variable is used by numerous - <time.h> - functions to
@@ -291,19 +349,27 @@ handle_term (int n)
 void
 set_timezone (void)
 {
-    time_t t;
-    char tzone[22] = "";
-    struct tm *tt = NULL;
-    char hh = 0, mm = 0, ss = 0;
+    char *tzone = gettimezone ();
 
-    t = time (NULL);
-    tt = localtime (&t);
+    if (!tzone)
+    {
+        time_t t;
+        struct tm *tt = NULL;
+        char hh = 0, mm = 0, ss = 0;
 
-    hh = timezone / (60 * 60);
-    mm = abs (timezone % (60 * 60) / 60);
-    ss = abs (timezone % (60 * 60) % 60);
+        t = time (NULL);
+        tt = localtime (&t);
 
-    snprintf (tzone, sizeof (tzone), "%s%+02d:%02d:%02d%s",
-                tzname[0], hh, mm, ss, (tt->tm_isdst > 0) ? tzname[1] : "");
+        hh = timezone / (60 * 60);
+        mm = abs (timezone % (60 * 60) / 60);
+        ss = abs (timezone % (60 * 60) % 60);
+
+        if (!(tzone = calloc (22, sizeof (char))))
+            err (-1, "could not allocate memory for tzone");
+        snprintf (tzone, 22, "%s%+02d:%02d:%02d%s", tzname[0],
+                            hh, mm, ss, (tt->tm_isdst > 0) ? tzname[1] : "");
+    }
+
     setenv ("TZ", tzone, 1);
+    free (tzone);
 }
