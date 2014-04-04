@@ -349,8 +349,11 @@ gettimezone (void)
 void
 set_timezone (void)
 {
-    char *tzone = gettimezone ();
+    char *tzone = getenv ("TZ");
+    if (tzone)
+        return;
 
+    tzone = gettimezone ();
     if (!tzone)
     {
         time_t t;
