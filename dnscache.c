@@ -46,6 +46,9 @@
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
 
+static uint16_t server_port = 53;
+static char *cfgfile = CFGFILE, *logfile = LOGFILE, *pidfile = PIDFILE;
+
 #include "cdb.h"
 #include "dns.h"
 #include "env.h"
@@ -602,8 +605,14 @@ printh (void)
 {
     usage ();
     printf ("\n Options: \n");
+    printf ("%-17s %s\n", "   -c <value>", "specify path to config file");
     printf ("%-17s %s\n", "   -d <value>", "print debug messages");
-    printf ("%-17s %s\n", "   -D", "run as daemon");
+    printf ("%-17s %s\n", "   -D", "start server as daemon");
+    printf ("%-17s %s\n", "   -l <value>", "specify path to log file");
+    printf ("%-17s %s\n", "   -p <value>", "specify path to pid file");
+    printf ("%-17s %s\n", "   -P <value>", "specify server port, default: 53");
+
+    printf ("\n");
     printf ("%-17s %s\n", "   -h --help", "print this help");
     printf ("%-17s %s\n", "   -v --version", "print version information");
     printf ("\nReport bugs to <pj.pandit@yahoo.co.in>\n");
@@ -613,7 +622,7 @@ int
 check_option (int argc, char *argv[])
 {
     int n = 0, ind = 0;
-    const char optstr[] = "+:d:Dhv";
+    const char optstr[] = "+:c:d:Dl:p:P:hv";
     struct option lopt[] = \
     {
         { "help", no_argument, NULL, 'h' },
@@ -626,6 +635,10 @@ check_option (int argc, char *argv[])
     {
         switch (n)
         {
+        case 'c':
+            cfgfile = strdup (optarg);
+            break;
+
         case 'd':
             mode |= DEBUG;
             debug_level = atoi (optarg);
@@ -633,6 +646,18 @@ check_option (int argc, char *argv[])
 
         case 'D':
             mode |= DAEMON;
+            break;
+
+        case 'l':
+            logfile = strdup (optarg);
+            break;
+
+        case 'p':
+            pidfile = strdup (optarg);
+            break;
+
+        case 'P':
+            server_port = atoi (optarg);
             break;
 
         case 'h':
@@ -714,7 +739,7 @@ main (int argc, char *argv[])
     if (debug_level)
         warnx ("TIMEZONE: %s", env_get ("TZ"));
 
-    read_conf (CFGFILE);
+    read_conf (cfgfile);
     if (!debug_level)
         if ((x = env_get ("DEBUG_LEVEL")))
             debug_level = atol (x);
@@ -746,22 +771,21 @@ main (int argc, char *argv[])
     udp53 = socket_udp ();
     if (udp53 == -1)
         err (-1, "could not open UDP socket");
-    if (socket_bind4_reuse (udp53, myipincoming, 53) == -1)
+    if (socket_bind4_reuse (udp53, myipincoming, server_port) == -1)
         err (-1, "could not bind UDP socket");
 
     seed_addtime ();
     tcp53 = socket_tcp ();
     if (tcp53 == -1)
         err (-1, "could not open TCP socket");
-    if (socket_bind4_reuse (tcp53, myipincoming, 53) == -1)
+    if (socket_bind4_reuse (tcp53, myipincoming, server_port) == -1)
         err (-1, "could not bind TCP socket");
 
     if (mode & DAEMON)
     {
         /* redirect stdout & stderr to a log file */
-        redirect_to_log (LOGFILE, STDOUT_FILENO | STDERR_FILENO);
-
-        write_pid (PIDFILE);
+        redirect_to_log (logfile, STDOUT_FILENO | STDERR_FILENO);
+        write_pid (pidfile);
     }
 
     seed_addtime ();
