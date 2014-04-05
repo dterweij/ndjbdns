@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -61,7 +61,8 @@
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
 
-extern int respond(char *,char *,char *);
+extern int respond (char *, char *, char *);
+static char *cfgfile = CFGFILE, *logfile = LOGFILE, *pidfile = PIDFILE;
 
 int
 safewrite (int fd, char *buf, unsigned int len)
@@ -342,7 +343,7 @@ doaxfr (char id[2])
     print (soa.s, soa.len);
 
     seek_begin (fdcdb);
-    buffer_init (&bcdb, buffer_unixread, fdcdb, bcdbspace, sizeof bcdbspace);
+    buffer_init (&bcdb, buffer_unixread, fdcdb, bcdbspace, sizeof (bcdbspace));
 
     pos = 0;
     get (num, 4);
@@ -423,16 +424,20 @@ usage (void)
     printf ("Usage: %s [OPTIONS]\n", prog);
 }
 
-
 void
 printh (void)
 {
     usage ();
     printf ("\n Options:\n");
-    printf ("%-17s %s\n", "    -d <value>", "print debug messages");
-    printf ("%-17s %s\n", "    -D", "run as daemon");
-    printf ("%-17s %s\n", "    -h --help", "print this help");
-    printf ("%-17s %s\n", "    -v --version", "print version information");
+    printf ("%-17s %s\n", "   -c <value>", "specify path to config file");
+    printf ("%-17s %s\n", "   -d <value>", "print debug messages");
+    printf ("%-17s %s\n", "   -D", "start server as daemon");
+    printf ("%-17s %s\n", "   -l <value>", "specify path to log file");
+    printf ("%-17s %s\n", "   -p <value>", "specify path to pid file");
+
+    printf ("\n");
+    printf ("%-17s %s\n", "   -h --help", "print this help");
+    printf ("%-17s %s\n", "   -v --version", "print version information");
     printf ("\nReport bugs to <pj.pandit@yahoo.co.in>\n");
 }
 
@@ -440,7 +445,7 @@ int
 check_option (int argc, char *argv[])
 {
     int n = 0, ind = 0;
-    const char optstr[] = "+:d:Dhv";
+    const char optstr[] = "+:c:d:Dl:p:hv";
     struct option lopt[] = \
     {
         { "help", no_argument, NULL, 'h' },
@@ -453,6 +458,10 @@ check_option (int argc, char *argv[])
     {
         switch (n)
         {
+        case 'c':
+            cfgfile = strdup (optarg);
+            break;
+
         case 'd':
             mode |= DEBUG;
             debug_level = atoi (optarg);
@@ -460,6 +469,14 @@ check_option (int argc, char *argv[])
 
         case 'D':
             mode |= DAEMON;
+            break;
+
+        case 'l':
+            logfile = strdup (optarg);
+            break;
+
+        case 'p':
+            pidfile = strdup (optarg);
             break;
 
         case 'h':
@@ -506,7 +523,7 @@ main (int argc, char *argv[])
 
     if (mode & DAEMON)
         /* redirect stderr to a log file */
-        redirect_to_log (LOGFILE, STDERR_FILENO);
+        redirect_to_log (logfile, STDERR_FILENO);
 
     time (&t);
     memset (seed, 0, sizeof (seed));
@@ -517,7 +534,7 @@ main (int argc, char *argv[])
     if (debug_level)
         warnx ("TIMEZONE: %s", env_get ("TZ"));
 
-    read_conf (CFGFILE);
+    read_conf (cfgfile);
     if (!debug_level)
         if ((x = env_get ("DEBUG_LEVEL")))
             debug_level = atol (x);
