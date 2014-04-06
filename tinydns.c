@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -31,18 +31,21 @@
 
 extern short mode;
 static char seed[128];
+extern char *cfgfile, *logfile, *pidfile;
 
 void
 initialize (void)
 {
-    read_conf (CFGFILE);
+    cfgfile = cfgfile ? cfgfile : CFGFILE;
+    logfile = logfile ? logfile : LOGFILE;
+    pidfile = pidfile ? pidfile : PIDFILE;
 
+    read_conf (cfgfile);
     if (mode & DAEMON)
     {
         /* redirect stdout & stderr to a log file */
-        redirect_to_log (LOGFILE, STDOUT_FILENO | STDERR_FILENO);
-
-        write_pid (PIDFILE);
+        redirect_to_log (logfile, STDOUT_FILENO | STDERR_FILENO);
+        write_pid (pidfile);
     }
 
     dns_random_init (seed);

@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -55,6 +55,7 @@ extern int respond (char *, char *, char *);
 
 static char ip[4];
 static uint16 port;
+static uint16 server_port = 53;
 
 static int len;
 static char *q;
@@ -62,6 +63,7 @@ static char buf[1024];
 
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
+char *cfgfile = NULL, *logfile = NULL, *pidfile = NULL;
 
 void
 usage (void)
@@ -74,8 +76,14 @@ printh (void)
 {
     usage ();
     printf ("\n Options: \n");
+    printf ("%-17s %s\n", "   -c <value>", "specify path to config file");
     printf ("%-17s %s\n", "   -d <value>", "print debug messages");
-    printf ("%-17s %s\n", "   -D", "run as daemon");
+    printf ("%-17s %s\n", "   -D", "start server as daemon");
+    printf ("%-17s %s\n", "   -l <value>", "specify path to log file");
+    printf ("%-17s %s\n", "   -p <value>", "specify path to pid file");
+    printf ("%-17s %s\n", "   -P <value>", "specify server port, default: 53");
+
+    printf ("\n");
     printf ("%-17s %s\n", "   -h --help", "print this help");
     printf ("%-17s %s\n", "   -v --version", "print version information");
     printf ("\nReport bugs to <pj.pandit@yahoo.co.in>\n");
@@ -85,7 +93,7 @@ int
 check_option (int argc, char *argv[])
 {
     int n = 0, ind = 0;
-    const char optstr[] = "+:d:Dhv";
+    const char optstr[] = "+:c:d:Dl:p:P:hv";
     struct option lopt[] = \
     {
         { "help", no_argument, NULL, 'h' },
@@ -98,6 +106,10 @@ check_option (int argc, char *argv[])
     {
         switch (n)
         {
+        case 'c':
+            cfgfile = strdup (optarg);
+            break;
+
         case 'd':
             mode |= DEBUG;
             debug_level = atoi (optarg);
@@ -105,6 +117,18 @@ check_option (int argc, char *argv[])
 
         case 'D':
             mode |= DAEMON;
+            break;
+
+        case 'l':
+            logfile = strdup (optarg);
+            break;
+
+        case 'p':
+            pidfile = strdup (optarg);
+            break;
+
+        case 'P':
+            server_port = atoi (optarg);
             break;
 
         case 'h':
@@ -285,7 +309,7 @@ main (int argc, char *argv[])
         udp53[n] = socket_udp();
         if (udp53[n] == -1)
             errx (-1, "could not open UDP socket");
-        if (socket_bind4_reuse (udp53[n], ip, 53) == -1)
+        if (socket_bind4_reuse (udp53[n], ip, server_port) == -1)
             errx (-1, "could not bind UDP socket");
 
         ndelay_off (udp53[n]);

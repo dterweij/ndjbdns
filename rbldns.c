@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -19,7 +19,6 @@
  * with this program; if not, write to Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
 
 #include <err.h>
 #include <unistd.h>
@@ -44,6 +43,7 @@ static char *base;
 static struct cdb c;
 static char key[5];
 static char data[100 + IP4_FMT];
+extern char *cfgfile, *logfile, *pidfile;
 
 static int
 doit (char *q, char qtype[2])
@@ -160,12 +160,16 @@ initialize (void)
 {
     char *x = NULL;
 
-    read_conf (CFGFILE);
+    cfgfile = cfgfile ? cfgfile : CFGFILE;
+    logfile = logfile ? logfile : LOGFILE;
+    pidfile = pidfile ? pidfile : PIDFILE;
+
+    read_conf (cfgfile);
     if (mode & DAEMON)
     {
         /* redirect stdout & stderr to a log file */
-        redirect_to_log (LOGFILE, STDOUT_FILENO | STDERR_FILENO);
-        write_pid (PIDFILE);
+        redirect_to_log (logfile, STDOUT_FILENO | STDERR_FILENO);
+        write_pid (pidfile);
     }
 
     x = env_get("BASE");
