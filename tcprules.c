@@ -58,7 +58,7 @@ struct cdb_make c;
 void
 usage (void)
 {
-    printf ("Usage: %s <rules.cdb> <rules.tmp>", prog);
+    printf ("Usage: %s <rules.cdb> <rules.tmp>\n", prog);
 }
 
 void
@@ -188,6 +188,7 @@ int
 main (int argc, char *argv[])
 {
     buffer b;
+    char bspace[1024];
 
     int fd = 0, len = 0;
     int i = 0, colon = 0;
@@ -216,7 +217,7 @@ main (int argc, char *argv[])
     if (cdb_make_start (&c, fd) == -1)
         die_write ();
 
-    /* buffer_init (&b, buffer_unixread, fddata, bspace, sizeof bspace); */
+    buffer_init (&b, buffer_unixread, STDIN_FILENO, bspace, sizeof (bspace));
     while (match)
     {
         if (getln (&b, &line, &match, '\n') == -1)
@@ -311,9 +312,9 @@ main (int argc, char *argv[])
 
     if (cdb_make_finish (&c) == -1)
         die_write ();
-    if (fsync(fd) == -1)
+    if (fsync (fd) == -1)
         die_write ();
-    if (close(fd) == -1)
+    if (close (fd) == -1)
         die_write (); /* NFS stupidity */
     if (rename (fntemp, fn))
         err (-1, "unable to move %s to %s", fntemp, fn);
