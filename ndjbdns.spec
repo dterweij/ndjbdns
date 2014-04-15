@@ -1,7 +1,7 @@
 %global _hardened_build 1
 
 Name:       ndjbdns
-Version:    1.05.9
+Version:    1.06
 Release:    1%{?dist}
 Summary:    New djbdns: usable djbdns
 
@@ -264,7 +264,13 @@ fi
 
 
 %changelog
-* Sat Dec 14 2013 pjp <pj.pandit@yahoo.co.in> - 1.05-9-1
+* Tue Apr 15 2014 pjp <pj.pandit@yahoo.co.in> - 1.06-1
+- Merged the one-second.patch.
+- Merged the dnscache-siphash.patch.
+- Fixed a segmentation fault in tcprules.
+- Fixed a time zone glitch to account for Daylight saving time.
+
+* Sat Dec 14 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.9-1
 - Introduced support for DNS block list in dnscache(8).
 - Improved root server's log structure, added timestamps etc.
 - Changed tinydns(8) server to read data ones at the beginning
@@ -277,6 +283,9 @@ fi
 - Updated resolver to make ANY queries over TCP.
 - Added 'After=network.target' to the Systemd unit files.
 
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.05.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Sun Feb 24 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.7-1
 - Build & install walldns server.
 - Removed install commands for systemd unit files.
@@ -287,7 +296,7 @@ fi
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.05.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
-* Sun Jan 14 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.6-1
+* Mon Jan 14 2013 pjp <pj.pandit@yahoo.co.in> - 1.05.6-1
 - Updated SysV scripts according to the packaging guidelines.
 - Disabled system services by default, registerd all.
   patch from: Simone Caronni <negativo17@gmail.com>
@@ -295,7 +304,7 @@ fi
 - Added systemd unit and Sys-v init files for rbldns server.
 - Few minor changes to fix regressions, define uint32 type etc.
 
-* Wed Dec 23 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.5-1
+* Sun Dec 23 2012 pjp <pj.pandit@yahoo.co.in> - 1.05.5-1
 - Applied patch to make SOA responses cache-able.
 - Applied patch to merge identical outgoing requests.
 - Applied patch to install Sys-V init scripts for RHEL and systemd
