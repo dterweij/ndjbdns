@@ -23,7 +23,7 @@ New-DJBDNS
 Hello all,
 
 .PP
-I am pleased to release this *new* djbdns version 1.05.7. Djbdns is a
+I am pleased to release this *new* djbdns version 1.06. Djbdns is a
 fully-fledged Domain Name System(DNS), originally written by the eminent
 author of qmail, Dr. D J Bernstein. This new release is a complete makeover
 to the original source(djbdns-1.05) and is meant to make life a lot more
@@ -40,9 +40,8 @@ Installation:
 .br
 -------------
 .sp
-To install djbdns: just say
+To install djbdns, say:
 .DS I
-sh>$ autoreconf -if     # to generate configure script.
 sh>$ ./configure [ --prefix=/usr/local ]
 sh>$ make
 sh># make install
