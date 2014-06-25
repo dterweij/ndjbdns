@@ -24,9 +24,10 @@ a request is received, \fBtinydns\fR answers it by looking into `data.cdb'
 file placed under the ROOT directory specified in the configuration file.
 
 Until version 1.05.8, \fBtinydns\fR used to read from `data.cdb' for each
-request it received and responded to. From version 1.05.9, \fBtinydns\fR reads
-`data.cdb' only ones at the beginning and later when signalled for the same
-via SIGUSR1.
+request it received and responded to. In version 1.05.9, \fBtinydns\fR read
+`data.cdb' ones at the beginning and later when signalled for the same via
+SIGUSR1. From version 1.06, \fBtinydns\fR reads `data.cdb' every 5 seconds and
+thus does not need to be signalled via SIGUSR1.
 
 .SH OPTIONS
 .TP
@@ -41,9 +42,6 @@ via SIGUSR1.
 .TP
 .B \-v \-\-version
  print version information.
-
-.SH SIGNALS
-SIGUSR1 - reload information from data.cdb file.
 
 .SH FILES
  PREFIX/ndjbdns/tinydns.conf
