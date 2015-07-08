@@ -745,6 +745,7 @@ main (int argc, char *argv[])
             debug_level = atol (x);
     warnx ("DEBUG_LEVEL set to `%d'", debug_level);
 
+#ifndef __CYGWIN__
     if ((x = env_get ("DATALIMIT")))
     {
         struct rlimit r;
@@ -761,6 +762,7 @@ main (int argc, char *argv[])
         if (debug_level)
             warnx ("DATALIMIT set to `%ld' bytes", r.rlim_cur);
     }
+#endif
 
     if (!(x = env_get ("IP")))
         err (-1, "$IP not set");
