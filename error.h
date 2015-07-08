@@ -22,7 +22,7 @@
 
 #pragma once
 
-#if defined (linux) || defined (__linux)
+#if defined (linux) || defined (__linux) || defined(__CYGWIN__)
     #include <errno.h>
 #endif
 
