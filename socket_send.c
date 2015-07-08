@@ -69,7 +69,9 @@ socket_send4 (int s, char *buf, int len,
     cmsg->cmsg_len = CMSG_LEN (sizeof (*p));
 
     p = (struct in_pktinfo *) CMSG_DATA (cmsg);
+#ifndef __CYGWIN__
     p->ipi_spec_dst = *(struct in_addr *)src;
+#endif
 #elif defined IP_SENDSRCADDR
     struct in_addr *p = NULL;
 
