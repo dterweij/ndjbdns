@@ -22,6 +22,7 @@ config/depcomp
 config/install-sh
 config/missing
 config/ylwrap
+compile
 configure
 aclocal.m4
 autom4te.cache.*
