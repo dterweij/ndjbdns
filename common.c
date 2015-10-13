@@ -324,11 +324,8 @@ gettimezone (void)
     {
         char *p1 = NULL, *p2 = NULL;
 
-        if (!(p2 = memrchr (tzbuf, '\n', st.st_size)))
-            err (-1, "invalid timezone string (1)");
-        if (!(p1 = memrchr (tzbuf, '\n', st.st_size - 1)))
-            err (-1, "invalid timezone string (2)");
-
+        p1 = p2 = tzbuf + st.st_size - 1;
+        while (*--p1 != '\n');
         if (!(tz = calloc (abs (p2 - p1), sizeof (char))))
             err (-1, "could not allocate memory for tz");
         memcpy (tz, p1 + 1, abs (p2 - p1) - 1);
