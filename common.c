@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2015 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -41,60 +41,6 @@
 #define free(ptr)   free ((ptr)); (ptr) = NULL
 
 extern short mode, debug_level;
-
-#ifndef __USE_GNU
-
-#include <sys/stat.h>
-
-ssize_t
-extend_buffer (char **buf)
-{
-    ssize_t n = 128;
-    char *newbuf = NULL;
-
-    if (*buf)
-        n += strlen (*buf);
-
-    if (!(newbuf = calloc (n, sizeof (char))))
-        err (-1, "could not allocate enough memory");
-
-    if (*buf)
-    {
-        strncpy (newbuf, *buf, n);
-        free (*buf);
-    }
-
-    *buf = newbuf;
-    return n;
-}
-
-size_t
-getline (char **lineptr, ssize_t *n, FILE *stream)
-{
-    assert (stream != NULL);
-
-    int i = 0, c = 0;
-    char *buf = *lineptr;
-
-    while ((c = fgetc (stream)) != EOF)
-    {
-        if (!buf || i + 1 == *n)
-            *n = extend_buffer (&buf);
-
-        buf[i++] = c;
-        if (c == '\n' || c == '\0')
-            break;
-    }
-    *lineptr = buf;
-
-    if (c == EOF)
-        i = -1;
-
-    return i;
-}
-
-#endif      /* #ifndef __USE_GNU */
-
 
 uint32 seed[32];
 int seedpos = 0;
@@ -232,6 +178,8 @@ read_conf (const char *file)
         }
         seed_addtime ();
     }
+    if (line)
+        free (line);
 
     fclose (fp);
 }

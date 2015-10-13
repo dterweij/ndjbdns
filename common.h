@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2015 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -25,14 +25,6 @@
 #include "uint32.h"
 
 enum op_mode { DAEMON = 1, DEBUG = 2 };
-
-#if defined (__FreeBSD__)
-
-extern ssize_t extend_buffer (char **);
-
-extern ssize_t getline (char **, ssize_t *, FILE *);
-
-#endif
 
 extern void seed_adduint32 (uint32);
 
