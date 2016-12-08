@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -37,9 +37,9 @@
 #include "tai.h"
 #include "cdb.h"
 #include "str.h"
+#include "log.h"
 #include "byte.h"
 #include "case.h"
-#include "qlog.h"
 #include "scan.h"
 #include "open.h"
 #include "seek.h"
@@ -55,15 +55,14 @@
 #include "timeoutwrite.h"
 
 #define PIDFILE "/var/run/axfrdns.pid"
-#define LOGFILE "/var/log/axfrdnsd.log"
+#define LOGFILE "/var/log/axfrdns.log"
 #define CFGFILE SYSCONFDIR"/ndjbdns/axfrdns.conf"
 
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
 
-enum op_mode { DAEMON = 1, DEBUG = 2 };
-
-extern int respond(char *,char *,char *);
+extern int respond (char *, char *, char *);
+static char *cfgfile = CFGFILE, *logfile = LOGFILE, *pidfile = PIDFILE;
 
 int
 safewrite (int fd, char *buf, unsigned int len)
@@ -344,7 +343,7 @@ doaxfr (char id[2])
     print (soa.s, soa.len);
 
     seek_begin (fdcdb);
-    buffer_init (&bcdb, buffer_unixread, fdcdb, bcdbspace, sizeof bcdbspace);
+    buffer_init (&bcdb, buffer_unixread, fdcdb, bcdbspace, sizeof (bcdbspace));
 
     pos = 0;
     get (num, 4);
@@ -425,16 +424,20 @@ usage (void)
     printf ("Usage: %s [OPTIONS]\n", prog);
 }
 
-
 void
 printh (void)
 {
     usage ();
     printf ("\n Options:\n");
-    printf ("%-17s %s\n", "    -d <value>", "print debug messages");
-    printf ("%-17s %s\n", "    -D", "run as daemon");
-    printf ("%-17s %s\n", "    -h --help", "print this help");
-    printf ("%-17s %s\n", "    -v --version", "print version information");
+    printf ("%-17s %s\n", "   -c <value>", "specify path to config file");
+    printf ("%-17s %s\n", "   -d <value>", "print debug messages");
+    printf ("%-17s %s\n", "   -D", "start server as daemon");
+    printf ("%-17s %s\n", "   -l <value>", "specify path to log file");
+    printf ("%-17s %s\n", "   -p <value>", "specify path to pid file");
+
+    printf ("\n");
+    printf ("%-17s %s\n", "   -h --help", "print this help");
+    printf ("%-17s %s\n", "   -v --version", "print version information");
     printf ("\nReport bugs to <pj.pandit@yahoo.co.in>\n");
 }
 
@@ -442,7 +445,7 @@ int
 check_option (int argc, char *argv[])
 {
     int n = 0, ind = 0;
-    const char optstr[] = "+:d:Dhv";
+    const char optstr[] = "+:c:d:Dl:p:hv";
     struct option lopt[] = \
     {
         { "help", no_argument, NULL, 'h' },
@@ -455,6 +458,10 @@ check_option (int argc, char *argv[])
     {
         switch (n)
         {
+        case 'c':
+            cfgfile = strdup (optarg);
+            break;
+
         case 'd':
             mode |= DEBUG;
             debug_level = atoi (optarg);
@@ -462,6 +469,14 @@ check_option (int argc, char *argv[])
 
         case 'D':
             mode |= DAEMON;
+            break;
+
+        case 'l':
+            logfile = strdup (optarg);
+            break;
+
+        case 'p':
+            pidfile = strdup (optarg);
             break;
 
         case 'h':
@@ -492,6 +507,7 @@ main (int argc, char *argv[])
     char header[12];
     const char *x = NULL;
     unsigned int pos = 0;
+    unsigned long long qnum = 0;
 
     sa.sa_handler = handle_term;
     sigaction (SIGINT, &sa, NULL);
@@ -506,39 +522,45 @@ main (int argc, char *argv[])
     argv += n;
 
     if (mode & DAEMON)
-    {
-        n = fork ();
-        if (n == -1)
-            err (-1, "could not fork a daemon process");
-        if (n > 0)
-            return 0;
-    }
+        /* redirect stderr to a log file */
+        redirect_to_log (logfile, STDERR_FILENO);
 
     time (&t);
     memset (seed, 0, sizeof (seed));
-    strftime (seed, sizeof (seed), "%b-%d %Y %T", localtime (&t));
-    fprintf (stderr, "\n");
+    strftime (seed, sizeof (seed), "%b-%d %Y %T %Z", localtime (&t));
     warnx ("version %s: starting %s\n", VERSION, seed);
-    memset (seed, 0, sizeof (seed));
 
-    read_conf (CFGFILE);
+    set_timezone ();
+    if (debug_level)
+        warnx ("TIMEZONE: %s", env_get ("TZ"));
+
+    read_conf (cfgfile);
+    if (!debug_level)
+        if ((x = env_get ("DEBUG_LEVEL")))
+            debug_level = atol (x);
+    warnx ("DEBUG_LEVEL set to `%d'", debug_level);
 
     dns_random_init (seed);
 
     axfr = env_get ("AXFR");
+    if (debug_level)
+        warnx ("AXFR set to `%s'", axfr);
     x = env_get ("TCPREMOTEIP");
+    if (debug_level)
+        warnx ("TCPREMOTEIP set to `%s'", x);
     if (x)
         ip4_scan (x, ip);
     else
         byte_zero (ip, 4);
 
     x = env_get ("TCPREMOTEPORT");
+    if (debug_level)
+        warnx ("TCPREMOTEPORT set to `%s'", x);
     if (!x)
         x = "0";
     scan_ulong (x, &port);
 
     droproot ();
-
     for (;;)
     {
         netread (tcpheader, 2);
@@ -569,7 +591,7 @@ main (int argc, char *argv[])
         if (byte_diff(qclass, 2, DNS_C_IN) && byte_diff(qclass, 2, DNS_C_ANY))
             errx (-1, "bogus query: bad class");
 
-        qlog (ip, port, header, zone, qtype, " ");
+        log_query (++qnum, ip, port, header, zone, qtype);
         if (byte_equal(qtype,2,DNS_T_AXFR))
         {
             case_lowerb (zone, zonelen);

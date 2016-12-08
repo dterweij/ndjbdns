@@ -145,7 +145,7 @@ main (int argc, char *argv[])
     char ch = 0;
     struct stat st;
     unsigned long ttl = 0;
-    int i = 0, j = 0, k = 0;
+    unsigned i = 0, j = 0, k = 0;
 
     prog = strdup ((d1 = strrchr (argv[0], '/')) != NULL ? d1 + 1 : argv[0]);
     i = check_option (argc, argv);

@@ -20,6 +20,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <err.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -30,6 +31,78 @@
 #include "error.h"
 #include "uint16.h"
 #include "socket.h"
+
+static int merge_enable;
+static void (*merge_logger)(const char *, const char *, const char *);
+
+void
+dns_enable_merge (void (*f)(const char *, const char *, const char *))
+{
+    merge_enable = 1;
+    merge_logger = f;
+}
+
+static int
+merge_equal (struct dns_transmit *a, struct dns_transmit *b)
+{
+    const char *ip1 = a->servers + 4 * a->curserver;
+    const char *ip2 = b->servers + 4 * b->curserver;
+
+    return byte_equal (ip1, 4, ip2)
+            && byte_equal (a->qtype, 2, b->qtype)
+            && dns_domain_equal(a->query + 14, b->query + 14);
+}
+
+struct dns_transmit *inprogress[MAXUDP];
+
+static int
+try_merge (struct dns_transmit *d)
+{
+    int i = 0;
+
+    for (i = 0; i < MAXUDP; i++)
+    {
+        if (!inprogress[i])
+            continue;
+        if (!merge_equal(d, inprogress[i]))
+            continue;
+
+        d->master = inprogress[i];
+        inprogress[i]->slaves[inprogress[i]->nslaves++] = d;
+        return 1;
+    }
+
+    return 0;
+}
+
+static void
+register_inprogress (struct dns_transmit *d)
+{
+    int i = 0;
+
+    for (i = 0; i < MAXUDP; i++)
+    {
+        if (!inprogress[i])
+        {
+            inprogress[i] = d;
+            return;
+        }
+    }
+
+    errx (-1, "BUG: out of in progress slots");
+}
+
+static void
+unregister_inprogress (struct dns_transmit *d)
+{
+    int i = 0;
+
+    for (i = 0; i < MAXUDP; i++)
+    {
+        if (inprogress[i] == d)
+            inprogress[i] = 0;
+    }
+}
 
 static int
 serverwantstcp (const char *buf, unsigned int len)
@@ -108,8 +181,35 @@ packetfree (struct dns_transmit *d)
 }
 
 static void
+mergefree (struct dns_transmit *d)
+{
+    int i = 0;
+
+    if (merge_enable)
+        unregister_inprogress (d);
+
+    /* unregister us from our mater */
+    if (d->master)
+    {
+        for (i = 0; i < d->master->nslaves; i++)
+            if (d->master->slaves[i] == d)
+                d->master->slaves[i] = 0;
+    }
+
+    /* and unregister all of our slaves from us */
+    for (i = 0; i < d->nslaves; i++)
+    {
+        if (d->slaves[i])
+            d->slaves[i]->master = NULL;
+    }
+
+    d->nslaves = 0;
+}
+
+static void
 queryfree (struct dns_transmit *d)
 {
+    mergefree (d);
     if (!d->query)
       return;
     alloc_free (d->query);
@@ -156,6 +256,7 @@ thisudp (struct dns_transmit *d)
     const char *ip = NULL;
 
     socketfree (d);
+    mergefree (d);
 
     while (d->udploop < 4)
     {
@@ -164,9 +265,16 @@ thisudp (struct dns_transmit *d)
             ip = d->servers + 4 * d->curserver;
             if (byte_diff (ip, 4, "\0\0\0\0"))
             {
+                if (merge_enable && try_merge (d))
+                {
+                    if (merge_logger)
+                        merge_logger (ip, d->qtype, d->query + 14);
+                    return 0;
+                }
+
                 d->query[2] = dns_random (256);
                 d->query[3] = dns_random (256);
-  
+
                 d->s1 = 1 + socket_udp ();
                 if (!d->s1)
                 {
@@ -190,7 +298,8 @@ thisudp (struct dns_transmit *d)
                         taia_uint (&d->deadline, timeouts[d->udploop]);
                         taia_add (&d->deadline, &d->deadline, &now);
                         d->tcpstate = 0;
-
+                        if (merge_enable)
+                            register_inprogress (d);
                         return 0;
                     }
                 }
@@ -248,7 +357,7 @@ thistcp (struct dns_transmit *d)
                 dns_transmit_free (d);
                 return -1;
             }
-  
+
             taia_now (&now);
             taia_uint (&d->deadline, 10);
             taia_add (&d->deadline, &d->deadline, &now);
@@ -316,7 +425,7 @@ dns_transmit_start (struct dns_transmit *d, const char servers[64],
 
     d->udploop = flagrecursive ? 1 : 0;
 
-    if (len + 16 > 512)
+    if ((len + 16 > 512) || byte_equal (qtype, 2, DNS_T_ANY))
         return firsttcp (d);
 
     return firstudp (d);
@@ -330,6 +439,14 @@ dns_transmit_io (struct dns_transmit *d, iopause_fd *x, struct taia *deadline)
     switch (d->tcpstate)
     {
     case 0:
+        if (d->master)
+            return;
+        if (d->packet)
+        {
+            taia_now (deadline);
+            return;
+        }
+        /* otherwise, fall through */
     case 3:
     case 4:
     case 5:
@@ -350,11 +467,16 @@ dns_transmit_get (struct dns_transmit *d, const iopause_fd *x,
                                           const struct taia *when)
 {
     char udpbuf[4097];
-    int r = 0, fd = 0;
     unsigned char ch = 0;
+    int r = 0, fd = 0, i = 0;
 
     fd = d->s1 - 1;
     errno = error_io;
+
+    if (d->tcpstate == 0 && d->master)
+        return 0;
+    if (d->tcpstate == 0 && d->packet)
+        return 1;
 
     if (!x->revents)
     {
@@ -381,7 +503,7 @@ dns_transmit_get (struct dns_transmit *d, const iopause_fd *x,
 
             return nextudp (d);
         }
-        if (r + 1 > sizeof (udpbuf))
+        if ((unsigned)r + 1 > sizeof (udpbuf))
             return 0;
 
         if (irrelevant (d, udpbuf, r))
@@ -405,6 +527,21 @@ dns_transmit_get (struct dns_transmit *d, const iopause_fd *x,
             return -1;
         }
         byte_copy (d->packet, d->packetlen, udpbuf);
+
+        for (i = 0; i < d->nslaves; i++)
+        {
+            if (!d->slaves[i])
+                continue;
+
+            d->slaves[i]->packetlen = d->packetlen;
+            d->slaves[i]->packet = alloc(d->packetlen);
+            if (!d->slaves[i]->packet)
+            {
+                dns_transmit_free (d->slaves[i]);
+                continue;
+            }
+            byte_copy (d->slaves[i]->packet, d->packetlen, udpbuf);
+        }
 
         queryfree (d);
         return 1;
@@ -458,7 +595,7 @@ dns_transmit_get (struct dns_transmit *d, const iopause_fd *x,
         r = read (fd, &ch, 1);
         if (r <= 0)
             return nexttcp (d);
-        
+
         d->packetlen = ch;
         d->tcpstate = 4;
 

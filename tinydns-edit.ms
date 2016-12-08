@@ -12,7 +12,7 @@
 .SH NAME
 \fBtinydns-edit\fR
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBtinydns-edit\fR [\fBOPTIONS\fR] DATA DATA.TMP add TYPE NAME ADDRESS
 
 .SH DESCRIPTION

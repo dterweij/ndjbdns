@@ -63,12 +63,12 @@ unsigned int maxactive = 10;
 static stralloc partial;
 
 int flag0 = 1;
-int inbuflen = 0;
 char inbuf[1024];
-iopause_fd *inio;
+unsigned int inbuflen = 0;
 
 int iolen = 0;
 iopause_fd *io;
+iopause_fd *inio;
 
 char ip[4];
 char servers[64];
@@ -152,7 +152,7 @@ errout (int i)
     if (!stralloc_cats (&x[i].middle, error_str (errno)))
         err (-1, "could not allocate enough memory");
 
-    for (j = 0; j < x[i].middle.len; j++)
+    for (j = 0; (unsigned)j < x[i].middle.len; j++)
         if (x[i].middle.s[j] == ' ')
             x[i].middle.s[j] = '-';
 }
@@ -202,7 +202,7 @@ main (int argc, char *argv[])
             }
         }
 
-        for (i = 0; i < xnum; ++i)
+        for (i = 0; (unsigned)i < xnum; ++i)
         {
             if (x[i].flagactive)
             {
@@ -227,7 +227,7 @@ main (int argc, char *argv[])
             }
         }
 
-        for (i = 0;i < xnum;++i)
+        for (i = 0; (unsigned)i < xnum;++i)
         {
             if (x[i].flagactive)
             {
@@ -265,7 +265,7 @@ main (int argc, char *argv[])
 
                 --xnum;
                 tmp = x[0];
-                for (i = 0; i < xnum; ++i)
+                for (i = 0; (unsigned)i < xnum; ++i)
                     x[i] = x[i + 1];
                 x[xnum] = tmp;
 
@@ -275,7 +275,7 @@ main (int argc, char *argv[])
             if ((xnum < xmax) && (numactive < maxactive))
             {
                 i = byte_chr (inbuf, inbuflen, '\n');
-                if (inbuflen && (i == inbuflen))
+                if (inbuflen && ((unsigned)i == inbuflen))
                 {
                     if (!stralloc_catb (&partial, inbuf, inbuflen))
                         err (-1, "could not allocate enough memory");
@@ -284,14 +284,14 @@ main (int argc, char *argv[])
                     continue;
                 }
 
-                if ((i < inbuflen) || (!flag0 && partial.len))
+                if (((unsigned)i < inbuflen) || (!flag0 && partial.len))
                 {
-                    if (i < inbuflen)
+                    if ((unsigned)i < inbuflen)
                         ++i;
                     if (!stralloc_catb (&partial, inbuf, i))
                         err (-1, "could not allocate enough memory");
                     inbuflen -= i;
-                    for (j = 0; j < inbuflen; ++j)
+                    for (j = 0; (unsigned)j < inbuflen; ++j)
                         inbuf[j] = inbuf[j + i];
 
                     if (partial.len)

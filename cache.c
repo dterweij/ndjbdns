@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -22,13 +22,17 @@
 
 #include <stdlib.h>
 
+#include "dns.h"
 #include "tai.h"
 #include "byte.h"
 #include "alloc.h"
 #include "cache.h"
 #include "uint32.h"
+#include "uint64.h"
+#include "siphash.h"
 
 uint64 cache_motion = 0;
+static unsigned char siphash_key[16];
 
 static char *x = 0;
 static uint32 size;
@@ -96,7 +100,7 @@ uint32 get4 (uint32 pos)
 static unsigned int
 hash (const char *key, unsigned int keylen)
 {
-    unsigned int result = 5381;
+/*  unsigned int result = 5381;
 
     while (keylen)
     {
@@ -108,7 +112,13 @@ hash (const char *key, unsigned int keylen)
     result <<= 2;
     result &= hsize - 4;
 
-    return result;
+    return result;  */
+
+    uint64 h;
+    siphash24 ((unsigned char *)&h,
+               (const unsigned char *)key, keylen, siphash_key);
+
+    return ((uint32)h) & (hsize - 4);
 }
 
 char *
@@ -243,6 +253,12 @@ cache_set (const char *key, unsigned int keylen,
 int
 cache_init (unsigned int cachesize)
 {
+    unsigned int i = 0U;
+    do
+    {
+        siphash_key[i] = (unsigned char) dns_random(0x100);
+    } while (++i < sizeof (siphash_key));
+
     if (x)
     {
         alloc_free (x);

@@ -11,50 +11,45 @@
 ## 6. automake -ac --foreign
 ##
 
-AM_CFLAGS=-g -O2 -Wall -Wextra -D PREFIX=\"${prefix}\" \
-                               -D SYSCONFDIR=\"${sysconfdir}\"
+AM_CFLAGS=-g -O2 -Wall -Wextra -fstack-check -fPIC \
+			-D PREFIX=\"${prefix}\" -D SYSCONFDIR=\"${sysconfdir}\"
 
 SUBDIRS = etc
 
-bin_PROGRAMS = dnscache dnsip dnsipq dnsq dnsname dnstxt dnsqr \
-	dnsfilter dnstrace tinydns tinydns-data tinydns-edit tinydns-get \
-	randomip axfrdns axfr-get tcprules
+sbin_PROGRAMS = axfrdns dnscache rbldns tinydns walldns
 
-noinst_PROGRAMS = dnscache-conf tinydns-conf pickdns pickdns-conf \
-	pickdns-data rbldns rbldns-conf rbldns-data walldns walldns-conf \
-	axfrdns-conf dnsmx
+bin_PROGRAMS = dnsip dnsipq dnsq dnsname dnstxt dnsqr dnsfilter \
+	dnstrace tinydns-data tinydns-edit tinydns-get randomip axfr-get \
+	tcprules rbldns-data
+
+noinst_PROGRAMS = dnsmx
 
 bin_SCRIPTS = dnstracesort
-noinst_SCRIPTS = dnscached tinydnsd
 
 noinst_MANS = dnscache.ms dnsip.ms dnsq.ms dnsfilter.ms djbdns.ms \
 	tinydns-data.ms tinydns-edit.ms tinydns-get.ms tinydns.ms dnsipq.ms \
 	dnstxt.ms tcprules.ms dnsqr.ms random-ip.ms dnstrace.ms axfrdns.ms \
-	axfr-get.ms dnsname.ms
+	axfr-get.ms dnsname.ms rbldns.ms rbldns-data.ms walldns.ms
 
-nodist_man1_MANS = dnscache.1 dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 \
-	tinydns-data.1 tinydns-edit.1 tinydns-get.1 tinydns.1 dnsipq.1 \
-	dnstxt.1 tcprules.1 dnsqr.1 randomip.1 dnstrace.1 axfrdns.1 \
-	axfr-get.1 dnsname.1
+nodist_man8_MANS = axfrdns.8 dnscache.8 rbldns.8 tinydns.8 walldns.8
 
-CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS)
-EXTRA_DIST = dnstracesort.sh dnscache.sh tinydns.sh readme.ms README \
-	INSTALL TODO ChangeLog COPYING $(noinst_MANS) dnscache.service \
-	tinydns.service axfrdns.service ndjbdns.logrotate
+nodist_man1_MANS = dnsip.1 dnsq.1 dnsfilter.1 djbdns.1 tinydns-data.1 \
+	tinydns-edit.1 tinydns-get.1 dnsipq.1 dnstxt.1 tcprules.1 dnsqr.1 \
+	randomip.1 dnstrace.1 axfr-get.1 dnsname.1 rbldns-data.1
+
+CLEANFILES = $(bin_SCRIPTS) $(nodist_man1_MANS) $(nodist_man8_MANS)
+EXTRA_DIST = dnstracesort.sh readme.ms README INSTALL TODO ChangeLog \
+	COPYING $(noinst_MANS) ndjbdns.logrotate
 
 axfrdns_SOURCES = axfrdns.c iopause.c droproot.c tdlookup.c response.c \
-	qlog.c prot.c timeoutread.c timeoutwrite.c common.c \
-	droproot.h timeoutread.h timeoutwrite.h qlog.h response.h select.h \
+	log.c prot.c timeoutread.c timeoutwrite.c common.c \
+	droproot.h timeoutread.h timeoutwrite.h response.h select.h \
 	prot.h hasshsgr.h common.h
 axfrdns_LDADD = libdns.a libtai.a liballoc.a libenv.a libcdb.a \
 	libbuffer.a libunix.a libbyte.a
 
-axfrdns.1: axfrdns.ms
-	cp axfrdns.ms axfrdns.1
-
-axfrdns_conf_SOURCES = axfrdns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-axfrdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
+axfrdns.8: axfrdns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' axfrdns.ms > axfrdns.8
 
 axfr_get_SOURCES = axfr-get.c iopause.c timeoutread.c timeoutwrite.c \
 	timeoutread.h timeoutwrite.h select.h
@@ -63,29 +58,21 @@ axfr_get_LDADD = libdns.a libtai.a liballoc.a libbuffer.a libunix.a libbyte.a
 axfr-get.1: axfr-get.ms
 	cp axfr-get.ms axfr-get.1
 
-# an init script for dnscache service.
-dnscached: dnscache.sh
-	sed -e 's:PREFIX:${prefix}:' dnscache.sh > dnscached
-
 djbdns.1: djbdns.ms
 	cp djbdns.ms djbdns.1
 
-dnscache_SOURCES = dnscache.c droproot.c okclient.c log.c cache.c query.c \
-	response.c dd.c roots.c iopause.c prot.c common.c \
-	response.h select.h prot.h roots.h query.h cache.h log.h okclient.h \
-	dd.h direntry.h hasshsgr.h version.h common.h
-dnscache_LDADD = libdns.a libenv.a liballoc.a libbuffer.a libtai.a \
+dnscache_SOURCES = dnscache.c droproot.c okclient.c log.c siphash.c cache.c \
+	dns_random.c query.c response.c dd.c roots.c iopause.c prot.c common.c \
+	response.h select.h prot.h roots.h query.h siphash.h cache.h log.h \
+	okclient.h dd.h direntry.h hasshsgr.h version.h common.h clients.h cdb.h
+dnscache_LDADD = libdns.a libenv.a liballoc.a libbuffer.a libtai.a libcdb.a \
 	libunix.a libbyte.a
 
-dnscache.1: dnscache.ms
-	sed -e 's:PREFIX:${sysconfdir}:' dnscache.ms > dnscache.1
-
-dnscache_conf_SOURCES = dnscache-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h hasdevtcp.h
-dnscache_conf_LDADD = libtai.a libbuffer.a libunix.a libbyte.a
+dnscache.8: dnscache.ms
+	sed -e 's:PREFIX:${sysconfdir}:' dnscache.ms > dnscache.8
 
 dnsfilter_SOURCES = dnsfilter.c iopause.c select.h
-dnsfilter_LDADD = libgetopt.a libdns.a libenv.a libtai.a liballoc.a \
+dnsfilter_LDADD = libdns.a libenv.a libtai.a liballoc.a \
 	libbuffer.a libunix.a libbyte.a
 
 dnsfilter.1: dnsfilter.ms
@@ -150,36 +137,26 @@ dnstxt_LDADD = libdns.a libenv.a libtai.a liballoc.a libbuffer.a \
 dnstxt.1: dnstxt.ms
 	cp dnstxt.ms dnstxt.1
 
-pickdns_SOURCES = pickdns.c server.c response.c droproot.c qlog.c prot.c \
-	common.c qlog.h response.h prot.h hasshsgr.h common.h
-pickdns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
-	libunix.a libbyte.a
-
-pickdns_conf_SOURCES = pickdns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-pickdns_conf_LDADD = libbuffer.a libunix.a libbyte.a
-
-pickdns_data_SOURCES = pickdns-data.c
-pickdns_data_LDADD = libcdb.a libdns.a liballoc.a libbuffer.a \
-	libunix.a libbyte.a
-
 randomip_SOURCES = random-ip.c
 randomip_LDADD = libdns.a libtai.a libbuffer.a libunix.a libbyte.a
 
 randomip.1: random-ip.ms
 	cp random-ip.ms randomip.1
 
-rbldns_SOURCES = rbldns.c server.c response.c dd.c droproot.c qlog.c prot.c \
-	common.c qlog.h response.h prot.h dd.h hasshsgr.h common.h
+rbldns_SOURCES = rbldns.c server.c response.c dd.c droproot.c prot.c \
+	common.c iopause.c log.c \
+	log.h response.h prot.h dd.h hasshsgr.h common.h iopause.h
 rbldns_LDADD = libdns.a libenv.a libtai.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a
 
-rbldns_conf_SOURCES = rbldns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-rbldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
+rbldns.8: rbldns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' rbldns.ms > rbldns.8
 
 rbldns_data_SOURCES = rbldns-data.c
 rbldns_data_LDADD = libcdb.a liballoc.a libbuffer.a libunix.a libbyte.a
+
+rbldns-data.1: rbldns-data.ms
+	cp rbldns-data.ms rbldns-data.1
 
 tcprules_SOURCES = tcprules.c
 tcprules_LDADD = libcdb.a liballoc.a libbuffer.a libunix.a libbyte.a
@@ -188,8 +165,8 @@ tcprules.1: tcprules.ms
 	cp tcprules.ms tcprules.1
 
 tinydns_SOURCES = tinydns.c server.c droproot.c tdlookup.c response.c \
-	qlog.c prot.c common.c \
-	qlog.h response.h prot.h hasshsgr.h common.h
+	log.c prot.c common.c iopause.c \
+	log.h response.h prot.h hasshsgr.h common.h iopause.h
 tinydns_LDADD = libdns.a libtai.a libenv.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a
 
@@ -197,12 +174,8 @@ tinydns_LDADD = libdns.a libtai.a libenv.a libcdb.a liballoc.a libbuffer.a \
 tinydnsd: tinydns.sh
 	sed -e 's:PREFIX:${prefix}:' tinydns.sh > tinydnsd
 
-tinydns.1: tinydns.ms
-	sed -e 's:PREFIX:${sysconfdir}:' tinydns.ms > tinydns.1
-
-tinydns_conf_SOURCES = tinydns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-tinydns_conf_LDADD = libbuffer.a libunix.a libbyte.a
+tinydns.8: tinydns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' tinydns.ms > tinydns.8
 
 tinydns_data_SOURCES = tinydns-data.c
 tinydns_data_LDADD = libcdb.a libdns.a liballoc.a libbuffer.a \
@@ -226,14 +199,14 @@ tinydns_get_LDADD = libdns.a libtai.a libcdb.a libbuffer.a liballoc.a \
 tinydns-get.1: tinydns-get.ms
 	cp tinydns-get.ms tinydns-get.1
 
-walldns_SOURCES = walldns.c server.c response.c droproot.c qlog.c prot.c dd.c \
-	common.c qlog.h response.h prot.h dd.h hasshsgr.h common.h
+walldns_SOURCES = walldns.c server.c response.c droproot.c prot.c dd.c \
+	common.c iopause.c log.c \
+	log.h response.h prot.h dd.h hasshsgr.h common.h iopause.h
 walldns_LDADD = libdns.a libenv.a libcdb.a liballoc.a libbuffer.a \
 	libunix.a libbyte.a libtai.a
 
-walldns_conf_SOURCES = walldns-conf.c generic-conf.c auto_home.c \
-	auto_home.h generic-conf.h
-walldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
+walldns.8: walldns.ms
+	sed -e 's:PREFIX:${sysconfdir}:' walldns.ms > walldns.8
 
 
 #
@@ -241,17 +214,19 @@ walldns_conf_LDADD = libbuffer.a libunix.a libbyte.a
 #
 
 noinst_LIBRARIES = liballoc.a libbuffer.a libbyte.a libcdb.a libdns.a \
-	libenv.a libgetopt.a libtai.a libunix.a
+	libenv.a libtai.a libunix.a
 
-liballoc_a_SOURCES = alloc.c alloc_re.c getln.c getln2.c stralloc_cat.c \
-	stralloc_catb.c stralloc_cats.c stralloc_copy.c stralloc_eady.c \
-	stralloc_num.c stralloc_opyb.c stralloc_opys.c stralloc_pend.c \
+liballoc_a_SOURCES = alloc.c getln.c getln2.c stralloc.c \
 	alloc.h error.h byte.h getln.h buffer.h stralloc.h gen_alloc.h \
 	gen_allocdefs.h str.h
+#	stralloc_cat.c
+#	stralloc_catb.c stralloc_cats.c stralloc_copy.c stralloc_eady.c \
+#	stralloc_num.c stralloc_opyb.c stralloc_opys.c stralloc_pend.c
 
-libbuffer_a_SOURCES = buffer.c buffer_1.c buffer_2.c buffer_copy.c \
-	buffer_get.c buffer_put.c strerr_die.c strerr_sys.c \
+libbuffer_a_SOURCES = buffer.c strerr_die.c strerr_sys.c \
 	buffer.h byte.h error.h str.h strerr.h
+#	buffer_1.c buffer_2.c buffer_copy.c \
+#	buffer_get.c buffer_put.c buffer_read.c buffer_write.c
 
 libbyte_a_SOURCES = byte_chr.c byte_rchr.c byte_copy.c byte_cr.c \
 	byte_diff.c byte_zero.c case_diffb.c case_diffs.c case_lowerb.c \
@@ -272,17 +247,14 @@ libdns_a_SOURCES = dns_dfd.c dns_domain.c dns_dtda.c dns_ip.c dns_ipq.c \
 
 libenv_a_SOURCES = env.c str.h env.h
 
-libgetopt_a_SOURCES = sgetopt.c subgetopt.c \
-	buffer.h sgetopt.h subgetopt.h subgetopt.h
-
 libtai_a_SOURCES = tai_add.c tai_now.c tai_pack.c tai_sub.c tai_uint.c \
 	tai_unpack.c taia_add.c taia_approx.c taia_frac.c taia_less.c \
 	taia_now.c taia_pack.c taia_sub.c taia_tai.c taia_uint.c \
 	tai.h uint64.h taia.h
 
-libunix_a_SOURCES = buffer_read.c buffer_write.c error.c error_str.c \
-	ndelay_off.c ndelay_on.c open_read.c open_trunc.c openreadclose.c \
-	readclose.c seek_set.c socket_accept.c socket_bind.c socket_conn.c \
-	socket_listen.c socket_recv.c socket_send.c socket_tcp.c socket_udp.c \
-	buffer.h error.h ndelay.h open.h readclose.h stralloc.h gen_alloc.h \
-	openreadclose.h seek.h byte.h socket.h uint16.h
+libunix_a_SOURCES = error.c error_str.c ndelay_off.c ndelay_on.c \
+	open_read.c open_trunc.c openreadclose.c readclose.c seek_set.c \
+	socket_accept.c socket_bind.c socket_conn.c socket_listen.c \
+	socket_recv.c socket_send.c socket_tcp.c socket_udp.c error.h \
+	ndelay.h open.h readclose.h stralloc.h gen_alloc.h openreadclose.h \
+	seek.h byte.h socket.h uint16.h

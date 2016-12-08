@@ -1,0 +1,10 @@
+[Unit]
+Description=Stream socket for axfrdns(8) zone transfer server
+Documentation=man:axfrdns(8)
+
+[Socket]
+ListenStream=127.0.0.1:53
+Accept=yes
+
+[Install]
+WantedBy=sockets.target

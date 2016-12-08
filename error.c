@@ -121,3 +121,5 @@ ECONNREFUSED;
 #else
 -17;
 #endif
+
+int error_blockedbydbl = -18;

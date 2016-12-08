@@ -20,23 +20,26 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include "error.h"
-#include "roots.h"
+#include "dd.h"
+#include "cdb.h"
+#include "dns.h"
 #include "log.h"
+#include "byte.h"
 #include "case.h"
 #include "cache.h"
-#include "byte.h"
-#include "dns.h"
+#include "alloc.h"
+#include "query.h"
+#include "error.h"
+#include "roots.h"
 #include "uint64.h"
 #include "uint32.h"
 #include "uint16.h"
-#include "dd.h"
-#include "alloc.h"
 #include "response.h"
-#include "query.h"
 
 extern short debug_level;
 static int flagforwardonly = 0;
+
+struct cdb bl;      /* dns block list */
 
 void
 query_forwardonly (void)
@@ -241,7 +244,6 @@ doit (struct query *z, int state)
     unsigned int posauthority = 0;
 
     uint16 numglue = 0;
-    unsigned int posglue = 0;
     unsigned int pos = 0, pos2 = 0;
 
     uint16 datalen = 0;
@@ -255,6 +257,11 @@ doit (struct query *z, int state)
 
     int i = 0, j = 0, k = 0, p = 0, q = 0;
     uint32 ttl = 0, soattl = 0, cnamettl = 0;
+
+    extern int uactive;
+    extern int tactive;
+    extern uint64 numqueries;
+    extern uint64 cache_motion;
 
     errno = error_io;
     if (state == 1)
@@ -320,7 +327,7 @@ NEWNAME:
         }
         cleanup (z);
         if (debug_level > 2)
-            log_stats ();
+            log_stats (uactive, tactive, numqueries, cache_motion);
 
         return 1;
     }
@@ -450,9 +457,46 @@ NEWNAME:
             }
         }
 
+        if (typematch (DNS_T_SOA, dtype))
+        {
+            byte_copy (key, 2, DNS_T_SOA);
+            cached = cache_get (key, dlen + 2, &cachedlen, &ttl);
+            if (cached && (cachedlen || byte_diff (dtype, 2, DNS_T_ANY)))
+            {
+                log_cachedanswer (d, DNS_T_SOA);
+                if (!rqa (z))
+                    goto DIE;
+
+                pos = 0;
+                while ((pos=dns_packet_copy(cached, cachedlen, pos, misc, 20)))
+                {
+                    pos = dns_packet_getname (cached, cachedlen, pos, &t2);
+                    if (!pos)
+                        break;
+
+                    pos = dns_packet_getname (cached, cachedlen, pos, &t3);
+                    if (!pos)
+                        break;
+
+                    if (!response_rstart (d, DNS_T_SOA, ttl))
+                        goto DIE;
+                    if (!response_addname (t2))
+                        goto DIE;
+                    if (!response_addname (t3))
+                        goto DIE;
+                    if (!response_addbytes(misc, 20))
+                        goto DIE;
+
+                    response_rfinish (RESPONSE_ANSWER);
+                }
+                cleanup (z);
+                return 1;
+            }
+        }
+
         if (typematch (DNS_T_A, dtype))
         {
-            byte_copy (key,2,DNS_T_A);
+            byte_copy (key, 2, DNS_T_A);
             cached = cache_get (key, dlen + 2, &cachedlen, &ttl);
             if (cached && (cachedlen || byte_diff (dtype, 2, DNS_T_ANY)))
             {
@@ -504,7 +548,8 @@ NEWNAME:
             && !typematch (DNS_T_NS, dtype)
             && !typematch (DNS_T_PTR, dtype)
             && !typematch (DNS_T_A, dtype)
-            && !typematch (DNS_T_MX, dtype))
+            && !typematch (DNS_T_MX, dtype)
+            && !typematch (DNS_T_SOA, dtype))
         {
             byte_copy (key, 2, dtype);
             cached = cache_get (key, dlen + 2, &cachedlen, &ttl);
@@ -620,11 +665,17 @@ HAVENS:
                         z->control[z->level], z->servers[z->level],z->level);
 
         if (dns_transmit_start (&z->dt, z->servers[z->level], flagforwardonly,
-                                z->name[z->level], DNS_T_A,z->localip) == -1)
+                                z->name[z->level], DNS_T_A, z->localip) == -1)
             goto DIE;
     }
     else
     {
+        if (bl.map
+            && cdb_find (&bl, z->name[0], dns_domain_length (z->name[0])) > 0)
+        {
+            errno = error_blockedbydbl;
+            goto DIE;
+        }
         if (debug_level > 2)
             log_tx (z->name[0], z->type, z->control[0], z->servers[0], 0);
 
@@ -727,7 +778,6 @@ HAVEPACKET:
         uint16_unpack_big (header + 8, &datalen);
         pos += datalen;
     }
-    posglue = pos;
 
     if (!flagcname && !rcode && !flagout && flagreferral && !flagsoa)
     {
@@ -842,6 +892,16 @@ HAVEPACKET:
             i = j;
             continue;
         }
+        if (!flagforwardonly && byte_equal (type, 2, DNS_T_NS)
+            && dns_domain_equal (t1, control))
+        {
+            char dummy[256];
+            if (!roots (dummy, control))
+            {
+                i = j;
+                continue;
+            }
+        }
         if (!roots_same (t1, control))
         {
             i = j;
@@ -853,6 +913,8 @@ HAVEPACKET:
             ;
         else if (byte_equal (type, 2, DNS_T_SOA))
         {
+            int non_authority = 0;
+            save_start ();
             while (i < j)
             {
                 pos = dns_packet_skipname (buf, len, records[i]);
@@ -867,10 +929,19 @@ HAVEPACKET:
                 pos = dns_packet_copy (buf, len, pos, misc, 20);
                 if (!pos)
                     goto DIE;
-                if (records[i] < posauthority && debug_level > 2)
-                      log_rrsoa (whichserver, t1, t2, t3, misc, ttl);
+                if (records[i] < posauthority)
+                {
+                      if (debug_level > 2)
+                          log_rrsoa (whichserver, t1, t2, t3, misc, ttl);
+                      save_data (misc, 20);
+                      save_data (t2, dns_domain_length (t2));
+                      save_data (t3, dns_domain_length (t3));
+                      non_authority++;
+                }
                 ++i;
             }
+            if (non_authority)
+                save_finish (DNS_T_SOA, t1, ttl);
         }
         else if (byte_equal (type, 2, DNS_T_CNAME))
         {
@@ -1053,7 +1124,7 @@ NXDOMAIN:
                 }
 
     if (debug_level > 2)
-        log_stats ();
+        log_stats (uactive, tactive, numqueries, cache_motion);
 
     if (flagout || flagsoa || !flagreferral)
     {

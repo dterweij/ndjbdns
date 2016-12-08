@@ -20,12 +20,12 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef DNS_H
-#define DNS_H
+#pragma once
 
-#include "stralloc.h"
-#include "iopause.h"
 #include "taia.h"
+#include "clients.h"
+#include "iopause.h"
+#include "stralloc.h"
 
 #define DNS_C_IN "\0\1"             /* [0][1] */
 #define DNS_C_ANY "\0\377"          /* [0][255] */
@@ -60,7 +60,13 @@ struct dns_transmit {
   const char *servers;
   char localip[4];
   char qtype[2];
+  struct dns_transmit *master;
+  struct dns_transmit *slaves[MAXUDP];
+  int nslaves;
 } ;
+
+extern void dns_enable_merge(void (*logger)(const char *, const char *,
+                                            const char *));
 
 extern void dns_random_init(const char *);
 extern unsigned int dns_random(unsigned int);
@@ -103,5 +109,3 @@ extern int dns_mx(stralloc *,const stralloc *);
 extern int dns_resolvconfrewrite(stralloc *);
 extern int dns_ip4_qualify_rules(stralloc *,stralloc *,const stralloc *,const stralloc *);
 extern int dns_ip4_qualify(stralloc *,stralloc *,const stralloc *);
-
-#endif

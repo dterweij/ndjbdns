@@ -18,7 +18,10 @@ DATALIMIT=300000
 #
 # CACHESIZE=100000
 
-# Address to listen on for incoming connections.
+# Address to listen on for incoming connections. It could be comma separated
+# list of IP addresses.
+#
+# IP=127.0.0.1[,x.x.x.x,...]
 #
 IP=127.0.0.1
 
@@ -51,9 +54,14 @@ ROOT=PREFIX
 #
 # HIDETTL=
 
-# If FORWARDONLY is set, tinydns treats the servers/@ as a list of IP
+# If FORWARDONLY is set, tinydns treats the servers/roots as a list of IP
 # addresses for other caches, not root servers. It forwards queries to those
 # caches the same way a client does, rather than contacting a chain of servers
 # according to NS records.
 #
 # FORWARDONLY=
+
+# If DEBUG_LEVEL is set, tinydns displays helpful debug messages to
+# the console.
+#
+DEBUG_LEVEL=1

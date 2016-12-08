@@ -1,0 +1,51 @@
+#
+# walldns.conf: this file is part of the djbdns project.
+#
+# Here we define some variables vital for running walldns.
+#
+# Things to remember:
+#
+#   - Lines starting with `#' are comments, thus ignored.
+#   - Blank lines are blank, thus ignored.
+#   - Do not leave blank spaces around `=' sign while defining a variable.
+#
+
+# Maximum number of bytes that could be allocated if required.
+#
+DATALIMIT=250000
+
+# No of bytes to allocate for the cache. This may not exceed DATALIMIT.
+#
+#CACHESIZE=250000
+
+# Address to listen on for incoming connections. It could be comma separated
+# list of IP addresses.
+#
+# IP=127.0.0.1[,x.x.x.x,...]
+#
+IP=127.0.0.1
+
+# A non-root user whose privileges should be acquired by rbldns.
+# Default: daemon
+# See: $ id -u daemon
+#
+UID=2
+
+# A non-root group whose privileges should be acquired by rbldns.
+# Default: daemon
+# See: $ id -g daemon
+#
+GID=2
+
+# ROOT: is the new root & working directory for rbldns.
+# Obviously, the user whose ID is mentioned above MUST be able to read from
+# this directory.
+#
+# Also, this is where `data.cdb' file should reside.
+#
+ROOT=PREFIX
+
+# If DEBUG_LEVEL is set, rbldns displays helpful debug messages to
+# the console.
+#
+DEBUG_LEVEL=1

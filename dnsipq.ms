@@ -10,7 +10,7 @@
 .TH dnsipq 1
 dnsipq - DNS lookup tool
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBdnsipq\fR [\fBOPTIONS\fR] <domain-name> [<domain-name> ...]
 

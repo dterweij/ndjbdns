@@ -10,7 +10,7 @@
 .TH dnsq 1
 dnsqr - query DNS record
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBdnsqr\fR [\fBOPTIONS\fR] <record-type> <domain-name>
 

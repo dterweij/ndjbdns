@@ -10,7 +10,7 @@
 .TH dnsname 1
 dnsname - get name of the DNS server.
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBdnsname\fR [OPTIONS] <address> [<address> ...]
 

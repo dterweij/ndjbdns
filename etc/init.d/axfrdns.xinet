@@ -1,0 +1,18 @@
+# default: off
+# description: The axfrdns(8) zone transfer server is part of the ndjbdns \
+#              project.
+service axfrdns
+{
+        port                    = 53
+        protocol                = tcp
+        socket_type             = stream
+        bind                    = 127.0.0.1
+        only_from               = 127.0.0.1
+        wait                    = no
+        user                    = root
+        server                  = /usr/sbin/axfrdns
+        server_args             = -D
+        disable                 = yes
+        flags                   = IPv4
+        type                    = UNLISTED
+}

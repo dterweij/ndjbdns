@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <netinet/in.h>
 #include <sys/resource.h>
 
 #include "version.h"
@@ -36,7 +37,7 @@
 #include "env.h"
 #include "ip4.h"
 #include "dns.h"
-#include "qlog.h"
+#include "log.h"
 #include "byte.h"
 #include "case.h"
 #include "buffer.h"
@@ -45,6 +46,7 @@
 #include "ndelay.h"
 #include "socket.h"
 #include "common.h"
+#include "iopause.h"
 #include "droproot.h"
 #include "response.h"
 
@@ -53,6 +55,7 @@ extern int respond (char *, char *, char *);
 
 static char ip[4];
 static uint16 port;
+static uint16 server_port = 53;
 
 static int len;
 static char *q;
@@ -60,8 +63,7 @@ static char buf[1024];
 
 static char *prog = NULL;
 short mode = 0, debug_level = 0;
-
-enum op_mode { DAEMON = 1, DEBUG = 2 };
+char *cfgfile = NULL, *logfile = NULL, *pidfile = NULL;
 
 void
 usage (void)
@@ -74,8 +76,14 @@ printh (void)
 {
     usage ();
     printf ("\n Options: \n");
+    printf ("%-17s %s\n", "   -c <value>", "specify path to config file");
     printf ("%-17s %s\n", "   -d <value>", "print debug messages");
-    printf ("%-17s %s\n", "   -D", "run as daemon");
+    printf ("%-17s %s\n", "   -D", "start server as daemon");
+    printf ("%-17s %s\n", "   -l <value>", "specify path to log file");
+    printf ("%-17s %s\n", "   -p <value>", "specify path to pid file");
+    printf ("%-17s %s\n", "   -P <value>", "specify server port, default: 53");
+
+    printf ("\n");
     printf ("%-17s %s\n", "   -h --help", "print this help");
     printf ("%-17s %s\n", "   -v --version", "print version information");
     printf ("\nReport bugs to <pj.pandit@yahoo.co.in>\n");
@@ -85,7 +93,7 @@ int
 check_option (int argc, char *argv[])
 {
     int n = 0, ind = 0;
-    const char optstr[] = "+:d:Dhv";
+    const char optstr[] = "+:c:d:Dl:p:P:hv";
     struct option lopt[] = \
     {
         { "help", no_argument, NULL, 'h' },
@@ -98,6 +106,10 @@ check_option (int argc, char *argv[])
     {
         switch (n)
         {
+        case 'c':
+            cfgfile = strdup (optarg);
+            break;
+
         case 'd':
             mode |= DEBUG;
             debug_level = atoi (optarg);
@@ -105,6 +117,18 @@ check_option (int argc, char *argv[])
 
         case 'D':
             mode |= DAEMON;
+            break;
+
+        case 'l':
+            logfile = strdup (optarg);
+            break;
+
+        case 'p':
+            pidfile = strdup (optarg);
+            break;
+
+        case 'P':
+            server_port = atoi (optarg);
             break;
 
         case 'h':
@@ -126,6 +150,8 @@ check_option (int argc, char *argv[])
     return optind;
 }
 
+static unsigned long long qnum = 0;
+
 static int
 doit (void)
 {
@@ -134,7 +160,7 @@ doit (void)
     char header[12];
     unsigned int pos = 0;
 
-    if (len >= sizeof buf)
+    if ((unsigned)len >= sizeof buf)
         goto NOQ;
     if (!(pos = dns_packet_copy (buf, len, 0, header, 12)))
         goto NOQ;
@@ -156,6 +182,7 @@ doit (void)
         goto NOQ;
     response_id (header);
 
+    qnum++;
     if (byte_equal (qclass, 2, DNS_C_IN))
         response[2] |= 4;
     else if (byte_diff (qclass, 2, DNS_C_ANY))
@@ -172,29 +199,29 @@ doit (void)
     case_lowerb (q, dns_domain_length (q));
     if (!respond (q, qtype, ip))
     {
-        qlog (ip, port, header, q, qtype, " - ");
+        log_query (qnum, ip, port, header, q, qtype);
         return 0;
     }
-    qlog (ip, port, header, q, qtype, " + ");
+    log_query (qnum, ip, port, header, q, qtype);
 
     return 1;
 
 NOTIMP:
     response[3] &= ~15;
     response[3] |= 4;
-    qlog (ip, port, header, q, qtype, " I ");
+    log_query (qnum, ip, port, header, q, qtype);
 
     return 1;
 
 WEIRDCLASS:
     response[3] &= ~15;
     response[3] |= 1;
-    qlog (ip, port, header, q, qtype, " C ");
+    log_query (qnum, ip, port, header, q, qtype);
 
     return 1;
 
 NOQ:
-    qlog (ip, port, "\0\0", "", "\0\0", " / ");
+    log_query (qnum, ip, port, "\0\0", "", "\0\0");
 
     return 0;
 }
@@ -205,7 +232,8 @@ main (int argc, char *argv[])
     time_t t = 0;
     char *x = NULL;
     struct sigaction sa;
-    int i = 0, udp53 = 0;
+    iopause_fd *iop = NULL;
+    int i = 0, n = 0, *udp53 = NULL;
 
     prog = strdup ((x = strrchr (argv[0], '/')) != NULL ? x + 1 : argv[0]);
 
@@ -231,12 +259,20 @@ main (int argc, char *argv[])
 
     time (&t);
     memset (buf, 0, sizeof (buf));
-    strftime (buf, sizeof (buf), "%b-%d %Y %T", localtime (&t));
-    fprintf (stderr, "\n");
+    strftime (buf, sizeof (buf), "%b-%d %Y %T %Z", localtime (&t));
     warnx ("version %s: starting: %s\n", VERSION, buf);
 
-    initialize ();
+    set_timezone ();
+    if (debug_level)
+        warnx ("TIMEZONE: %s", env_get ("TZ"));
 
+    initialize ();
+    if (!debug_level)
+        if ((x = env_get ("DEBUG_LEVEL")))
+            debug_level = atol (x);
+    warnx ("DEBUG_LEVEL set to `%d'", debug_level);
+
+#ifndef __CYGWIN__
     if ((x = env_get ("DATALIMIT")))
     {
         struct rlimit r;
@@ -253,34 +289,75 @@ main (int argc, char *argv[])
         if (debug_level)
             warnx ("DATALIMIT set to `%ld' bytes", r.rlim_cur);
     }
+#endif
 
     if (!(x = env_get ("IP")))
         err (-1, "$IP not set");
-    if (!ip4_scan (x, ip))
-        err (-1, "could not parse IP address `%s'", x);
+    for (i = 0; (unsigned)i < strlen (x); i++)
+        n = (x[i] == ',') ? n+1 : n;
+    if (!(udp53 = calloc (n+1, sizeof (int))))
+        err (-1, "could not allocate enough memory for udp53");
+    if (!(iop = calloc (n+1, sizeof (iopause_fd))))
+        err (-1, "could not allocate enough memory for iop");
 
-    udp53 = socket_udp();
-    if (udp53 == -1)
-        err (-1, "could not open UDP socket");
-    if (socket_bind4_reuse (udp53, ip, 53) == -1)
-        err (-1, "could not bind UDP socket");
+    i = n = 0;
+    while (x[i])
+    {
+        unsigned int l = 0;
+
+        if (!(l = ip4_scan(x+i, ip)))
+            errx (-1, "could not parse IP address `%s'", x + i);
+
+        udp53[n] = socket_udp();
+        if (udp53[n] == -1)
+            errx (-1, "could not open UDP socket");
+        if (socket_bind4_reuse (udp53[n], ip, server_port) == -1)
+            errx (-1, "could not bind UDP socket");
+
+        ndelay_off (udp53[n]);
+        socket_tryreservein (udp53[n], 65536);
+
+        iop[n].fd = udp53[n];
+        iop[n].events = IOPAUSE_READ;
+
+        n++;
+        i += (x[i + l] == ',') ? l + 1 : l;
+    }
 
     droproot ();
-  
-    ndelay_off (udp53);
-    socket_tryreservein (udp53, 65536);
-
-    for (;;)
+    while (1)
     {
-        len = socket_recv4 (udp53, buf, sizeof buf, ip, &port);
-        if (len < 0)
-            continue;
-        if (!doit ())
-            continue;
-        if (response_len > 512)
-            response_tc ();
+        struct taia stamp;
+        struct in_addr odst; /* original destination IP */
+        struct taia deadline;
 
-        /* may block for buffer space; if it fails, too bad */
-        socket_send4 (udp53, response, response_len, ip, port);
+        taia_now (&stamp);
+        taia_uint (&deadline, 300);
+        taia_add (&deadline, &deadline, &stamp);
+        iopause (iop, n, &deadline, &stamp);
+
+        for (i = 0; i < n; i++)
+        {
+            if (!iop[i].revents)
+                continue;
+
+            len = socket_recv4 (udp53[i], buf, sizeof (buf), ip, &port, &odst);
+            if (len < 0)
+                continue;
+            if (!doit ())
+                continue;
+            if (response_len > 512)
+                response_tc ();
+
+            /* may block for buffer space; if it fails, too bad */
+            len = socket_send4 (udp53[i], response,
+                                response_len, ip, port, &odst);
+            if (len < 0)
+                continue;
+            if (debug_level > 1)
+                log_querydone(qnum, response, response_len);
+        }
     }
+
+    return 0;
 }

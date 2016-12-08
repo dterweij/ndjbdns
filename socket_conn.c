@@ -21,7 +21,7 @@ int socket_connect4(int s,const char ip[4],uint16 port)
 int socket_connected(int s)
 {
   struct sockaddr_in sa;
-  int dummy;
+  socklen_t dummy;
   char ch;
 
   dummy = sizeof sa;

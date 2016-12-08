@@ -1,6 +1,6 @@
 \"
 \" tinydns-data.1: This is a manuscript of the manual page for `tinydns-data'.
-\" This file is part of the `djbdns' project version 1.05.3 and later.
+\" This file is part of the `New djbdns' project.
 \"
 
 \" No hyphenation
@@ -12,7 +12,7 @@
 .SH NAME
 \fBtinydns-data\fR
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBtinydns-data\fR [\fBOPTIONS\fR]
 
 .SH DESCRIPTION

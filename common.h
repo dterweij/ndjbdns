@@ -3,7 +3,7 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2015 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -20,18 +20,11 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#pragma once
 
 #include "uint32.h"
 
-#if defined (__FreeBSD__)
-
-extern ssize_t extend_buffer (char **);
-
-extern ssize_t getline (char **, ssize_t *, FILE *);
-
-#endif
+enum op_mode { DAEMON = 1, DEBUG = 2 };
 
 extern void seed_adduint32 (uint32);
 
@@ -43,10 +36,10 @@ extern int check_variable (const char *);
 
 extern void read_conf (const char *);
 
-extern void redirect_to_log (const char *);
+extern void redirect_to_log (const char *, unsigned char);
 
 extern void write_pid (const char *);
 
 extern void handle_term (int);
 
-#endif
+extern void set_timezone (void);

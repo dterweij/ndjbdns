@@ -2,8 +2,9 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([ndjbdns], [1.05.4], [pj.pandit@yahoo.co.in])
+AC_INIT([ndjbdns], [1.06], [pj.pandit@yahoo.co.in])
 AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([dnsip.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -16,6 +17,8 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+PKG_CHECK_EXISTS([systemd], [have_systemd=yes], [have_systemd=no])
+AM_CONDITIONAL([HAVE_SYSTEMD], [test x$have_systemd = xyes])
 
 # Checks for libraries.
 
@@ -28,6 +31,7 @@ AC_TYPE_UID_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
+AC_TYPE_UINT32_T
 
 # Checks for library functions.
 AC_FUNC_CHOWN
@@ -39,5 +43,7 @@ AC_CHECK_FUNCS([dup2 fchdir gethostname gettimeofday memset mkdir munmap select 
 AC_CONFIG_FILES([Makefile
                  etc/Makefile
                  etc/ip/Makefile
-                 etc/servers/Makefile])
+                 etc/init.d/Makefile
+                 etc/servers/Makefile
+                 etc/systemd/Makefile])
 AC_OUTPUT

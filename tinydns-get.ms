@@ -12,7 +12,7 @@
 .SH NAME
 \fBtinydns-get\fR - get the tinydns server records
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBtinydns-get\fR [\fBOPTIONS\fR] TYPE NAME [IP]
 
 .SH DESCRIPTION

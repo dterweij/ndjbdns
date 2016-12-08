@@ -33,7 +33,7 @@ static int init(char ip[64])
     if (i) {
       if (!stralloc_append(&data,"\n")) return -1;
       i = 0;
-      for (j = 0;j < data.len;++j)
+      for (j = 0; (unsigned)j < data.len;++j)
         if (data.s[j] == '\n') {
           if (byte_equal("nameserver ",11,data.s + i) || byte_equal("nameserver\t",11,data.s + i)) {
             i += 10;

@@ -39,7 +39,6 @@ UID=2
 #
 GID=2
 
-
 # ROOT: is the new root & working directory for dnscache.
 # Obviously, the user whose ID is mentioned above MUST be able to read from
 # this directory.
@@ -52,9 +51,21 @@ ROOT=PREFIX
 #
 HIDETTL=
 
-# If FORWARDONLY is set, dnscache treats the servers/@ as a list of IP
+# If FORWARDONLY is set, dnscache treats the servers/roots as a list of IP
 # addresses for other caches, not root servers. It forwards queries to those
 # caches the same way a client does, rather than contacting a chain of servers
 # according to NS records.
 #
 FORWARDONLY=
+
+# If MERGEQUERIES is set, dnscache would merge identical outgoing requests
+# into a single query and buffer requesting clients into local queue.
+# When response is received for the single query, the same is served to all
+# requesting clients.
+#
+MERGEQUERIES=1
+
+# If DEBUG_LEVEL is set, dnscache displays helpful debug messages to
+# the console.
+#
+DEBUG_LEVEL=1

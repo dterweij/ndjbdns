@@ -24,14 +24,13 @@
 #
 AXFR=
 
-# Address to listen on for incoming connections.
+# Address of the remote host.
 #
-# IP=127.0.0.1
+# TCPREMOTEIP=
 
-# Address to use while sending out-going requests. 0.0.0.0 means machines
-# primary IP address.
+# Remote TCP port.
 #
-# IPSEND=0.0.0.0
+# TCPREMOTEPORT=
 
 # A non-root user whose privileges should be acquired by axfrdns.
 # Default: daemon
@@ -45,7 +44,6 @@ UID=2
 #
 GID=2
 
-
 # ROOT: is the new root & working directory for axfrdns.
 # Obviously, the user whose ID is mentioned above MUST be able to read from
 # this directory.
@@ -58,9 +56,14 @@ ROOT=PREFIX
 #
 # HIDETTL=
 
-# If FORWARDONLY is set, dnscache treats the servers/@ as a list of IP
+# If FORWARDONLY is set, dnscache treats the servers/roots as a list of IP
 # addresses for other caches, not root servers. It forwards queries to those
 # caches the same way a client does, rather than contacting a chain of servers
 # according to NS records.
 #
 # FORWARDONLY=
+
+# If DEBUG_LEVEL is set, axfrdns displays helpful debug messages to
+# the console.
+#
+DEBUG_LEVEL=1

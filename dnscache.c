@@ -3,7 +3,8 @@
  * by Dr. D J Bernstein and later released under public-domain since late
  * December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2014 Prasad J Pandit
+ *               2012 - 2014 Frank Denis <j at pureftpd dot org>
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -33,19 +34,22 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <netinet/in.h>
 #include <sys/resource.h>
 
 #include "version.h"
 
 #define PIDFILE "/var/run/dnscache.pid"
-#define LOGFILE "/var/log/dnscached.log"
+#define LOGFILE "/var/log/dnscache.log"
 #define CFGFILE SYSCONFDIR"/ndjbdns/dnscache.conf"
 
-char *prog = NULL;
+static char *prog = NULL;
 short mode = 0, debug_level = 0;
 
-enum op_mode { DAEMON = 1, DEBUG = 2 };
+static uint16_t server_port = 53;
+static char *cfgfile = CFGFILE, *logfile = LOGFILE, *pidfile = PIDFILE;
 
+#include "cdb.h"
 #include "dns.h"
 #include "env.h"
 #include "ip4.h"
@@ -54,6 +58,7 @@ enum op_mode { DAEMON = 1, DEBUG = 2 };
 #include "scan.h"
 #include "taia.h"
 #include "byte.h"
+#include "open.h"
 #include "query.h"
 #include "alloc.h"
 #include "error.h"
@@ -65,6 +70,7 @@ enum op_mode { DAEMON = 1, DEBUG = 2 };
 #include "uint64.h"
 #include "socket.h"
 #include "common.h"
+#include "clients.h"
 #include "iopause.h"
 #include "response.h"
 #include "okclient.h"
@@ -109,15 +115,13 @@ packetquery (char *buf, unsigned int len, char **q,
     return 1;
 }
 
-
 uint64 numqueries = 0;
-static char buf[1024];
+static char buf[65535];
+static struct in_addr odst; /* original destination IP */
 static char myipoutgoing[4];
 static char myipincoming[4];
 
 static int udp53 = 0;
-
-#define MAXUDP 200
 static struct udpclient
 {
     struct query q;
@@ -138,7 +142,7 @@ u_drop (int j)
         return;
 
     if (debug_level > 2)
-        log_querydrop (&u[j].active);
+        log_querydrop (u[j].active);
 
     u[j].active = 0;
     --uactive;
@@ -153,10 +157,10 @@ u_respond (int j)
     response_id (u[j].id);
     if (response_len > 512)
         response_tc ();
-    socket_send4 (udp53, response, response_len, u[j].ip, u[j].port);
+    socket_send4 (udp53, response, response_len, u[j].ip, u[j].port, &odst);
 
     if (debug_level)
-        log_querydone (&u[j].active, response_len);
+        log_querydone (u[j].active, response, response_len);
 
     u[j].active = 0;
     --uactive;
@@ -188,10 +192,10 @@ u_new (void)
     x = u + j;
     taia_now (&x->start);
 
-    len = socket_recv4 (udp53, buf, sizeof (buf), x->ip, &x->port);
+    len = socket_recv4 (udp53, buf, sizeof (buf), x->ip, &x->port, &odst);
     if (len == -1)
         return;
-    if (len >= sizeof buf)
+    if ((unsigned)len >= sizeof buf)
         return;
     if (x->port < 1024 && x->port != 53)
         return;
@@ -204,7 +208,7 @@ u_new (void)
     ++uactive;
 
     if (debug_level)
-        log_query (&x->active, x->ip, x->port, x->id, q, qtype);
+        log_query (x->active, x->ip, x->port, x->id, q, qtype);
 
     switch (query_start (&x->q, q, qtype, qclass, myipoutgoing))
     {
@@ -217,10 +221,7 @@ u_new (void)
     }
 }
 
-
 static int tcp53 = 0;
-
-#define MAXTCP 20
 struct tcpclient
 {
     struct query q;
@@ -290,7 +291,7 @@ void
 t_drop (int j)
 {
     if (debug_level > 2)
-        log_querydrop (&t[j].active);
+        log_querydrop (t[j].active);
 
     errno = error_pipe;
     t_close (j);
@@ -303,7 +304,7 @@ t_respond (int j)
         return;
 
     if (debug_level)
-        log_querydone (&t[j].active, response_len);
+        log_querydone (t[j].active, response, response_len);
 
     response_id (t[j].id);
     t[j].len = response_len + 2;
@@ -324,8 +325,9 @@ void
 t_rw (int j)
 {
     int r;
-    char ch;
+    char *ch;
     static char *q = 0;
+    unsigned int toread;
     char qtype[2], qclass[2];
     struct tcpclient *x = NULL;
 
@@ -347,7 +349,25 @@ t_rw (int j)
         return;
     }
 
-    r = read (x->tcp, &ch, 1);
+    switch (x->state)
+    {
+    case 1:
+        toread = 2U;
+        break;
+
+    case 2:
+        toread = 1U;
+        break;
+
+    case 3:
+        toread = x->len - x->pos;
+        break;
+
+    default:
+        return; /* impossible */
+    }
+
+    r = read (x->tcp, buf, toread);
     if (r == 0)
     {
         errno = error_pipe;
@@ -360,17 +380,20 @@ t_rw (int j)
         return;
     }
 
+    ch = buf;
     if (x->state == 1)
     {
-        x->len = (unsigned char)ch;
+        x->len = (unsigned char)*ch++;
         x->len <<= 8;
         x->state = 2;
-        return;
+
+        if (--r <= 0)
+            return;
     }
     if (x->state == 2)
     {
-        x->len += (unsigned char)ch;
-        if (!x->len)
+        x->len += (unsigned char)*ch;
+        if (x->len < 12)
         {
             errno = error_proto;
             t_close (j);
@@ -387,11 +410,11 @@ t_rw (int j)
 
         return;
     }
-
     if (x->state != 3)
         return; /* impossible */
 
-    x->buf[x->pos++] = ch;
+    byte_copy (&x->buf[x->pos], r, ch);
+    x->pos += r;
     if (x->pos < x->len)
         return;
 
@@ -404,7 +427,7 @@ t_rw (int j)
     x->active = ++numqueries;
 
     if (debug_level)
-        log_query (&x->active, x->ip, x->port, x->id, q, qtype);
+        log_query (x->active, x->ip, x->port, x->id, q, qtype);
 
     switch (query_start (&x->q, q, qtype, qclass, myipoutgoing))
     {
@@ -582,8 +605,14 @@ printh (void)
 {
     usage ();
     printf ("\n Options: \n");
+    printf ("%-17s %s\n", "   -c <value>", "specify path to config file");
     printf ("%-17s %s\n", "   -d <value>", "print debug messages");
-    printf ("%-17s %s\n", "   -D", "run as daemon");
+    printf ("%-17s %s\n", "   -D", "start server as daemon");
+    printf ("%-17s %s\n", "   -l <value>", "specify path to log file");
+    printf ("%-17s %s\n", "   -p <value>", "specify path to pid file");
+    printf ("%-17s %s\n", "   -P <value>", "specify server port, default: 53");
+
+    printf ("\n");
     printf ("%-17s %s\n", "   -h --help", "print this help");
     printf ("%-17s %s\n", "   -v --version", "print version information");
     printf ("\nReport bugs to <pj.pandit@yahoo.co.in>\n");
@@ -593,7 +622,7 @@ int
 check_option (int argc, char *argv[])
 {
     int n = 0, ind = 0;
-    const char optstr[] = "+:d:Dhv";
+    const char optstr[] = "+:c:d:Dl:p:P:hv";
     struct option lopt[] = \
     {
         { "help", no_argument, NULL, 'h' },
@@ -606,6 +635,10 @@ check_option (int argc, char *argv[])
     {
         switch (n)
         {
+        case 'c':
+            cfgfile = strdup (optarg);
+            break;
+
         case 'd':
             mode |= DEBUG;
             debug_level = atoi (optarg);
@@ -613,6 +646,18 @@ check_option (int argc, char *argv[])
 
         case 'D':
             mode |= DAEMON;
+            break;
+
+        case 'l':
+            logfile = strdup (optarg);
+            break;
+
+        case 'p':
+            pidfile = strdup (optarg);
+            break;
+
+        case 'P':
+            server_port = atoi (optarg);
             break;
 
         case 'h':
@@ -634,6 +679,20 @@ check_option (int argc, char *argv[])
     return optind;
 }
 
+static int
+dbl_init (void)
+{
+    extern struct cdb bl;    /* dns block list */
+
+    int fd = open_read ("dnsbl.cdb");
+    if (fd == -1)
+        return 0;
+
+    cdb_init (&bl, fd);
+    close (fd);
+
+    return 1;
+}
 
 int
 main (int argc, char *argv[])
@@ -673,13 +732,20 @@ main (int argc, char *argv[])
     }
 
     time (&t);
-    memset (char_seed, 0, sizeof (char_seed));
-    strftime (char_seed, sizeof (char_seed), "%b-%d %Y %T", localtime (&t));
-    fprintf (stderr, "\n");
+    strftime (char_seed, sizeof (char_seed), "%b-%d %Y %T %Z", localtime (&t));
     warnx ("version %s: starting: %s\n", VERSION, char_seed);
 
-    read_conf (CFGFILE);
+    set_timezone ();
+    if (debug_level)
+        warnx ("TIMEZONE: %s", env_get ("TZ"));
 
+    read_conf (cfgfile);
+    if (!debug_level)
+        if ((x = env_get ("DEBUG_LEVEL")))
+            debug_level = atol (x);
+    warnx ("DEBUG_LEVEL set to `%d'", debug_level);
+
+#ifndef __CYGWIN__
     if ((x = env_get ("DATALIMIT")))
     {
         struct rlimit r;
@@ -696,6 +762,7 @@ main (int argc, char *argv[])
         if (debug_level)
             warnx ("DATALIMIT set to `%ld' bytes", r.rlim_cur);
     }
+#endif
 
     if (!(x = env_get ("IP")))
         err (-1, "$IP not set");
@@ -706,22 +773,21 @@ main (int argc, char *argv[])
     udp53 = socket_udp ();
     if (udp53 == -1)
         err (-1, "could not open UDP socket");
-    if (socket_bind4_reuse (udp53, myipincoming, 53) == -1)
+    if (socket_bind4_reuse (udp53, myipincoming, server_port) == -1)
         err (-1, "could not bind UDP socket");
 
     seed_addtime ();
     tcp53 = socket_tcp ();
     if (tcp53 == -1)
         err (-1, "could not open TCP socket");
-    if (socket_bind4_reuse (tcp53, myipincoming, 53) == -1)
+    if (socket_bind4_reuse (tcp53, myipincoming, server_port) == -1)
         err (-1, "could not bind TCP socket");
 
     if (mode & DAEMON)
     {
         /* redirect stdout & stderr to a log file */
-        redirect_to_log (LOGFILE);
-
-        write_pid (PIDFILE);
+        redirect_to_log (logfile, STDOUT_FILENO | STDERR_FILENO);
+        write_pid (pidfile);
     }
 
     seed_addtime ();
@@ -735,7 +801,7 @@ main (int argc, char *argv[])
     socket_tryreservein (udp53, 131072);
 
     memset (char_seed, 0, sizeof (char_seed));
-    for (i = 0, x = (char *)seed; i < sizeof (char_seed); i++, x++)
+    for (i = 0, x = (char *)seed; (unsigned)i < sizeof (char_seed); i++, x++)
         char_seed[i] = *x;
     dns_random_init (char_seed);
 
@@ -754,10 +820,16 @@ main (int argc, char *argv[])
         response_hidettl ();
     if (env_get ("FORWARDONLY"))
         query_forwardonly ();
+    if (env_get ("MERGEQUERIES"))
+        dns_enable_merge (log_merge);
     if (!roots_init ())
         err (-1, "could not read servers");
+    if (debug_level > 3)
+        roots_display();
     if (socket_listen (tcp53, 20) == -1)
         err (-1, "could not listen on TCP socket");
+    if (!dbl_init() && debug_level > 1)
+        warnx ("could not read dnsbl.cdb");
 
     doit ();
 

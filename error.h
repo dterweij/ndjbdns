@@ -20,10 +20,9 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef ERROR_H
-#define ERROR_H
+#pragma once
 
-#if defined (linux) || defined (__linux)
+#if defined (linux) || defined (__linux) || defined(__CYGWIN__)
     #include <errno.h>
 #endif
 
@@ -46,9 +45,8 @@ extern int error_nodevice;
 extern int error_inprogress;
 extern int error_wouldblock;
 extern int error_connrefused;
+extern int error_blockedbydbl;
 
 extern int error_temp (int);
 
 extern const char *error_str (int);
-
-#endif

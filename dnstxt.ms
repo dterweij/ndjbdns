@@ -10,7 +10,7 @@
 .TH dnstxt 1
 dnstxt - query DNS TXT record
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 .TP 5
 \fBdnstxt\fR [\fBOPTIONS\fR] <domain-name> [<domain-name> ...]
 

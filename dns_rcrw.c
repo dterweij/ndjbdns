@@ -27,7 +27,7 @@ static int init(stralloc *rules)
   if (i) {
     if (!stralloc_append(&data,"\n")) return -1;
     i = 0;
-    for (j = 0;j < data.len;++j)
+    for (j = 0; (unsigned)j < data.len;++j)
       if (data.s[j] == '\n') {
         if (!stralloc_catb(rules,data.s + i,j - i)) return -1;
         while (rules->len) {
@@ -49,7 +49,7 @@ static int init(stralloc *rules)
     if (!stralloc_append(&data," ")) return -1;
     if (!stralloc_copys(rules,"?:")) return -1;
     i = 0;
-    for (j = 0;j < data.len;++j)
+    for (j = 0; (unsigned)j < data.len;++j)
       if (data.s[j] == ' ') {
         if (!stralloc_cats(rules,"+.")) return -1;
         if (!stralloc_catb(rules,data.s + i,j - i)) return -1;
@@ -67,7 +67,7 @@ static int init(stralloc *rules)
   if (i) {
     if (!stralloc_append(&data,"\n")) return -1;
     i = 0;
-    for (j = 0;j < data.len;++j)
+    for (j = 0; (unsigned)j < data.len;++j)
       if (data.s[j] == '\n') {
         if (byte_equal("search ",7,data.s + i) || byte_equal("search\t",7,data.s + i) || byte_equal("domain ",7,data.s + i) || byte_equal("domain\t",7,data.s + i)) {
           if (!stralloc_copys(rules,"?:")) return -1;

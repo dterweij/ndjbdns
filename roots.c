@@ -3,7 +3,7 @@
  * written by Dr. D J Bernstein and later released under public-domain since
  * late December 2007 (http://cr.yp.to/distributors.html).
  *
- * Copyright (C) 2009 - 2012 Prasad J Pandit
+ * Copyright (C) 2009 - 2013 Prasad J Pandit
  *
  * This program is a free software; you can redistribute it and/or modify
  * it under the terms of GNU General Public License as published by Free
@@ -20,8 +20,13 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <err.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
 
 #include "ip4.h"
 #include "dns.h"
@@ -30,7 +35,6 @@
 #include "open.h"
 #include "error.h"
 #include "roots.h"
-#include "direntry.h"
 #include "openreadclose.h"
 
 static stralloc data;
@@ -40,7 +44,7 @@ roots_find (char *q)
 {
     int i = 0, j = 0;
 
-    while (i < data.len)
+    while ((unsigned)i < data.len)
     {
         j = dns_domain_length (data.s + i);
         if (dns_domain_equal (data.s + i, q))
@@ -69,6 +73,22 @@ roots_search (char *q)
     }
 }
 
+static unsigned char
+roots_extract_name (char *dn, const char *s)
+{
+    unsigned char l = 0, n = 0;
+
+    while (*s)
+    {
+        n = *s++;
+        while (n--)
+            dn[l++] = *s++;
+        dn[l++] = *s == 0 ? *s : '.';
+    }
+
+    return l;
+}
+
 int
 roots (char servers[64], char *q)
 {
@@ -87,57 +107,83 @@ roots_same (char *q, char *q2)
     return roots_search (q) == roots_search (q2);
 }
 
+void
+roots_display (void)
+{
+    char dn[255];
+    unsigned short i = 0;
+
+    while (i < data.len)
+    {
+        unsigned char j = 0, n = 0;
+
+        memset (dn, 0, sizeof (dn));
+        n = roots_extract_name (dn, data.s + i);
+        warnx ("%s:", dn[0] == '\0' ? "roots" : dn);
+
+        i += n + 1;
+        while (j < 64)
+        {
+            if (data.s[i] != 0)
+                warnx("  %hhu.%hhu.%hhu.%hhu",
+                        data.s[i], data.s[i+1], data.s[i+2], data.s[i+3]);
+            i += 4;
+            j += 4;
+        }
+    }
+}
+
 static int
 init2 (DIR *dir)
 {
+    char roots = 0;
     char servers[64];
-    direntry *d = NULL;
     static stralloc text;
     static char *q = NULL;
     const char *fqdn = NULL;
+    struct dirent *d = NULL;
     int i = 0, j = 0, serverslen = 0;
 
-    for (;;)
+    errno = 0;
+    while ((d = readdir (dir)))
     {
-        errno = 0;
-        if (!(d = readdir (dir)))
+        if (d->d_name[0] == '.')
+            continue;
+
+        memset (&text, 0, sizeof (text));
+        if (openreadclose (d->d_name, &text, 32) != 1)
+            return 0;
+
+        fqdn = d->d_name;
+        if (str_equal (fqdn, "roots"))
         {
-            if (errno)
-                return 0;
-            return 1;
+            roots = 1;
+            fqdn = ".";
         }
+        if (!dns_domain_fromdot (&q, fqdn, str_len (fqdn)))
+            return 0;
 
-        if (d->d_name[0] != '.')
+        memset (servers, 0, sizeof (servers));
+        for (i = 0, j = 0, serverslen = 0; (unsigned)i < text.len; ++i)
         {
-            if (openreadclose (d->d_name, &text, 32) != 1)
-                return 0;
-            if (!stralloc_append (&text, "\n"))
-                return 0;
-
-            fqdn = d->d_name;
-            if (str_equal (fqdn, "roots"))
-                fqdn = ".";
-            if (!dns_domain_fromdot (&q, fqdn, str_len (fqdn)))
-                return 0;
-
-            for (i = 0; i < text.len; ++i)
+            if (text.s[i] == '\n')
             {
-                if (text.s[i] == '\n')
-                {
-                    if (serverslen <= 60)
-                        if (ip4_scan (text.s + j, servers + serverslen))
-                            serverslen += 4;
-
-                    j = i + 1;
-                }
+                if (serverslen <= 60)
+                    if (ip4_scan (text.s + j, servers + serverslen))
+                        serverslen += 4;
+                j = i + 1;
             }
-            byte_zero(servers + serverslen, 64 - serverslen);
-            if (!stralloc_catb (&data, q, dns_domain_length (q)))
-                return 0;
-            if (!stralloc_catb (&data, servers, 64))
-                return 0;
         }
+        if (!stralloc_catb (&data, q, dns_domain_length (q)))
+            return 0;
+        if (!stralloc_catb (&data, servers, 64))
+            return 0;
+        errno = 0;
     }
+    if (!roots)
+        err (-1, "could not access file: servers/roots");
+
+    return !errno;
 }
 
 static int

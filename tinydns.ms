@@ -1,18 +1,18 @@
 \"
-\" tinydns.1: This is a manuscript of the manual page for `tinydns'. This file
-\" is part of the `djbdns' project version 1.05.3 and later.
+\" tinydns.8: This is a manuscript of the manual page for `tinydns'. This file
+\" is part of the `New djbdns' project.
 \"
 
 \" No hyphenation
 .hy 0
 .nr HY 0
 
-.TH tinydns 1
+.TH tinydns 8
 
 .SH NAME
 \fBtinydns\fR - DNS server.
 
-.SH SYNOPSYS
+.SH SYNOPSIS
 \fBtinydns\fR [\fBOPTIONS\fR]
 
 .SH DESCRIPTION
@@ -20,8 +20,14 @@
 \fBtinydns\fR is a DNS server that answers DNS queries from other hosts with
 locally configured information. When invoked, \fBtinydns\fR reads from the
 configuration file and listens on UDP port 53 for the incoming requests. When
-the request is received, \fBtinydns\fR answers it by looking into `data.cdb'
+a request is received, \fBtinydns\fR answers it by looking into `data.cdb'
 file placed under the ROOT directory specified in the configuration file.
+
+Until version 1.05.8, \fBtinydns\fR used to read from `data.cdb' for each
+request it received and responded to. In version 1.05.9, \fBtinydns\fR read
+`data.cdb' ones at the beginning and later when signalled for the same via
+SIGUSR1. From version 1.06, \fBtinydns\fR reads `data.cdb' every 5 seconds and
+thus does not need to be signalled via SIGUSR1.
 
 .SH OPTIONS
 .TP
